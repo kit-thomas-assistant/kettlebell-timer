@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kettlebell Timer</title>
+<style>
+  :root {
+    --bg: #111;
+    --surface: #1e1e1e;
+    --surface2: #2a2a2a;
+    --accent: #ff6b35;
+    --accent-dim: #cc5529;
+    --rest: #4ecdc4;
+    --text: #f0f0f0;
+    --muted: #777;
+    --green: #66bb6a;
+    --body-color: #e8d5c0;
+    --kb-color: #4ecdc4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ──── SETUP ──── */
+  #setup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 3rem;
+  }
+  #setup h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  #setup h1 span { color: var(--accent); }
+  .option-group label {
+    display: block;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+  }
+  .option-row { display: flex; gap: 1rem; }
+  .dur-btn, .diff-btn {
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    border: 2px solid var(--surface2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dur-btn:hover, .diff-btn:hover { border-color: var(--muted); }
+  .dur-btn.active, .diff-btn.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+  }
+  .preview-info {
+    color: var(--muted);
+    font-size: 1rem;
+  }
+  #go-btn {
+    padding: 1.2rem 4rem;
+    border-radius: 1.5rem;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.1s;
+  }
+  #go-btn:hover { transform: scale(1.03); }
+  #go-btn:active { transform: scale(0.97); }
+
+  /* ──── PREVIEW SCREEN ──── */
+  #preview-screen {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: var(--bg);
+  }
+  .pv-top-label {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+  .pv-name {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .pv-detail {
+    font-size: 1.2rem;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .pv-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    margin: 1rem 0;
+  }
+  .pv-anim-container {
+    width: 320px;
+    height: 320px;
+    background: var(--surface);
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .pv-anim-container svg { width: 100%; height: 100%; }
+  .pv-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px;
+  }
+  .pv-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--muted);
+    transition: color 0.5s, transform 0.3s;
+  }
+  .pv-step.active {
+    color: var(--text);
+    transform: translateX(5px);
+  }
+  .pv-step-num {
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1.3rem;
+    min-width: 2rem;
+    text-align: right;
+  }
+  .pv-countdown {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .pv-progress {
+    width: 300px;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .pv-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 1s linear;
+  }
+
+  /* ──── WORKOUT SCREEN ──── */
+  #workout {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 2rem 3rem;
+  }
+  .wo-header {
+    text-align: center;
+  }
+  .wo-round {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    font-weight: 600;
+  }
+  .wo-name {
+    font-size: 2.4rem;
+    font-weight: 900;
+    margin: 0.3rem 0;
+    letter-spacing: -0.5px;
+  }
+  .wo-name.rest { color: var(--rest); }
+  .wo-detail {
+    font-size: 1rem;
+    color: var(--muted);
+  }
+
+  .wo-center {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+  }
+  .wo-anim-box {
+    width: 200px;
+    height: 200px;
+    background: var(--surface);
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .wo-anim-box svg { width: 100%; height: 100%; }
+  .wo-timer-wrap { position: relative; }
+  .timer-ring { transform: rotate(-90deg); }
+  .timer-ring-bg { fill: none; stroke: var(--surface2); stroke-width: 10; }
+  .timer-ring-fill {
+    fill: none; stroke: var(--accent); stroke-width: 10;
+    stroke-linecap: round; transition: stroke-dashoffset 0.3s linear;
+  }
+  .timer-ring-fill.rest { stroke: var(--rest); }
+  .timer-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+  .wo-steps-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 280px;
+  }
+  .wo-steps-mini .mini-step {
+    font-size: 0.9rem;
+    color: var(--muted);
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--surface2);
+    line-height: 1.4;
+  }
+
+  .wo-footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .wo-next {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .wo-progress {
+    width: min(600px, 80%);
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .wo-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s;
+  }
+  .wo-controls {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  .ctrl-btn {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    border: 2px solid var(--surface2);
+    background: transparent;
+    color: var(--text);
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .ctrl-btn:hover { border-color: var(--muted); }
+  .ctrl-btn.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    width: 5.5rem;
+    height: 5.5rem;
+    font-size: 2rem;
+  }
+  .ctrl-btn:active { opacity: 0.7; }
+
+  /* ──── DONE SCREEN ──── */
+  #done {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 3rem;
+    text-align: center;
+  }
+  #done h2 { font-size: 3.5rem; font-weight: 900; }
+  .done-stats { color: var(--muted); font-size: 1.2rem; line-height: 2; }
+  #again-btn {
+    padding: 1.2rem 4rem;
+    border-radius: 1.5rem;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .wake-hint {
+    position: fixed;
+    bottom: 0.5rem;
+    right: 0.8rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+    opacity: 0.4;
+  }
+
+  /* ──── SVG ANIMATIONS ──── */
+  @keyframes squat-down {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50% { transform: translateY(15px) scaleY(0.85); }
+  }
+  @keyframes swing-arc {
+    0% { transform: rotate(-40deg); transform-origin: 50% 55%; }
+    50% { transform: rotate(40deg); transform-origin: 50% 55%; }
+    100% { transform: rotate(-40deg); transform-origin: 50% 55%; }
+  }
+  @keyframes press-up {
+    0%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-30px); }
+    60% { transform: translateY(-30px); }
+  }
+  @keyframes row-pull {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes carry-walk {
+    0%, 100% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+  }
+  @keyframes halo-orbit {
+    0% { transform: rotate(0deg); transform-origin: 50px 40px; }
+    100% { transform: rotate(360deg); transform-origin: 50px 40px; }
+  }
+  @keyframes deadlift-hinge {
+    0%, 100% { transform: rotate(0deg); transform-origin: 50% 75%; }
+    50% { transform: rotate(20deg); transform-origin: 50% 75%; }
+  }
+  @keyframes snatch-explode {
+    0%, 100% { transform: translateY(0); }
+    20% { transform: translateY(8px); }
+    50% { transform: translateY(-35px); }
+    70% { transform: translateY(-35px); }
+  }
+  @keyframes tgu-rise {
+    0%, 100% { transform: rotate(0deg) translateY(0); transform-origin: 50% 80%; }
+    50% { transform: rotate(-25deg) translateY(-10px); transform-origin: 50% 80%; }
+  }
+  @keyframes windmill-bend {
+    0%, 100% { transform: rotate(0deg); transform-origin: 50% 50%; }
+    50% { transform: rotate(-30deg); transform-origin: 50% 50%; }
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  @keyframes kb-swing-weight {
+    0% { cy: 85; cx: 30; }
+    50% { cy: 15; cx: 50; }
+    100% { cy: 85; cx: 30; }
+  }
+  @keyframes leg-squat-l {
+    0%, 100% { x2: 38; y2: 95; }
+    50% { x2: 30; y2: 85; }
+  }
+  @keyframes leg-squat-r {
+    0%, 100% { x2: 62; y2: 95; }
+    50% { x2: 70; y2: 85; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ──── SETUP ──── -->
+<div id="setup">
+  <h1>🏋️ <span>Kettlebell</span> Timer</h1>
+  <div class="option-group">
+    <label>Durée</label>
+    <div class="option-row">
+      <button class="dur-btn" data-min="10">10 min</button>
+      <button class="dur-btn active" data-min="15">15 min</button>
+      <button class="dur-btn" data-min="20">20 min</button>
+    </div>
+  </div>
+  <div class="option-group">
+    <label>Niveau</label>
+    <div class="option-row">
+      <button class="diff-btn active" data-level="beginner">Débutant</button>
+      <button class="diff-btn" data-level="inter">Intermédiaire</button>
+    </div>
+  </div>
+  <p class="preview-info" id="preview-text">5 exercices · 3 rounds · 30s travail / 15s repos</p>
+  <button id="go-btn">C'EST PARTI 🔥</button>
+</div>
+
+<!-- ──── PREVIEW ──── -->
+<div id="preview-screen">
+  <div class="pv-top-label" id="pv-label">PROCHAIN EXERCICE</div>
+  <div class="pv-name" id="pv-name">Goblet Squat</div>
+  <div class="pv-detail" id="pv-detail">10 reps · 30s</div>
+  <div class="pv-main">
+    <div class="pv-anim-container" id="pv-anim"></div>
+    <div class="pv-steps" id="pv-steps"></div>
+  </div>
+  <div class="pv-countdown" id="pv-countdown">15</div>
+  <div class="pv-progress"><div class="pv-progress-fill" id="pv-progress-fill"></div></div>
+</div>
+
+<!-- ──── WORKOUT ──── -->
+<div id="workout">
+  <div class="wo-header">
+    <div class="wo-round" id="wo-round">ROUND 1 / 3</div>
+    <div class="wo-name" id="wo-name">Goblet Squat</div>
+    <div class="wo-detail" id="wo-detail">10 reps</div>
+  </div>
+  <div class="wo-center">
+    <div class="wo-anim-box" id="wo-anim"></div>
+    <div class="wo-timer-wrap">
+      <svg class="timer-ring" width="280" height="280" viewBox="0 0 280 280">
+        <circle class="timer-ring-bg" cx="140" cy="140" r="125"/>
+        <circle class="timer-ring-fill" id="ring-fill" cx="140" cy="140" r="125"
+          stroke-dasharray="785.4" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-text" id="timer-text">30</div>
+    </div>
+    <div class="wo-steps-mini" id="wo-steps-mini"></div>
+  </div>
+  <div class="wo-footer">
+    <div class="wo-next" id="wo-next">Ensuite : Kettlebell Swing</div>
+    <div class="wo-progress"><div class="wo-progress-fill" id="wo-progress-fill"></div></div>
+    <div class="wo-controls">
+      <button class="ctrl-btn" id="btn-stop" title="Stop">✕</button>
+      <button class="ctrl-btn primary" id="btn-pause" title="Pause/Play">⏸</button>
+      <button class="ctrl-btn" id="btn-skip" title="Skip">⏭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ──── DONE ──── -->
+<div id="done">
+  <h2>💪 Terminé !</h2>
+  <div class="done-stats" id="done-stats"></div>
+  <button id="again-btn">Encore un ?</button>
+</div>
+
+<div class="wake-hint" id="wake-hint"></div>
+
+<script>
+// ──── EXERCISE DATABASE ────
+const EX_DATA = {
+  'Goblet Squat': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: squat-down 2s ease-in-out infinite">
+        <!-- head -->
+        <circle cx="50" cy="12" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <!-- torso -->
+        <line x1="50" y1="21" x2="50" y2="58" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- arms holding KB -->
+        <line x1="50" y1="35" x2="38" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="35" x2="62" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- KB at chest -->
+        <rect x="42" y="42" width="16" height="14" rx="4" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="46" y1="42" x2="54" y2="42" stroke="#4ecdc4" stroke-width="2" stroke-linecap="round"/>
+        <!-- legs -->
+        <line x1="50" y1="58" x2="36" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="58" x2="64" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- feet -->
+        <line x1="36" y1="90" x2="30" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="64" y1="90" x2="70" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Pieds largeur épaules, pointes légèrement ouvertes',
+      'Tiens la KB par les cornes contre ta poitrine, coudes vers le bas',
+      'Descends les hanches sous les genoux en gardant le dos bien droit',
+      'Pousse le sol avec les talons pour remonter, serre les fessiers en haut'
+    ]
+  },
+  'Kettlebell Swing': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: swing-arc 1.6s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- arms extended -->
+        <line x1="50" y1="38" x2="50" y2="20" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- KB -->
+        <circle cx="50" cy="10" r="7" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <!-- legs -->
+        <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="38" y1="90" x2="32" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="62" y1="90" x2="68" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Pieds largeur hanches, KB au sol devant toi',
+      'Charnière de hanche : pousse les fesses en arrière, dos plat',
+      'Extension explosive des hanches pour propulser la KB',
+      'Bras tendus, KB monte à hauteur d\'épaules. Contrôle la descente.'
+    ]
+  },
+  'KB Swing': null, // alias
+  'KB Deadlift': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: deadlift-hinge 2.2s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="52" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- arms down -->
+        <line x1="50" y1="40" x2="40" y2="65" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="40" x2="60" y2="65" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- KB -->
+        <rect x="43" y="62" width="14" height="12" rx="4" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <!-- legs -->
+        <line x1="52" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="52" y1="60" x2="64" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="38" y1="90" x2="32" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="64" y1="90" x2="70" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'KB au sol entre les pieds, pieds largeur hanches',
+      'Charnière de hanche : dos plat, regard devant, épaules en arrière',
+      'Agrippe la KB fermement, engage les dorsaux',
+      'Pousse le sol avec les pieds, extension complète, serre les fessiers'
+    ]
+  },
+  'Press (gauche)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+      <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <!-- right arm relaxed -->
+      <line x1="50" y1="38" x2="65" y2="52" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- left arm pressing -->
+      <g style="animation: press-up 2s ease-in-out infinite">
+        <line x1="50" y1="38" x2="35" y2="18" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="28" y="8" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+      </g>
+      <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="38" y1="90" x2="32" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="62" y1="90" x2="68" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`,
+    steps: [
+      'KB en position rack : poignet droit, coude collé au corps',
+      'Contracte abdos et fessiers pour stabiliser',
+      'Pousse la KB droit vers le plafond, bras complètement tendu',
+      'Redescends lentement en position rack. Contrôle chaque centimètre.'
+    ]
+  },
+  'Press (droite)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+      <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="38" x2="35" y2="52" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <g style="animation: press-up 2s ease-in-out infinite">
+        <line x1="50" y1="38" x2="65" y2="18" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="60" y="8" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+      </g>
+      <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="38" y1="90" x2="32" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="62" y1="90" x2="68" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`,
+    steps: [
+      'KB en position rack : poignet droit, coude collé au corps',
+      'Contracte abdos et fessiers pour stabiliser',
+      'Pousse la KB droit vers le plafond, bras complètement tendu',
+      'Redescends lentement en position rack'
+    ]
+  },
+  'Farmer Carry': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: carry-walk 1s ease-in-out infinite">
+        <circle cx="50" cy="12" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="21" x2="50" y2="58" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- arms down with KBs -->
+        <line x1="50" y1="38" x2="34" y2="58" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="66" y2="58" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="27" y="55" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <rect x="61" y="55" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="58" x2="40" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="58" x2="60" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="40" y1="90" x2="34" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="60" y1="90" x2="66" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Une KB dans chaque main (ou une seule, alterner)',
+      'Dos droit, épaules tirées en arrière et basses',
+      'Marche sur place à pas lents et contrôlés',
+      'Abdos engagés tout le temps, ne penche pas d\'un côté'
+    ]
+  },
+  'Halo': {
+    svg: `<svg viewBox="0 0 100 110">
+      <circle cx="50" cy="30" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+      <line x1="50" y1="39" x2="50" y2="70" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="52" x2="38" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="50" y1="52" x2="62" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="50" y1="70" x2="38" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="70" x2="62" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <!-- orbiting KB -->
+      <circle cx="50" cy="30" r="20" fill="none" stroke="#4ecdc4" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+      <rect x="26" y="24" width="10" height="8" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5" style="animation: halo-orbit 2.5s linear infinite"/>
+    </svg>`,
+    steps: [
+      'Debout, tiens la KB retournée par les cornes devant ta poitrine',
+      'Fais passer la KB autour de ta tête en cercle',
+      'Garde les coudes serrés, mouvements lents et contrôlés',
+      'Alterne le sens de rotation à chaque rep'
+    ]
+  },
+  'Sumo Squat': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: squat-down 2s ease-in-out infinite">
+        <circle cx="50" cy="12" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="21" x2="50" y2="58" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="42" x2="42" y2="55" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="42" x2="58" y2="55" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- KB hanging -->
+        <rect x="44" y="58" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <!-- wide legs -->
+        <line x1="50" y1="58" x2="28" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="58" x2="72" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="28" y1="90" x2="22" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="72" y1="90" x2="78" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Pieds très écartés, pointes tournées à 45°',
+      'KB tenue entre les jambes à bras tendus',
+      'Descends en gardant le buste bien vertical',
+      'Pousse les genoux vers l\'extérieur, remonte en serrant les fessiers'
+    ]
+  },
+  'Row (gauche)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <circle cx="48" cy="20" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+      <!-- bent torso -->
+      <line x1="48" y1="29" x2="55" y2="62" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <!-- support arm -->
+      <line x1="52" y1="42" x2="66" y2="52" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- rowing arm -->
+      <g style="animation: row-pull 1.8s ease-in-out infinite">
+        <line x1="52" y1="42" x2="36" y2="60" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="29" y="56" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+      </g>
+      <line x1="55" y1="62" x2="42" y2="92" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="55" y1="62" x2="65" y2="92" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+    steps: [
+      'Penché en avant à ~45°, dos plat, un pied légèrement avancé',
+      'Main libre en appui sur le genou pour stabiliser',
+      'Tire la KB vers la hanche, coude serré le long du corps',
+      'Descends lentement, étire bien le dos en bas du mouvement'
+    ]
+  },
+  'Row (droite)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <circle cx="52" cy="20" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+      <line x1="52" y1="29" x2="45" y2="62" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="48" y1="42" x2="34" y2="52" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      <g style="animation: row-pull 1.8s ease-in-out infinite">
+        <line x1="48" y1="42" x2="64" y2="60" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="59" y="56" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+      </g>
+      <line x1="45" y1="62" x2="35" y2="92" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="45" y1="62" x2="58" y2="92" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+    steps: [
+      'Penché en avant à ~45°, dos plat, un pied légèrement avancé',
+      'Main libre en appui sur le genou pour stabiliser',
+      'Tire la KB vers la hanche, coude serré le long du corps',
+      'Descends lentement, étire bien le dos en bas du mouvement'
+    ]
+  },
+  'Clean & Press (G)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: snatch-explode 2.5s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="65" y2="50" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="32" y2="10" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="24" y="2" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Swing pour amener la KB en position rack (coude au corps)',
+      'Stabilise : KB contre l\'épaule, poignet neutre',
+      'Presse droit vers le plafond, verrouille le bras en haut',
+      'Redescends en rack, puis retour au swing'
+    ]
+  },
+  'Clean & Press (D)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: snatch-explode 2.5s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="35" y2="50" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="68" y2="10" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="64" y="2" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Swing pour amener la KB en position rack (coude au corps)',
+      'Stabilise : KB contre l\'épaule, poignet neutre',
+      'Presse droit vers le plafond, verrouille le bras en haut',
+      'Redescends en rack, puis retour au swing'
+    ]
+  },
+  'Snatch (G)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: snatch-explode 1.8s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="65" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="30" y2="5" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="27" cy="2" r="6" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Swing puissant entre les jambes',
+      'Au sommet du swing, tire le coude vers le haut',
+      'Punch le poing vers le ciel, la KB se pose sur l\'avant-bras',
+      'Redescends en contrôle via la position rack puis swing'
+    ]
+  },
+  'Snatch (D)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: snatch-explode 1.8s ease-in-out infinite">
+        <circle cx="50" cy="15" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="24" x2="50" y2="60" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="35" y2="48" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="38" x2="70" y2="5" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="73" cy="2" r="6" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="60" x2="38" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="60" x2="62" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Swing puissant entre les jambes',
+      'Au sommet du swing, tire le coude vers le haut',
+      'Punch le poing vers le ciel, la KB se pose sur l\'avant-bras',
+      'Redescends en contrôle via la position rack puis swing'
+    ]
+  },
+  'Turkish Get-Up (G)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: tgu-rise 3.5s ease-in-out infinite">
+        <circle cx="50" cy="25" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="34" x2="52" y2="68" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="48" x2="68" y2="58" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="48" x2="28" y2="12" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="20" y="3" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="52" y1="68" x2="40" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="52" y1="68" x2="62" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Allongé sur le dos, KB bras tendu vers le plafond',
+      'Lève-toi étape par étape : coude, main, pont, genou',
+      'Garde le regard sur la KB tout le mouvement',
+      'Redescends dans l\'ordre inverse, lentement'
+    ]
+  },
+  'Turkish Get-Up (D)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: tgu-rise 3.5s ease-in-out infinite; animation-direction: reverse">
+        <circle cx="50" cy="25" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="34" x2="48" y2="68" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="48" x2="32" y2="58" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="48" x2="72" y2="12" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="68" y="3" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="48" y1="68" x2="38" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="48" y1="68" x2="60" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Allongé sur le dos, KB bras tendu vers le plafond',
+      'Lève-toi étape par étape : coude, main, pont, genou',
+      'Garde le regard sur la KB tout le mouvement',
+      'Redescends dans l\'ordre inverse, lentement'
+    ]
+  },
+  'Windmill (G)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: windmill-bend 2.5s ease-in-out infinite">
+        <circle cx="50" cy="20" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="29" x2="52" y2="65" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <!-- arm up with KB -->
+        <line x1="50" y1="42" x2="30" y2="10" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="22" y="2" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <!-- arm down -->
+        <line x1="50" y1="42" x2="68" y2="65" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="52" y1="65" x2="40" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="52" y1="65" x2="62" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'KB bras tendu en l\'air, pieds tournés à 45°',
+      'Pousse la hanche du côté de la KB',
+      'Penche-toi, main libre glisse le long de la jambe avant',
+      'Garde le regard sur la KB en haut. Remonte lentement.'
+    ]
+  },
+  'Windmill (D)': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: windmill-bend 2.5s ease-in-out infinite; animation-direction: reverse">
+        <circle cx="50" cy="20" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="29" x2="48" y2="65" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="42" x2="70" y2="10" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="66" y="2" width="12" height="10" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="42" x2="32" y2="65" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="48" y1="65" x2="38" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="48" y1="65" x2="60" y2="95" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'KB bras tendu en l\'air, pieds tournés à 45°',
+      'Pousse la hanche du côté de la KB',
+      'Penche-toi, main libre glisse le long de la jambe avant',
+      'Garde le regard sur la KB en haut. Remonte lentement.'
+    ]
+  },
+  'Double KB Front Squat': {
+    svg: `<svg viewBox="0 0 100 110">
+      <g style="animation: squat-down 2s ease-in-out infinite">
+        <circle cx="50" cy="12" r="9" fill="none" stroke="#e8d5c0" stroke-width="2.5"/>
+        <line x1="50" y1="21" x2="50" y2="58" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="35" x2="36" y2="42" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="35" x2="64" y2="42" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="28" y="38" width="11" height="9" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <rect x="61" y="38" width="11" height="9" rx="3" fill="none" stroke="#4ecdc4" stroke-width="2.5"/>
+        <line x1="50" y1="58" x2="36" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="58" x2="64" y2="90" stroke="#e8d5c0" stroke-width="3" stroke-linecap="round"/>
+        <line x1="36" y1="90" x2="30" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="64" y1="90" x2="70" y2="92" stroke="#e8d5c0" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>`,
+    steps: [
+      'Deux KBs en position rack, coudes serrés contre le corps',
+      'Pieds largeur épaules, pointes légèrement ouvertes',
+      'Descends profond, coudes entre les genoux',
+      'Extension complète en poussant les pieds dans le sol'
+    ]
+  },
+  '_rest': {
+    svg: `<svg viewBox="0 0 100 100">
+      <g style="animation: breathe 4s ease-in-out infinite">
+        <circle cx="50" cy="50" r="35" fill="none" stroke="#4ecdc4" stroke-width="2" opacity="0.6"/>
+        <circle cx="50" cy="50" r="22" fill="none" stroke="#4ecdc4" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="50" cy="50" r="10" fill="none" stroke="#4ecdc4" stroke-width="1" opacity="0.3"/>
+        <text x="50" y="56" text-anchor="middle" fill="#4ecdc4" font-size="18" opacity="0.8">🧘</text>
+      </g>
+    </svg>`,
+    steps: ['Respire profondément par le nez', 'Secoue les bras et les mains', 'Prépare-toi mentalement pour la suite']
+  }
+};
+// Alias
+EX_DATA['KB Swing'] = EX_DATA['Kettlebell Swing'];
+
+function getVisual(name) {
+  return EX_DATA[name] || EX_DATA['_rest'];
+}
+
+// ──── EXERCISE POOLS ────
+const EXERCISES = {
+  beginner: [
+    { name: 'Goblet Squat', detail: '10 reps', emoji: '🦵' },
+    { name: 'Kettlebell Swing', detail: '15 reps', emoji: '🔔' },
+    { name: 'KB Deadlift', detail: '10 reps', emoji: '🏋️' },
+    { name: 'Press (gauche)', detail: '8 reps', emoji: '💪' },
+    { name: 'Press (droite)', detail: '8 reps', emoji: '💪' },
+    { name: 'Farmer Carry', detail: 'sur place', emoji: '🚶' },
+    { name: 'Halo', detail: '8 par côté', emoji: '😇' },
+    { name: 'Sumo Squat', detail: '10 reps', emoji: '🦵' },
+    { name: 'Row (gauche)', detail: '8 reps', emoji: '🚣' },
+    { name: 'Row (droite)', detail: '8 reps', emoji: '🚣' },
+  ],
+  inter: [
+    { name: 'KB Swing', detail: '20 reps', emoji: '🔔' },
+    { name: 'Clean & Press (G)', detail: '8 reps', emoji: '🚀' },
+    { name: 'Clean & Press (D)', detail: '8 reps', emoji: '🚀' },
+    { name: 'Goblet Squat', detail: '12 reps', emoji: '🦵' },
+    { name: 'Snatch (G)', detail: '8 reps', emoji: '⚡' },
+    { name: 'Snatch (D)', detail: '8 reps', emoji: '⚡' },
+    { name: 'Turkish Get-Up (G)', detail: '3 reps', emoji: '🧘' },
+    { name: 'Turkish Get-Up (D)', detail: '3 reps', emoji: '🧘' },
+    { name: 'KB Swing', detail: '25 reps', emoji: '🔔' },
+    { name: 'Windmill (G)', detail: '5 reps', emoji: '🌀' },
+    { name: 'Windmill (D)', detail: '5 reps', emoji: '🌀' },
+    { name: 'Double KB Front Squat', detail: '10 reps', emoji: '🦵' },
+  ]
+};
+
+const CONFIGS = {
+  10: { beginner: { exCount: 4, rounds: 2, work: 30, rest: 15 }, inter: { exCount: 4, rounds: 2, work: 35, rest: 12 } },
+  15: { beginner: { exCount: 5, rounds: 3, work: 30, rest: 15 }, inter: { exCount: 5, rounds: 3, work: 35, rest: 12 } },
+  20: { beginner: { exCount: 5, rounds: 4, work: 30, rest: 15 }, inter: { exCount: 6, rounds: 3, work: 35, rest: 12 } },
+};
+
+const PREVIEW_DURATION = 15;
+let selectedMin = 15, selectedLevel = 'beginner';
+let circuit = [], totalSteps = 0, currentStep = 0;
+let timeLeft = 0, timerInterval = null, paused = false;
+let wakeLock = null;
+
+// ──── SETUP UI ────
+document.querySelectorAll('.dur-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMin = +btn.dataset.min;
+    updatePreview();
+  });
+});
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedLevel = btn.dataset.level;
+    updatePreview();
+  });
+});
+
+function updatePreview() {
+  const c = CONFIGS[selectedMin][selectedLevel];
+  document.getElementById('preview-text').textContent =
+    `${c.exCount} exercices · ${c.rounds} rounds · ${c.work}s travail / ${c.rest}s repos`;
+}
+
+function buildCircuit() {
+  const c = CONFIGS[selectedMin][selectedLevel];
+  const pool = [...EXERCISES[selectedLevel]];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const picked = pool.slice(0, c.exCount);
+  circuit = [];
+  for (let r = 0; r < c.rounds; r++) {
+    for (let e = 0; e < picked.length; e++) {
+      circuit.push({ ...picked[e], type: 'work', duration: c.work, round: r + 1, totalRounds: c.rounds });
+      if (!(r === c.rounds - 1 && e === picked.length - 1)) {
+        const isRoundEnd = e === picked.length - 1;
+        circuit.push({
+          name: isRoundEnd ? '🧘 Repos long' : '😤 Repos',
+          detail: isRoundEnd ? 'Respire profond' : 'Secoue les bras',
+          type: 'rest',
+          duration: isRoundEnd ? c.rest * 2 : c.rest,
+          round: r + 1,
+          totalRounds: c.rounds
+        });
+      }
+    }
+  }
+  totalSteps = circuit.length;
+  currentStep = 0;
+}
+
+// ──── AUDIO ────
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function beep(freq, dur) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.frequency.value = freq; gain.gain.value = 0.25;
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.stop(audioCtx.currentTime + dur);
+}
+function beepStart() { beep(880, 0.12); setTimeout(() => beep(880, 0.12), 180); }
+function beepWarn() { beep(440, 0.08); }
+function beepDone() { beep(660, 0.2); setTimeout(() => beep(880, 0.2), 250); setTimeout(() => beep(1100, 0.3), 500); }
+
+// ──── WAKE LOCK ────
+async function requestWake() {
+  try { wakeLock = await navigator.wakeLock.request('screen'); document.getElementById('wake-hint').textContent = '🔒 Écran actif'; } catch(e) {}
+}
+function releaseWake() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+  document.getElementById('wake-hint').textContent = '';
+}
+
+// ──── SCREEN MANAGEMENT ────
+function showOnly(id) {
+  ['setup', 'preview-screen', 'workout', 'done'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'flex';
+}
+
+// ──── PREVIEW ────
+function showPreview() {
+  if (currentStep >= totalSteps) { finish(); return; }
+  const step = circuit[currentStep];
+  if (step.type === 'rest') { showTimer(); return; }
+
+  const visual = getVisual(step.name);
+  const roundInfo = `ROUND ${step.round}/${step.totalRounds}`;
+  document.getElementById('pv-label').textContent = roundInfo + ' · PROCHAIN EXERCICE';
+  document.getElementById('pv-name').textContent = `${step.emoji} ${step.name}`;
+  document.getElementById('pv-detail').textContent = `${step.detail} · ${step.duration}s`;
+  document.getElementById('pv-anim').innerHTML = visual.svg;
+
+  const stepsEl = document.getElementById('pv-steps');
+  stepsEl.innerHTML = visual.steps.map((s, i) =>
+    `<div class="pv-step" data-idx="${i}"><span class="pv-step-num">${i+1}</span><span>${s}</span></div>`
+  ).join('');
+
+  let countdown = PREVIEW_DURATION;
+  document.getElementById('pv-countdown').textContent = countdown;
+  document.getElementById('pv-progress-fill').style.width = '100%';
+  showOnly('preview-screen');
+
+  // Highlight steps progressively
+  const stepEls = stepsEl.querySelectorAll('.pv-step');
+  const stepsPerSecond = PREVIEW_DURATION / visual.steps.length;
+  stepEls.forEach((el, i) => {
+    setTimeout(() => el.classList.add('active'), i * stepsPerSecond * 1000);
+  });
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    countdown--;
+    document.getElementById('pv-countdown').textContent = countdown;
+    document.getElementById('pv-progress-fill').style.width = `${(countdown / PREVIEW_DURATION) * 100}%`;
+    if (countdown <= 3 && countdown > 0) beepWarn();
+    if (countdown <= 0) {
+      clearInterval(timerInterval);
+      showTimer();
+    }
+  }, 1000);
+}
+
+// ──── WORKOUT TIMER ────
+function showTimer() {
+  if (currentStep >= totalSteps) { finish(); return; }
+  const step = circuit[currentStep];
+  timeLeft = step.duration;
+  const circumference = 785.4;
+  const ringFill = document.getElementById('ring-fill');
+
+  showOnly('workout');
+
+  document.getElementById('wo-round').textContent = `ROUND ${step.round} / ${step.totalRounds}`;
+  const nameEl = document.getElementById('wo-name');
+  nameEl.textContent = step.type === 'work' ? `${step.emoji} ${step.name}` : step.name;
+  nameEl.className = 'wo-name' + (step.type === 'rest' ? ' rest' : '');
+  document.getElementById('wo-detail').textContent = step.detail;
+  ringFill.className.baseVal = 'timer-ring-fill' + (step.type === 'rest' ? ' rest' : '');
+
+  // Animation + mini steps
+  const visual = getVisual(step.type === 'work' ? step.name : '_rest');
+  document.getElementById('wo-anim').innerHTML = visual.svg;
+  document.getElementById('wo-steps-mini').innerHTML = visual.steps.map(s =>
+    `<div class="mini-step">${s}</div>`
+  ).join('');
+
+  // Next up
+  const nextWork = circuit.slice(currentStep + 1).find(s => s.type === 'work');
+  document.getElementById('wo-next').textContent = nextWork
+    ? `Ensuite : ${nextWork.emoji} ${nextWork.name}`
+    : 'Dernier effort !';
+  document.getElementById('wo-progress-fill').style.width = `${(currentStep / totalSteps) * 100}%`;
+
+  beepStart();
+  document.getElementById('timer-text').textContent = timeLeft;
+  ringFill.style.strokeDashoffset = 0;
+  document.getElementById('btn-pause').textContent = '⏸';
+  paused = false;
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (paused) return;
+    timeLeft--;
+    if (timeLeft <= 3 && timeLeft > 0) beepWarn();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      currentStep++;
+      showPreview();
+      return;
+    }
+    document.getElementById('timer-text').textContent = timeLeft;
+    const pct = timeLeft / step.duration;
+    ringFill.style.strokeDashoffset = (1 - pct) * circumference;
+  }, 1000);
+}
+
+// ──── CONTROLS ────
+document.getElementById('go-btn').addEventListener('click', () => {
+  audioCtx.resume();
+  buildCircuit();
+  requestWake();
+  showPreview();
+});
+
+document.getElementById('btn-pause').addEventListener('click', () => {
+  paused = !paused;
+  document.getElementById('btn-pause').textContent = paused ? '▶' : '⏸';
+});
+document.getElementById('btn-skip').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  currentStep++;
+  showPreview();
+});
+document.getElementById('btn-stop').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  releaseWake();
+  showOnly('setup');
+});
+
+function finish() {
+  beepDone();
+  releaseWake();
+  showOnly('done');
+  const workSteps = circuit.filter(s => s.type === 'work');
+  const totalWork = workSteps.reduce((a, s) => a + s.duration, 0);
+  document.getElementById('done-stats').innerHTML =
+    `${selectedMin} minutes<br>${workSteps.length} séries complétées<br>${Math.floor(totalWork/60)}min ${totalWork%60}s de travail effectif<br>Niveau : ${selectedLevel === 'beginner' ? 'Débutant' : 'Intermédiaire'}`;
+  document.getElementById('wo-progress-fill').style.width = '100%';
+}
+
+document.getElementById('again-btn').addEventListener('click', () => showOnly('setup'));
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && document.getElementById('workout').style.display === 'flex') requestWake();
+});
+</script>
+</body>
+</html>
