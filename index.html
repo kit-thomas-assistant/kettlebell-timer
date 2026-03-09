@@ -60,21 +60,56 @@
     text-transform: uppercase;
   }
 
+  /* Featured circuit card */
+  .featured-card {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 1.2rem;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    width: 100%;
+    background: rgba(255,107,53,0.08);
+  }
+  .featured-card:hover { background: rgba(255,107,53,0.15); }
+  .featured-card.active {
+    border-color: var(--accent);
+    background: rgba(255,107,53,0.15);
+    box-shadow: 0 0 20px rgba(255,107,53,0.15);
+  }
+  .featured-card .mode-icon { font-size: 2.2rem; margin-bottom: 0.3rem; }
+  .featured-card .mode-name { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+  .featured-card .mode-desc { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .other-modes-label {
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 0.3rem;
+  }
+
   /* Mode cards */
   .mode-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.8rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
     width: 100%;
   }
-  @media (max-width: 500px) {
+  @media (max-width: 600px) {
+    .mode-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 380px) {
     .mode-grid { grid-template-columns: repeat(2, 1fr); }
   }
   .mode-card {
     background: var(--surface);
     border: 2px solid var(--surface2);
-    border-radius: 1rem;
-    padding: 1rem 0.8rem;
+    border-radius: 0.8rem;
+    padding: 0.7rem 0.5rem;
     cursor: pointer;
     transition: all 0.15s;
     text-align: center;
@@ -84,9 +119,117 @@
     border-color: var(--accent);
     background: rgba(255,107,53,0.1);
   }
-  .mode-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
-  .mode-name { font-size: 0.95rem; font-weight: 700; }
-  .mode-desc { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.3; }
+  .mode-icon { font-size: 1.4rem; margin-bottom: 0.2rem; }
+  .mode-name { font-size: 0.8rem; font-weight: 700; }
+  .mode-desc { font-size: 0.6rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.2; }
+
+  /* ──── CIRCUIT PREVIEW SCREEN ──── */
+  #circuit-preview {
+    display: none;
+    width: 100vw;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    gap: 1.2rem;
+    background: var(--bg);
+    overflow-y: auto;
+  }
+  .cp-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    text-align: center;
+  }
+  .cp-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .cp-coverage {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cp-tag {
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .cp-tag.upper { background: rgba(129,140,248,0.2); color: #818cf8; }
+  .cp-tag.lower { background: rgba(52,211,153,0.2); color: #34d399; }
+  .cp-tag.full { background: rgba(251,146,60,0.2); color: #fb923c; }
+  .cp-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .cp-tag.check { opacity: 1; }
+  .cp-tag.missing { opacity: 0.3; }
+  .cp-list {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .cp-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--surface);
+    border-radius: 0.8rem;
+    padding: 0.8rem 1rem;
+  }
+  .cp-item-num {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 1.5rem;
+    text-align: center;
+  }
+  .cp-item-info { flex: 1; }
+  .cp-item-name { font-weight: 700; font-size: 0.95rem; }
+  .cp-item-detail { font-size: 0.8rem; color: var(--muted); }
+  .cp-item-tag {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.4rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cp-item-tag.upper { background: rgba(129,140,248,0.2); color: #818cf8; }
+  .cp-item-tag.lower { background: rgba(52,211,153,0.2); color: #34d399; }
+  .cp-item-tag.full { background: rgba(251,146,60,0.2); color: #fb923c; }
+  .cp-item-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .cp-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  #cp-regenerate {
+    padding: 0.8rem 1.5rem;
+    border-radius: 1.2rem;
+    border: 2px solid var(--surface2);
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #cp-regenerate:hover { border-color: var(--muted); }
+  #cp-go {
+    padding: 0.8rem 2.5rem;
+    border-radius: 1.2rem;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  #cp-go:hover { transform: scale(1.03); }
 
   .option-row { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
   .dur-btn, .diff-btn {
@@ -482,6 +625,9 @@
     .pv-steps { display: none; }
     .wo-name { font-size: 1.8rem; }
     #setup h1 { font-size: 1.8rem; }
+    .cp-title { font-size: 1.3rem; }
+    .cp-buttons { flex-direction: column; width: 100%; max-width: 300px; }
+    #cp-regenerate, #cp-go { width: 100%; text-align: center; }
   }
 
   /* ──── SVG ANIMATIONS ──── */
@@ -579,37 +725,39 @@
   <h1>🏋️ <span>Kettlebell</span> Timer</h1>
 
   <div class="option-group">
-    <label>Mode</label>
+    <div class="featured-card active" data-mode="circuit">
+      <div class="mode-icon">🔄</div>
+      <div class="mode-name">Circuit Training</div>
+      <div class="mode-desc">Exos variés full-body · work/rest · le classique</div>
+    </div>
+  </div>
+  <div class="option-group">
+    <div class="other-modes-label">Autres formats</div>
     <div class="mode-grid">
-      <div class="mode-card active" data-mode="circuit">
-        <div class="mode-icon">🔄</div>
-        <div class="mode-name">Circuit</div>
-        <div class="mode-desc">Exos variés, work/rest</div>
-      </div>
       <div class="mode-card" data-mode="emom">
         <div class="mode-icon">⏱️</div>
         <div class="mode-name">EMOM</div>
-        <div class="mode-desc">Chaque minute, on the minute</div>
+        <div class="mode-desc">Chaque minute</div>
       </div>
       <div class="mode-card" data-mode="tabata">
         <div class="mode-icon">🔥</div>
         <div class="mode-name">Tabata</div>
-        <div class="mode-desc">20s on / 10s off × 8</div>
+        <div class="mode-desc">20s/10s × 8</div>
       </div>
       <div class="mode-card" data-mode="complex">
         <div class="mode-icon">⛓️</div>
         <div class="mode-name">Complex</div>
-        <div class="mode-desc">Séquence enchaînée ABC</div>
+        <div class="mode-desc">Séquence ABC</div>
       </div>
       <div class="mode-card" data-mode="ladder">
         <div class="mode-icon">🪜</div>
         <div class="mode-name">Ladder</div>
-        <div class="mode-desc">1-2-3-4-5 reps montée</div>
+        <div class="mode-desc">1-2-3-4-5</div>
       </div>
       <div class="mode-card" data-mode="ss">
         <div class="mode-icon">💀</div>
-        <div class="mode-name">Simple &amp; Sinister</div>
-        <div class="mode-desc">100 swings + 10 TGU</div>
+        <div class="mode-name">S&amp;S</div>
+        <div class="mode-desc">100 swings + TGU</div>
       </div>
     </div>
   </div>
@@ -688,6 +836,18 @@
   <h2>💪 Terminé !</h2>
   <div class="done-stats" id="done-stats"></div>
   <button id="again-btn">Encore un ?</button>
+</div>
+
+<!-- ──── CIRCUIT PREVIEW ──── -->
+<div id="circuit-preview">
+  <div class="cp-title">Ton Circuit</div>
+  <div class="cp-subtitle" id="cp-subtitle">5 exercices · 3 rounds · 30s/15s</div>
+  <div class="cp-coverage" id="cp-coverage"></div>
+  <div class="cp-list" id="cp-list"></div>
+  <div class="cp-buttons">
+    <button id="cp-regenerate">🔄 Régénérer</button>
+    <button id="cp-go">C'EST PARTI 🔥</button>
+  </div>
 </div>
 
 <!-- ──── HISTORY MODAL ──── -->
@@ -857,50 +1017,55 @@ function getVisual(name) {
 // ══════════════════════════════════════════════
 //  EXERCISE POOLS BY LEVEL
 // ══════════════════════════════════════════════
+// Group labels for display
+const GROUP_LABELS = {
+  upper: 'Haut du corps', lower: 'Bas du corps', full: 'Full body', core: 'Core'
+};
+
 const POOL = {
   beginner: [
-    { name: 'Goblet Squat', detail: '10 reps', reps: 10 },
-    { name: 'Kettlebell Swing', detail: '15 reps', reps: 15 },
-    { name: 'KB Deadlift', detail: '10 reps', reps: 10 },
-    { name: 'Press (gauche)', detail: '8 reps', reps: 8 },
-    { name: 'Press (droite)', detail: '8 reps', reps: 8 },
-    { name: 'Farmer Carry', detail: 'sur place', reps: 0 },
-    { name: 'Halo', detail: '8 par côté', reps: 8 },
-    { name: 'Sumo Squat', detail: '10 reps', reps: 10 },
-    { name: 'Row (gauche)', detail: '8 reps', reps: 8 },
-    { name: 'Row (droite)', detail: '8 reps', reps: 8 },
-    { name: 'Clean (G)', detail: '8 reps', reps: 8 },
-    { name: 'Clean (D)', detail: '8 reps', reps: 8 },
-    { name: 'Goblet Reverse Lunge', detail: '8 par côté', reps: 8 },
-    { name: 'Figure 8', detail: '10 reps', reps: 10 },
-    { name: 'Floor Press', detail: '8 reps', reps: 8 },
+    { name: 'Goblet Squat', detail: '10 reps', reps: 10, group: 'lower' },
+    { name: 'Kettlebell Swing', detail: '15 reps', reps: 15, group: 'full' },
+    { name: 'KB Deadlift', detail: '10 reps', reps: 10, group: 'lower' },
+    { name: 'Press (gauche)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Press (droite)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Farmer Carry', detail: 'sur place', reps: 0, group: 'core' },
+    { name: 'Halo', detail: '8 par côté', reps: 8, group: 'core' },
+    { name: 'Sumo Squat', detail: '10 reps', reps: 10, group: 'lower' },
+    { name: 'Row (gauche)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Row (droite)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Clean (G)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Clean (D)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Goblet Reverse Lunge', detail: '8 par côté', reps: 8, group: 'lower' },
+    { name: 'Figure 8', detail: '10 reps', reps: 10, group: 'core' },
+    { name: 'Floor Press', detail: '8 reps', reps: 8, group: 'upper' },
   ],
   inter: [
-    { name: 'Kettlebell Swing', detail: '20 reps', reps: 20 },
-    { name: 'Clean & Press (G)', detail: '8 reps', reps: 8 },
-    { name: 'Clean & Press (D)', detail: '8 reps', reps: 8 },
-    { name: 'Goblet Squat', detail: '12 reps', reps: 12 },
-    { name: 'Snatch (G)', detail: '8 reps', reps: 8 },
-    { name: 'Snatch (D)', detail: '8 reps', reps: 8 },
-    { name: 'Turkish Get-Up (G)', detail: '3 reps', reps: 3 },
-    { name: 'Turkish Get-Up (D)', detail: '3 reps', reps: 3 },
-    { name: 'Windmill (G)', detail: '5 reps', reps: 5 },
-    { name: 'Windmill (D)', detail: '5 reps', reps: 5 },
-    { name: 'Double KB Front Squat', detail: '10 reps', reps: 10 },
-    { name: 'Thruster (G)', detail: '8 reps', reps: 8 },
-    { name: 'Thruster (D)', detail: '8 reps', reps: 8 },
-    { name: 'Renegade Row', detail: '6 par côté', reps: 6 },
-    { name: 'High Pull (G)', detail: '10 reps', reps: 10 },
-    { name: 'High Pull (D)', detail: '10 reps', reps: 10 },
-    { name: 'Single Swing (G)', detail: '12 reps', reps: 12 },
-    { name: 'Single Swing (D)', detail: '12 reps', reps: 12 },
-    { name: 'Push Press (G)', detail: '8 reps', reps: 8 },
-    { name: 'Push Press (D)', detail: '8 reps', reps: 8 },
-    { name: 'Clean (G)', detail: '10 reps', reps: 10 },
-    { name: 'Clean (D)', detail: '10 reps', reps: 10 },
-    { name: 'Goblet Reverse Lunge', detail: '10 par côté', reps: 10 },
-    { name: 'Figure 8', detail: '12 reps', reps: 12 },
-    { name: 'Floor Press', detail: '10 reps', reps: 10 },
+    { name: 'Kettlebell Swing', detail: '20 reps', reps: 20, group: 'full' },
+    { name: 'Clean & Press (G)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Clean & Press (D)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Goblet Squat', detail: '12 reps', reps: 12, group: 'lower' },
+    { name: 'Snatch (G)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Snatch (D)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Turkish Get-Up (G)', detail: '3 reps', reps: 3, group: 'full' },
+    { name: 'Turkish Get-Up (D)', detail: '3 reps', reps: 3, group: 'full' },
+    { name: 'Windmill (G)', detail: '5 reps', reps: 5, group: 'core' },
+    { name: 'Windmill (D)', detail: '5 reps', reps: 5, group: 'core' },
+    { name: 'Double KB Front Squat', detail: '10 reps', reps: 10, group: 'lower' },
+    { name: 'Thruster (G)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Thruster (D)', detail: '8 reps', reps: 8, group: 'full' },
+    { name: 'Renegade Row', detail: '6 par côté', reps: 6, group: 'upper' },
+    { name: 'High Pull (G)', detail: '10 reps', reps: 10, group: 'full' },
+    { name: 'High Pull (D)', detail: '10 reps', reps: 10, group: 'full' },
+    { name: 'Single Swing (G)', detail: '12 reps', reps: 12, group: 'full' },
+    { name: 'Single Swing (D)', detail: '12 reps', reps: 12, group: 'full' },
+    { name: 'Push Press (G)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Push Press (D)', detail: '8 reps', reps: 8, group: 'upper' },
+    { name: 'Clean (G)', detail: '10 reps', reps: 10, group: 'full' },
+    { name: 'Clean (D)', detail: '10 reps', reps: 10, group: 'full' },
+    { name: 'Goblet Reverse Lunge', detail: '10 par côté', reps: 10, group: 'lower' },
+    { name: 'Figure 8', detail: '12 reps', reps: 12, group: 'core' },
+    { name: 'Floor Press', detail: '10 reps', reps: 10, group: 'upper' },
   ]
 };
 
@@ -940,6 +1105,13 @@ let sessionExercises = [];
 // ══════════════════════════════════════════════
 //  ANTI-REPETITION (localStorage)
 // ══════════════════════════════════════════════
+function getRecentCircuitSessions(n) {
+  try {
+    const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
+    return hist.filter(s => s.mode === 'Circuit').slice(0, n);
+  } catch { return []; }
+}
+
 function getRecentExercises() {
   try {
     const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
@@ -959,15 +1131,79 @@ function shuffle(arr) {
   return a;
 }
 
+// Generic pick (for non-circuit modes)
 function pickExercises(count, level) {
   const recent = getRecentExercises();
   const pool = [...POOL[level]];
-  // Sort: non-recent first, then shuffle within groups
   const fresh = shuffle(pool.filter(e => !recent.has(e.name)));
   const stale = shuffle(pool.filter(e => recent.has(e.name)));
   const ordered = [...fresh, ...stale];
   return ordered.slice(0, count);
 }
+
+// Smart pick for Circuit: guarantees full-body coverage + anti-repetition
+function pickCircuitExercises(count, level) {
+  const pool = [...POOL[level]];
+  const recentSessions = getRecentCircuitSessions(2);
+  const maxOverlapPct = level === 'beginner' ? 0.6 : 0.5;
+  const maxAttempts = 50;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const shuffled = shuffle(pool);
+
+    // Guarantee coverage: pick 1 upper, 1 lower, 1 full first
+    const byGroup = { upper: [], lower: [], full: [], core: [] };
+    shuffled.forEach(e => byGroup[e.group].push(e));
+
+    const picked = [];
+    const usedNames = new Set();
+
+    // Pick one from each required group
+    for (const g of ['upper', 'lower', 'full']) {
+      if (byGroup[g].length > 0) {
+        const ex = byGroup[g][0];
+        picked.push(ex);
+        usedNames.add(ex.name);
+      }
+    }
+
+    // Fill remaining slots from shuffled pool (varied groups)
+    for (const ex of shuffled) {
+      if (picked.length >= count) break;
+      if (usedNames.has(ex.name)) continue;
+      picked.push(ex);
+      usedNames.add(ex.name);
+    }
+
+    // Check anti-repetition: max overlap with previous sessions
+    const pickedNames = picked.map(e => e.name);
+    let tooSimilar = false;
+
+    for (const session of recentSessions) {
+      const prevNames = session.exercises || [];
+      if (prevNames.length === 0) continue;
+      const overlap = pickedNames.filter(n => prevNames.includes(n)).length;
+      const overlapPct = overlap / pickedNames.length;
+      if (overlapPct > maxOverlapPct) { tooSimilar = true; break; }
+
+      // Also check: not the exact same set
+      if (pickedNames.length === prevNames.length &&
+          pickedNames.every(n => prevNames.includes(n))) {
+        tooSimilar = true; break;
+      }
+    }
+
+    if (!tooSimilar || attempt === maxAttempts - 1) {
+      return picked.slice(0, count);
+    }
+  }
+
+  // Fallback (should not reach here)
+  return shuffle(pool).slice(0, count);
+}
+
+// Currently picked exercises for circuit preview
+let pickedCircuitExercises = [];
 
 // ══════════════════════════════════════════════
 //  HISTORY
@@ -1015,7 +1251,8 @@ function showHistory() {
 // ══════════════════════════════════════════════
 function buildCircuit() {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-  const picked = pickExercises(c.exCount, selectedLevel);
+  // Use pre-picked exercises from circuit preview
+  const picked = pickedCircuitExercises.length > 0 ? pickedCircuitExercises : pickCircuitExercises(c.exCount, selectedLevel);
   circuit = [];
   sessionExercises = picked.map(e => e.name);
 
@@ -1361,7 +1598,7 @@ function releaseWake() {
 //  SCREEN MANAGEMENT
 // ══════════════════════════════════════════════
 function showOnly(id) {
-  ['setup', 'preview-screen', 'workout', 'done'].forEach(s => {
+  ['setup', 'preview-screen', 'workout', 'done', 'circuit-preview'].forEach(s => {
     document.getElementById(s).style.display = 'none';
   });
   document.getElementById(id).style.display = 'flex';
@@ -1370,15 +1607,17 @@ function showOnly(id) {
 // ══════════════════════════════════════════════
 //  SETUP UI
 // ══════════════════════════════════════════════
-// Mode selection
-document.querySelectorAll('.mode-card').forEach(card => {
-  card.addEventListener('click', () => {
-    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    selectedMode = card.dataset.mode;
-    updateDurationOptions();
-    updatePreview();
-  });
+// Mode selection (featured + other cards)
+function selectMode(mode) {
+  selectedMode = mode;
+  document.querySelectorAll('.mode-card, .featured-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  updateDurationOptions();
+  updatePreview();
+}
+
+document.querySelectorAll('.mode-card, .featured-card').forEach(card => {
+  card.addEventListener('click', () => selectMode(card.dataset.mode));
 });
 
 function updateDurationOptions() {
@@ -1567,6 +1806,61 @@ function showTimer() {
 // ══════════════════════════════════════════════
 document.getElementById('go-btn').addEventListener('click', () => {
   audioCtx.resume();
+  if (selectedMode === 'circuit') {
+    showCircuitPreview();
+  } else {
+    buildWorkout();
+    requestWake();
+    showPreview();
+  }
+});
+
+// ══════════════════════════════════════════════
+//  CIRCUIT PREVIEW SCREEN
+// ══════════════════════════════════════════════
+function showCircuitPreview() {
+  const c = CIRCUIT_CFG[selectedMin][selectedLevel];
+  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel);
+  renderCircuitPreview();
+}
+
+function renderCircuitPreview() {
+  const c = CIRCUIT_CFG[selectedMin][selectedLevel];
+  const picked = pickedCircuitExercises;
+
+  document.getElementById('cp-subtitle').textContent =
+    `${picked.length} exercices · ${c.rounds} rounds · ${c.work}s travail / ${c.rest}s repos`;
+
+  // Coverage tags
+  const groups = { upper: false, lower: false, full: false, core: false };
+  picked.forEach(e => groups[e.group] = true);
+  document.getElementById('cp-coverage').innerHTML =
+    Object.entries(groups).map(([g, has]) =>
+      `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}">${has ? '✓' : '✗'} ${GROUP_LABELS[g]}</span>`
+    ).join('');
+
+  // Exercise list
+  document.getElementById('cp-list').innerHTML = picked.map((ex, i) =>
+    `<div class="cp-item">
+      <div class="cp-item-num">${i + 1}</div>
+      <div class="cp-item-info">
+        <div class="cp-item-name">${ex.name}</div>
+        <div class="cp-item-detail">${ex.detail}</div>
+      </div>
+      <span class="cp-item-tag ${ex.group}">${GROUP_LABELS[ex.group]}</span>
+    </div>`
+  ).join('');
+
+  showOnly('circuit-preview');
+}
+
+document.getElementById('cp-regenerate').addEventListener('click', () => {
+  const c = CIRCUIT_CFG[selectedMin][selectedLevel];
+  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel);
+  renderCircuitPreview();
+});
+
+document.getElementById('cp-go').addEventListener('click', () => {
   buildWorkout();
   requestWake();
   showPreview();
