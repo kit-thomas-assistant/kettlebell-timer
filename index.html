@@ -162,8 +162,10 @@
   .cp-tag.lower { background: rgba(52,211,153,0.2); color: #34d399; }
   .cp-tag.full { background: rgba(251,146,60,0.2); color: #fb923c; }
   .cp-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .cp-tag { cursor: pointer; transition: all 0.2s; user-select: none; }
+  .cp-tag:hover { filter: brightness(1.3); transform: scale(1.05); }
   .cp-tag.check { opacity: 1; }
-  .cp-tag.missing { opacity: 0.3; }
+  .cp-tag.missing { opacity: 0.35; }
   .cp-list {
     width: 100%;
     max-width: 500px;
@@ -206,6 +208,20 @@
     gap: 1rem;
     margin-top: 0.5rem;
   }
+  #cp-back {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.3rem 0;
+    transition: color 0.15s;
+  }
+  #cp-back:hover { color: var(--text); }
+  .cp-list { transition: opacity 0.25s ease; }
+  .cp-list.fading { opacity: 0.3; }
   #cp-regenerate {
     padding: 0.8rem 1.5rem;
     border-radius: 1.2rem;
@@ -782,7 +798,7 @@
   <p class="preview-info" id="preview-text"></p>
 
   <div class="setup-buttons">
-    <button id="go-btn">C'EST PARTI 🔥</button>
+    <button id="go-btn">Voir le circuit →</button>
     <button id="history-btn">📋 Historique</button>
   </div>
 </div>
@@ -840,6 +856,7 @@
 
 <!-- ──── CIRCUIT PREVIEW ──── -->
 <div id="circuit-preview">
+  <button id="cp-back">← Retour</button>
   <div class="cp-title">Ton Circuit</div>
   <div class="cp-subtitle" id="cp-subtitle">5 exercices · 3 rounds · 30s/15s</div>
   <div class="cp-coverage" id="cp-coverage"></div>
@@ -1141,8 +1158,9 @@ function pickExercises(count, level) {
   return ordered.slice(0, count);
 }
 
-// Smart pick for Circuit: guarantees full-body coverage + anti-repetition
-function pickCircuitExercises(count, level) {
+// Smart pick for Circuit: guarantees coverage of required groups + anti-repetition
+function pickCircuitExercises(count, level, groups) {
+  const requiredGrps = groups || new Set(['upper', 'lower', 'full']);
   const pool = [...POOL[level]];
   const recentSessions = getRecentCircuitSessions(2);
   const maxOverlapPct = level === 'beginner' ? 0.6 : 0.5;
@@ -1151,7 +1169,7 @@ function pickCircuitExercises(count, level) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const shuffled = shuffle(pool);
 
-    // Guarantee coverage: pick 1 upper, 1 lower, 1 full first
+    // Group exercises by muscle group
     const byGroup = { upper: [], lower: [], full: [], core: [] };
     shuffled.forEach(e => byGroup[e.group].push(e));
 
@@ -1159,8 +1177,8 @@ function pickCircuitExercises(count, level) {
     const usedNames = new Set();
 
     // Pick one from each required group
-    for (const g of ['upper', 'lower', 'full']) {
-      if (byGroup[g].length > 0) {
+    for (const g of requiredGrps) {
+      if (byGroup[g] && byGroup[g].length > 0) {
         const ex = byGroup[g][0];
         picked.push(ex);
         usedNames.add(ex.name);
@@ -1693,6 +1711,8 @@ function updatePreview() {
       break;
     }
   }
+  // Adapt go button label
+  document.getElementById('go-btn').textContent = selectedMode === 'circuit' ? 'Voir le circuit →' : 'C\'EST PARTI 🔥';
 }
 
 // Initialize
@@ -1818,10 +1838,27 @@ document.getElementById('go-btn').addEventListener('click', () => {
 // ══════════════════════════════════════════════
 //  CIRCUIT PREVIEW SCREEN
 // ══════════════════════════════════════════════
+// Required groups that the user can toggle
+let requiredGroups = new Set(['upper', 'lower', 'full']);
+
 function showCircuitPreview() {
+  requiredGroups = new Set(['upper', 'lower', 'full']);
+  regenerateCircuit();
+}
+
+function regenerateCircuit(animate) {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel);
-  renderCircuitPreview();
+  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel, requiredGroups);
+  if (animate) {
+    const list = document.getElementById('cp-list');
+    list.classList.add('fading');
+    setTimeout(() => {
+      renderCircuitPreview();
+      list.classList.remove('fading');
+    }, 200);
+  } else {
+    renderCircuitPreview();
+  }
 }
 
 function renderCircuitPreview() {
@@ -1831,13 +1868,32 @@ function renderCircuitPreview() {
   document.getElementById('cp-subtitle').textContent =
     `${picked.length} exercices · ${c.rounds} rounds · ${c.work}s travail / ${c.rest}s repos`;
 
-  // Coverage tags
-  const groups = { upper: false, lower: false, full: false, core: false };
-  picked.forEach(e => groups[e.group] = true);
-  document.getElementById('cp-coverage').innerHTML =
-    Object.entries(groups).map(([g, has]) =>
-      `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}">${has ? '✓' : '✗'} ${GROUP_LABELS[g]}</span>`
-    ).join('');
+  // Coverage tags (clickable)
+  const presentGroups = {};
+  picked.forEach(e => presentGroups[e.group] = true);
+
+  const coverageEl = document.getElementById('cp-coverage');
+  coverageEl.innerHTML =
+    ['upper', 'lower', 'full', 'core'].map(g => {
+      const has = !!presentGroups[g];
+      return `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}" data-group="${g}">${has ? '✓' : '✗'} ${GROUP_LABELS[g]}</span>`;
+    }).join('');
+
+  // Attach click handlers to tags
+  coverageEl.querySelectorAll('.cp-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const g = tag.dataset.group;
+      if (requiredGroups.has(g)) {
+        // Only remove if more than 1 required group remains
+        if (requiredGroups.size > 1) {
+          requiredGroups.delete(g);
+        }
+      } else {
+        requiredGroups.add(g);
+      }
+      regenerateCircuit(true);
+    });
+  });
 
   // Exercise list
   document.getElementById('cp-list').innerHTML = picked.map((ex, i) =>
@@ -1854,10 +1910,12 @@ function renderCircuitPreview() {
   showOnly('circuit-preview');
 }
 
+document.getElementById('cp-back').addEventListener('click', () => {
+  showOnly('setup');
+});
+
 document.getElementById('cp-regenerate').addEventListener('click', () => {
-  const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel);
-  renderCircuitPreview();
+  regenerateCircuit(true);
 });
 
 document.getElementById('cp-go').addEventListener('click', () => {
