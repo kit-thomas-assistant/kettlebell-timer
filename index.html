@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -732,12 +732,32 @@
     40% { transform: translateY(-15px); }
     60% { transform: translateY(-15px); }
   }
+
+  /* ──── LANGUAGE TOGGLE ──── */
+  #lang-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    z-index: 10;
+    letter-spacing: 0.5px;
+  }
+  #lang-toggle:hover { border-color: var(--muted); color: var(--text); }
 </style>
 </head>
 <body>
 
 <!-- ──── SETUP ──── -->
-<div id="setup">
+<div id="setup" style="position:relative;">
+  <button id="lang-toggle">🇬🇧 EN</button>
   <h1>🏋️ <span>Kettlebell</span> Timer</h1>
 
   <div class="option-group">
@@ -879,6 +899,392 @@
 <div class="wake-hint" id="wake-hint"></div>
 
 <script>
+// ══════════════════════════════════════════════
+//  I18N SYSTEM
+// ══════════════════════════════════════════════
+let currentLang = localStorage.getItem('kb_lang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+
+const STRINGS = {
+  fr: {
+    // Setup
+    circuitDesc: 'Exos variés full-body · work/rest · le classique',
+    otherModes: 'Autres formats',
+    emomDesc: 'Chaque minute',
+    complexDesc: 'Séquence ABC',
+    duration: 'Durée',
+    level: 'Niveau',
+    beginner: 'Débutant',
+    intermediate: 'Intermédiaire',
+    viewCircuit: 'Voir le circuit →',
+    history: '📋 Historique',
+    letsGo: 'C\'EST PARTI 🔥',
+    // Circuit preview
+    back: '← Retour',
+    yourCircuit: 'Ton Circuit',
+    regenerate: '🔄 Régénérer',
+    letsGoBtn: 'C\'EST PARTI 🔥',
+    // Group labels
+    upper: 'Haut du corps',
+    lower: 'Bas du corps',
+    full: 'Full body',
+    core: 'Core',
+    // Preview screen
+    nextExercise: 'PROCHAIN EXERCICE',
+    next: 'PROCHAIN',
+    // Workout screen
+    nextLabel: 'Ensuite :',
+    lastEffort: 'Dernier effort !',
+    // Rest names
+    restShort: '😤 Repos',
+    restLong: '🧘 Repos long',
+    restCalm: '🧘 Repos',
+    transition: '🧘 Transition',
+    // Rest details
+    breatheDeep: 'Respire profond',
+    shakeArms: 'Secoue les bras',
+    breathe: 'Respire',
+    exerciseChange: 'Changement d\'exercice',
+    rest: 'Repos',
+    getReadyTGU: 'Prépare-toi pour les TGU',
+    switchSides: 'Change de côté',
+    // Done screen
+    done: '💪 Terminé !',
+    setsCompleted: 'séries complétées',
+    effectiveWork: 'de travail effectif',
+    levelLabel: 'Niveau :',
+    beginnerLabel: 'Débutant',
+    intermediateLabel: 'Intermédiaire',
+    goAgain: 'Encore un ?',
+    // History
+    historyTitle: '📋 Historique',
+    noSessions: 'Aucune session enregistrée',
+    readError: 'Erreur de lecture',
+    close: 'Fermer',
+    // Preview info
+    exercises: 'exercices',
+    rounds: 'rounds',
+    work: 'travail',
+    restWord: 'repos',
+    // EMOM preview
+    emomPreview: (n, min) => `${n} exercices · ${min} minutes · Fais tes reps, repose le reste de la minute`,
+    // Tabata preview
+    tabataPreview: (blocks) => `${blocks} exercice${blocks > 1 ? 's' : ''} · 20s travail / 10s repos × 8 par exo`,
+    // Complex preview
+    complexPreview: (min) => `Séquences enchaînées (Clean + Press + Squat) · ${min} min · Repos entre sets`,
+    // Ladder preview
+    ladderPreview: (min) => `Échelle 1-2-3-4-5 reps · ${min} min · Repos entre échelons`,
+    // SS preview
+    ssPreview: '10 × 10 Swings + 5 TGU par côté · ~25 min · Le programme de Pavel',
+    // Ladder labels
+    rung: 'Échelon',
+    rungDone: (n) => `Échelon ${n} terminé`,
+    ladderDone: (n) => `Ladder ${n} terminé`,
+    setDone: (n) => `Set ${n} terminé`,
+    repsThenRest: 'reps puis repos',
+    // SS labels
+    tguLeft: 'TGU GAUCHE',
+    tguRight: 'TGU DROITE',
+    // Wake lock
+    screenActive: '🔒 Écran actif',
+    // Pool details
+    inPlace: 'sur place',
+    perSide: 'par côté',
+    // Circuit preview subtitle
+    circuitSubtitle: (n, rounds, work, rest) => `${n} exercices · ${rounds} rounds · ${work}s travail / ${rest}s repos`,
+    // Circuit preview info
+    circuitPreview: (n, rounds, work, rest) => `${n} exercices · ${rounds} rounds · ${work}s travail / ${rest}s repos`,
+  },
+  en: {
+    circuitDesc: 'Varied full-body exercises · work/rest · the classic',
+    otherModes: 'Other formats',
+    emomDesc: 'Every minute',
+    complexDesc: 'ABC Sequence',
+    duration: 'Duration',
+    level: 'Level',
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    viewCircuit: 'View circuit →',
+    history: '📋 History',
+    letsGo: 'LET\'S GO 🔥',
+    back: '← Back',
+    yourCircuit: 'Your Circuit',
+    regenerate: '🔄 Regenerate',
+    letsGoBtn: 'LET\'S GO 🔥',
+    upper: 'Upper Body',
+    lower: 'Lower Body',
+    full: 'Full body',
+    core: 'Core',
+    nextExercise: 'NEXT EXERCISE',
+    next: 'NEXT',
+    nextLabel: 'Next:',
+    lastEffort: 'Last effort!',
+    restShort: '😤 Rest',
+    restLong: '🧘 Long rest',
+    restCalm: '🧘 Rest',
+    transition: '🧘 Transition',
+    breatheDeep: 'Breathe deeply',
+    shakeArms: 'Shake your arms',
+    breathe: 'Breathe',
+    exerciseChange: 'Exercise change',
+    rest: 'Rest',
+    getReadyTGU: 'Get ready for TGUs',
+    switchSides: 'Switch sides',
+    done: '💪 Done!',
+    setsCompleted: 'sets completed',
+    effectiveWork: 'effective work',
+    levelLabel: 'Level:',
+    beginnerLabel: 'Beginner',
+    intermediateLabel: 'Intermediate',
+    goAgain: 'Go again?',
+    historyTitle: '📋 History',
+    noSessions: 'No sessions recorded',
+    readError: 'Read error',
+    close: 'Close',
+    exercises: 'exercises',
+    rounds: 'rounds',
+    work: 'work',
+    restWord: 'rest',
+    emomPreview: (n, min) => `${n} exercises · ${min} minutes · Do your reps, rest the remainder of the minute`,
+    tabataPreview: (blocks) => `${blocks} exercise${blocks > 1 ? 's' : ''} · 20s work / 10s rest × 8 per exercise`,
+    complexPreview: (min) => `Chained sequences (Clean + Press + Squat) · ${min} min · Rest between sets`,
+    ladderPreview: (min) => `Ladder 1-2-3-4-5 reps · ${min} min · Rest between rungs`,
+    ssPreview: '10 × 10 Swings + 5 TGU per side · ~25 min · Pavel\'s program',
+    rung: 'Rung',
+    rungDone: (n) => `Rung ${n} done`,
+    ladderDone: (n) => `Ladder ${n} done`,
+    setDone: (n) => `Set ${n} done`,
+    repsThenRest: 'reps then rest',
+    tguLeft: 'TGU LEFT',
+    tguRight: 'TGU RIGHT',
+    screenActive: '🔒 Screen active',
+    inPlace: 'in place',
+    perSide: 'per side',
+    circuitSubtitle: (n, rounds, work, rest) => `${n} exercises · ${rounds} rounds · ${work}s work / ${rest}s rest`,
+    circuitPreview: (n, rounds, work, rest) => `${n} exercises · ${rounds} rounds · ${work}s work / ${rest}s rest`,
+  }
+};
+
+// Exercise name translations (FR key -> EN display)
+const EX_NAME_EN = {
+  'Press (gauche)': 'Press (left)',
+  'Press (droite)': 'Press (right)',
+  'Row (gauche)': 'Row (left)',
+  'Row (droite)': 'Row (right)',
+  'Clean & Press (G)': 'Clean & Press (L)',
+  'Clean & Press (D)': 'Clean & Press (R)',
+  'Snatch (G)': 'Snatch (L)',
+  'Snatch (D)': 'Snatch (R)',
+  'Turkish Get-Up (G)': 'Turkish Get-Up (L)',
+  'Turkish Get-Up (D)': 'Turkish Get-Up (R)',
+  'Windmill (G)': 'Windmill (L)',
+  'Windmill (D)': 'Windmill (R)',
+  'Clean (G)': 'Clean (L)',
+  'Clean (D)': 'Clean (R)',
+  'Single Swing (G)': 'Single Swing (L)',
+  'Single Swing (D)': 'Single Swing (R)',
+  'Thruster (G)': 'Thruster (L)',
+  'Thruster (D)': 'Thruster (R)',
+  'High Pull (G)': 'High Pull (L)',
+  'High Pull (D)': 'High Pull (R)',
+  'Push Press (G)': 'Push Press (L)',
+  'Push Press (D)': 'Push Press (R)',
+};
+
+// Exercise steps in English (keyed by French exercise name)
+const EX_STEPS_EN = {
+  'Goblet Squat': ['Feet shoulder-width, toes out', 'KB by the horns against chest', 'Lower hips below knees, back straight', 'Push through heels, squeeze glutes at top'],
+  'Kettlebell Swing': ['Feet hip-width, KB on floor', 'Hip hinge, flat back', 'Explosive hip extension', 'KB rises to shoulders, control descent'],
+  'KB Deadlift': ['KB on floor between feet', 'Hip hinge, flat back', 'Grip KB, engage lats', 'Full extension, squeeze glutes'],
+  'Press (gauche)': ['KB in rack, straight wrist, elbow tucked', 'Brace abs and glutes', 'Press straight to ceiling', 'Lower slowly back to rack'],
+  'Press (droite)': ['KB in rack, straight wrist, elbow tucked', 'Brace abs and glutes', 'Press straight to ceiling', 'Lower slowly back to rack'],
+  'Farmer Carry': ['One KB in each hand', 'Back straight, shoulders down', 'March in place, slow steps', 'Core engaged, don\'t lean'],
+  'Halo': ['KB upside down by horns, at chest', 'Pass KB around your head', 'Elbows tight, slow movements', 'Alternate direction each rep'],
+  'Sumo Squat': ['Feet wide apart, toes at 45°', 'KB between legs, arms straight', 'Lower with upright torso', 'Knees out, squeeze glutes'],
+  'Row (gauche)': ['Bent at 45°, flat back', 'Free hand on knee', 'Pull KB toward hip, elbow tight', 'Lower slowly, stretch back'],
+  'Row (droite)': ['Bent at 45°, flat back', 'Free hand on knee', 'Pull KB toward hip, elbow tight', 'Lower slowly, stretch back'],
+  'Clean & Press (G)': ['Swing to bring KB to rack', 'Stabilize: KB against shoulder', 'Press to ceiling, lock out', 'Lower to rack then swing'],
+  'Clean & Press (D)': ['Swing to bring KB to rack', 'Stabilize: KB against shoulder', 'Press to ceiling, lock out', 'Lower to rack then swing'],
+  'Snatch (G)': ['Powerful swing between legs', 'At top, pull elbow up', 'Punch to sky, KB on forearm', 'Lower via rack then swing'],
+  'Snatch (D)': ['Powerful swing between legs', 'At top, pull elbow up', 'Punch to sky, KB on forearm', 'Lower via rack then swing'],
+  'Turkish Get-Up (G)': ['Lying down, KB arm extended to ceiling', 'Rise: elbow, hand, bridge, knee', 'Eyes on KB throughout', 'Reverse the steps going down'],
+  'Turkish Get-Up (D)': ['Lying down, KB arm extended to ceiling', 'Rise: elbow, hand, bridge, knee', 'Eyes on KB throughout', 'Reverse the steps going down'],
+  'Windmill (G)': ['KB arm extended, feet at 45°', 'Push hip out on KB side', 'Bend, hand slides down leg', 'Eyes on KB, rise slowly'],
+  'Windmill (D)': ['KB arm extended, feet at 45°', 'Push hip out on KB side', 'Bend, hand slides down leg', 'Eyes on KB, rise slowly'],
+  'Double KB Front Squat': ['Two KBs in rack, elbows tight', 'Feet shoulder-width', 'Deep squat, elbows between knees', 'Full extension'],
+  'Clean (G)': ['KB on floor, swing between legs', 'Explosive hip extension', 'Pull KB to rack position', 'Cushion with legs, elbow tucked'],
+  'Clean (D)': ['KB on floor, swing between legs', 'Explosive hip extension', 'Pull KB to rack position', 'Cushion with legs, elbow tucked'],
+  'Single Swing (G)': ['One arm, KB between legs', 'Explosive hip hinge', 'Arm straight, KB rises to shoulders', 'Free hand for balance, control descent'],
+  'Single Swing (D)': ['One arm, KB between legs', 'Explosive hip hinge', 'Arm straight, KB rises to shoulders', 'Free hand for balance, control descent'],
+  'Thruster (G)': ['KB in rack, deep squat', 'Explode up', 'Use momentum to press KB', 'Lock out at top, lower to rack'],
+  'Thruster (D)': ['KB in rack, deep squat', 'Explode up', 'Use momentum to press KB', 'Lock out at top, lower to rack'],
+  'Renegade Row': ['Plank position, one KB in each hand', 'Body braced, no hip rotation', 'Pull one KB toward hip', 'Set down and alternate sides'],
+  'High Pull (G)': ['Like a swing, explosive hips', 'At top, pull elbow up high', 'KB rises to chin height', 'Lower with control back to swing'],
+  'High Pull (D)': ['Like a swing, explosive hips', 'At top, pull elbow up high', 'KB rises to chin height', 'Lower with control back to swing'],
+  'Goblet Reverse Lunge': ['KB against chest, standing', 'Take a big step back', 'Back knee brushes floor', 'Push through front foot to return'],
+  'Push Press (G)': ['KB in rack, slight knee bend', 'Quick leg extension', 'Use momentum to propel KB', 'Lock out at top, lower to rack'],
+  'Push Press (D)': ['KB in rack, slight knee bend', 'Quick leg extension', 'Use momentum to propel KB', 'Lock out at top, lower to rack'],
+  'Floor Press': ['Lying on floor, knees bent, feet flat', 'KB in one hand, elbow on floor', 'Press KB straight to ceiling', 'Lower slowly, elbow to floor'],
+  'Figure 8': ['Legs apart, slight squat', 'Pass KB between legs in figure 8', 'Switch hands at each pass', 'Back straight, look ahead'],
+  '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
+};
+
+// Exercise detail translations (FR -> EN)
+const EX_DETAIL_EN = {
+  'sur place': 'in place',
+};
+
+function t(key) {
+  return STRINGS[currentLang][key] || STRINGS['fr'][key] || key;
+}
+
+function exName(frName) {
+  if (currentLang === 'fr') return frName;
+  return EX_NAME_EN[frName] || frName;
+}
+
+function exSteps(frName) {
+  if (currentLang === 'fr') return null; // use original
+  return EX_STEPS_EN[frName] || null;
+}
+
+function exDetail(frDetail) {
+  if (currentLang === 'fr') return frDetail;
+  // Translate known detail patterns
+  if (frDetail === 'sur place') return 'in place';
+  // "X par côté" -> "X per side"
+  const perSideMatch = frDetail.match(/^(\d+)\s+par côté$/);
+  if (perSideMatch) return `${perSideMatch[1]} per side`;
+  // "X reps puis repos" -> "X reps then rest"
+  if (frDetail.includes('reps puis repos')) return frDetail.replace('reps puis repos', 'reps then rest');
+  return frDetail;
+}
+
+function groupLabel(g) {
+  return t(g);
+}
+
+// Translate rest-related display names
+function translateRestName(name) {
+  if (currentLang === 'fr') return name;
+  if (name === '😤 Repos') return t('restShort');
+  if (name === '🧘 Repos long') return t('restLong');
+  if (name === '🧘 Repos') return t('restCalm');
+  if (name === '🧘 Transition') return t('transition');
+  return name;
+}
+
+function translateRestDetail(detail) {
+  if (currentLang === 'fr') return detail;
+  if (detail === 'Respire profond') return t('breatheDeep');
+  if (detail === 'Secoue les bras') return t('shakeArms');
+  if (detail === 'Respire') return t('breathe');
+  if (detail === 'Changement d\'exercice') return t('exerciseChange');
+  if (detail === 'Repos') return t('rest');
+  if (detail === 'Prépare-toi pour les TGU') return t('getReadyTGU');
+  if (detail === 'Change de côté') return t('switchSides');
+  // "Set X terminé"
+  const setMatch = detail.match(/^Set (\d+) terminé$/);
+  if (setMatch) return t('setDone')(setMatch[1]);
+  // "Échelon X terminé"
+  const rungMatch = detail.match(/^Échelon (\d+) terminé$/);
+  if (rungMatch) return t('rungDone')(rungMatch[1]);
+  // "Ladder X terminé"
+  const ladderMatch = detail.match(/^Ladder (\d+) terminé$/);
+  if (ladderMatch) return t('ladderDone')(ladderMatch[1]);
+  return detail;
+}
+
+// Translate a step's display name (exercise or rest)
+function displayName(step) {
+  if (step.type === 'rest') return translateRestName(step.name);
+  return exName(step.name);
+}
+
+// Translate a step's display detail
+function displayDetail(step) {
+  if (step.type === 'rest') return translateRestDetail(step.detail);
+  if (currentLang === 'fr') return step.detail;
+  let d = step.detail;
+  // "X reps puis repos" -> "X reps then rest"
+  d = d.replace('reps puis repos', 'reps then rest');
+  // "sur place" -> "in place"
+  d = d.replace('sur place', 'in place');
+  // "X par côté" -> "X per side"
+  d = d.replace(/(\d+)\s+par côté/, '$1 per side');
+  // "Échelon X" -> "Rung X"
+  d = d.replace(/Échelon\s+(\d+)/, 'Rung $1');
+  return d;
+}
+
+// Translate modeLabel for display
+function displayModeLabel(step) {
+  if (currentLang === 'fr') return step.modeLabel;
+  if (!step.modeLabel) return null;
+  let ml = step.modeLabel;
+  ml = ml.replace(/Échelon\s+(\d+)/, 'Rung $1');
+  ml = ml.replace('TGU GAUCHE', t('tguLeft'));
+  ml = ml.replace('TGU DROITE', t('tguRight'));
+  return ml;
+}
+
+// Get steps for display (translated or original)
+function displaySteps(name) {
+  const visual = getVisual(name);
+  const translated = exSteps(name);
+  return translated || visual.steps;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('kb_lang', lang);
+  document.getElementById('html-root').lang = lang;
+  applyLangToUI();
+}
+
+function applyLangToUI() {
+  // Update toggle button
+  const toggle = document.getElementById('lang-toggle');
+  toggle.textContent = currentLang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+
+  // Setup screen static elements
+  document.querySelector('.featured-card .mode-desc').textContent = t('circuitDesc');
+  document.querySelector('.other-modes-label').textContent = t('otherModes');
+  document.querySelector('[data-mode="emom"] .mode-desc').textContent = t('emomDesc');
+  document.querySelector('[data-mode="complex"] .mode-desc').textContent = t('complexDesc');
+  document.querySelector('#duration-group > label').textContent = t('duration');
+  document.querySelector('#diff-group > label').textContent = t('level');
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.textContent = btn.dataset.level === 'beginner' ? t('beginner') : t('intermediate');
+  });
+  document.getElementById('history-btn').textContent = t('history');
+
+  // Circuit preview static elements
+  document.getElementById('cp-back').textContent = t('back');
+  document.querySelector('.cp-title').textContent = t('yourCircuit');
+  document.getElementById('cp-regenerate').textContent = t('regenerate');
+  document.getElementById('cp-go').textContent = t('letsGoBtn');
+
+  // Done screen
+  document.querySelector('#done h2').textContent = t('done');
+  document.getElementById('again-btn').textContent = t('goAgain');
+
+  // History modal
+  document.querySelector('.history-box h3').textContent = t('historyTitle');
+  document.getElementById('history-close').textContent = t('close');
+
+  // Update preview text & go button
+  updatePreview();
+
+  // Re-render circuit preview if it is currently visible
+  if (document.getElementById('circuit-preview').style.display === 'flex' && pickedCircuitExercises.length > 0) {
+    renderCircuitPreview();
+  }
+}
+
+document.getElementById('lang-toggle').addEventListener('click', () => {
+  setLang(currentLang === 'fr' ? 'en' : 'fr');
+});
+
 // ══════════════════════════════════════════════
 //  EXERCISE DATABASE (~25 exercises)
 // ══════════════════════════════════════════════
@@ -1034,10 +1440,12 @@ function getVisual(name) {
 // ══════════════════════════════════════════════
 //  EXERCISE POOLS BY LEVEL
 // ══════════════════════════════════════════════
-// Group labels for display
-const GROUP_LABELS = {
-  upper: 'Haut du corps', lower: 'Bas du corps', full: 'Full body', core: 'Core'
-};
+// Group labels for display (dynamic based on language)
+function getGroupLabels() {
+  return { upper: t('upper'), lower: t('lower'), full: t('full'), core: t('core') };
+}
+// Keep GROUP_LABELS as a getter for backward compat
+const GROUP_LABELS = new Proxy({}, { get: (_, prop) => t(prop) });
 
 const POOL = {
   beginner: [
@@ -1246,20 +1654,22 @@ function showHistory() {
   try {
     const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
     if (hist.length === 0) {
-      list.innerHTML = '<div class="history-empty">Aucune session enregistrée</div>';
+      list.innerHTML = `<div class="history-empty">${t('noSessions')}</div>`;
     } else {
       list.innerHTML = hist.map(s => {
         const d = new Date(s.date);
-        const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+        const dateStr = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const exDisplay = (s.exercises || []).map(e => exName(e)).join(', ');
         return `<div class="history-item">
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
-          <div class="history-detail">${(s.exercises || []).join(', ')}</div>
+          <div class="history-detail">${exDisplay}</div>
         </div>`;
       }).join('');
     }
   } catch {
-    list.innerHTML = '<div class="history-empty">Erreur de lecture</div>';
+    list.innerHTML = `<div class="history-empty">${t('readError')}</div>`;
   }
   modal.style.display = 'flex';
 }
@@ -1605,7 +2015,7 @@ function beepDone() { beep(660, 0.2); setTimeout(() => beep(880, 0.2), 250); set
 //  WAKE LOCK
 // ══════════════════════════════════════════════
 async function requestWake() {
-  try { wakeLock = await navigator.wakeLock.request('screen'); document.getElementById('wake-hint').textContent = '🔒 Écran actif'; } catch {}
+  try { wakeLock = await navigator.wakeLock.request('screen'); document.getElementById('wake-hint').textContent = t('screenActive'); } catch {}
 }
 function releaseWake() {
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
@@ -1685,38 +2095,39 @@ function updatePreview() {
     case 'circuit': {
       if (!CIRCUIT_CFG[selectedMin]) { el.textContent = ''; return; }
       const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-      el.textContent = `${c.exCount} exercices · ${c.rounds} rounds · ${c.work}s travail / ${c.rest}s repos`;
+      el.textContent = t('circuitPreview')(c.exCount, c.rounds, c.work, c.rest);
       break;
     }
     case 'emom': {
       const n = selectedLevel === 'beginner' ? 2 : 3;
-      el.textContent = `${n} exercices · ${selectedMin} minutes · Fais tes reps, repose le reste de la minute`;
+      el.textContent = t('emomPreview')(n, selectedMin);
       break;
     }
     case 'tabata': {
       const blocks = selectedMin === 4 ? 1 : selectedMin === 8 ? 2 : 3;
-      el.textContent = `${blocks} exercice${blocks > 1 ? 's' : ''} · 20s travail / 10s repos × 8 par exo`;
+      el.textContent = t('tabataPreview')(blocks);
       break;
     }
     case 'complex': {
-      el.textContent = `Séquences enchaînées (Clean + Press + Squat) · ${selectedMin} min · Repos entre sets`;
+      el.textContent = t('complexPreview')(selectedMin);
       break;
     }
     case 'ladder': {
-      el.textContent = `Échelle 1-2-3-4-5 reps · ${selectedMin} min · Repos entre échelons`;
+      el.textContent = t('ladderPreview')(selectedMin);
       break;
     }
     case 'ss': {
-      el.textContent = `10 × 10 Swings + 5 TGU par côté · ~25 min · Le programme de Pavel`;
+      el.textContent = t('ssPreview');
       break;
     }
   }
   // Adapt go button label
-  document.getElementById('go-btn').textContent = selectedMode === 'circuit' ? 'Voir le circuit →' : 'C\'EST PARTI 🔥';
+  document.getElementById('go-btn').textContent = selectedMode === 'circuit' ? t('viewCircuit') : t('letsGo');
 }
 
 // Initialize
 updateDurationOptions();
+applyLangToUI();
 
 // ══════════════════════════════════════════════
 //  PREVIEW SCREEN
@@ -1727,14 +2138,15 @@ function showPreview() {
   if (step.type === 'rest') { showTimer(); return; }
 
   const visual = getVisual(step.name);
-  const label = step.modeLabel || `ROUND ${step.round}/${step.totalRounds}`;
-  document.getElementById('pv-label').textContent = label + ' · PROCHAIN';
-  document.getElementById('pv-name').textContent = step.name;
-  document.getElementById('pv-detail').textContent = `${step.detail} · ${step.duration}s`;
+  const label = (step.modeLabel ? displayModeLabel(step) : `ROUND ${step.round}/${step.totalRounds}`) || `ROUND ${step.round}/${step.totalRounds}`;
+  document.getElementById('pv-label').textContent = label + ' · ' + t('next');
+  document.getElementById('pv-name').textContent = displayName(step);
+  document.getElementById('pv-detail').textContent = `${displayDetail(step)} · ${step.duration}s`;
   document.getElementById('pv-anim').innerHTML = visual.svg;
 
+  const stepsForDisplay = displaySteps(step.name);
   const stepsEl = document.getElementById('pv-steps');
-  stepsEl.innerHTML = visual.steps.map((s, i) =>
+  stepsEl.innerHTML = stepsForDisplay.map((s, i) =>
     `<div class="pv-step" data-idx="${i}"><span class="pv-step-num">${i+1}</span><span>${s}</span></div>`
   ).join('');
 
@@ -1778,24 +2190,25 @@ function showTimer() {
   document.getElementById('wo-mode-badge').textContent = MODE_NAMES[selectedMode];
 
   // Round info
-  const roundLabel = step.modeLabel || `ROUND ${step.round} / ${step.totalRounds}`;
+  const roundLabel = (step.modeLabel ? displayModeLabel(step) : `ROUND ${step.round} / ${step.totalRounds}`) || `ROUND ${step.round} / ${step.totalRounds}`;
   document.getElementById('wo-round').textContent = roundLabel;
 
   const nameEl = document.getElementById('wo-name');
-  nameEl.textContent = step.name;
+  nameEl.textContent = displayName(step);
   nameEl.className = 'wo-name' + (step.type === 'rest' ? ' rest' : '');
-  document.getElementById('wo-detail').textContent = step.detail;
+  document.getElementById('wo-detail').textContent = displayDetail(step);
   ringFill.className.baseVal = 'timer-ring-fill' + (step.type === 'rest' ? ' rest' : '');
 
   const visual = getVisual(step.type === 'work' ? step.name : '_rest');
   document.getElementById('wo-anim').innerHTML = visual.svg;
-  document.getElementById('wo-steps-mini').innerHTML = visual.steps.map(s =>
+  const miniSteps = step.type === 'work' ? displaySteps(step.name) : displaySteps('_rest');
+  document.getElementById('wo-steps-mini').innerHTML = miniSteps.map(s =>
     `<div class="mini-step">${s}</div>`
   ).join('');
 
   const nextWork = circuit.slice(currentStep + 1).find(s => s.type === 'work');
   document.getElementById('wo-next').textContent = nextWork
-    ? `Ensuite : ${nextWork.name}` : 'Dernier effort !';
+    ? `${t('nextLabel')} ${exName(nextWork.name)}` : t('lastEffort');
   document.getElementById('wo-progress-fill').style.width = `${(currentStep / totalSteps) * 100}%`;
 
   beepStart();
@@ -1866,7 +2279,7 @@ function renderCircuitPreview() {
   const picked = pickedCircuitExercises;
 
   document.getElementById('cp-subtitle').textContent =
-    `${picked.length} exercices · ${c.rounds} rounds · ${c.work}s travail / ${c.rest}s repos`;
+    t('circuitSubtitle')(picked.length, c.rounds, c.work, c.rest);
 
   // Coverage tags (clickable)
   const presentGroups = {};
@@ -1876,7 +2289,7 @@ function renderCircuitPreview() {
   coverageEl.innerHTML =
     ['upper', 'lower', 'full', 'core'].map(g => {
       const has = !!presentGroups[g];
-      return `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}" data-group="${g}">${has ? '✓' : '✗'} ${GROUP_LABELS[g]}</span>`;
+      return `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}" data-group="${g}">${has ? '✓' : '✗'} ${groupLabel(g)}</span>`;
     }).join('');
 
   // Attach click handlers to tags
@@ -1900,10 +2313,10 @@ function renderCircuitPreview() {
     `<div class="cp-item">
       <div class="cp-item-num">${i + 1}</div>
       <div class="cp-item-info">
-        <div class="cp-item-name">${ex.name}</div>
-        <div class="cp-item-detail">${ex.detail}</div>
+        <div class="cp-item-name">${exName(ex.name)}</div>
+        <div class="cp-item-detail">${exDetail(ex.detail)}</div>
       </div>
-      <span class="cp-item-tag ${ex.group}">${GROUP_LABELS[ex.group]}</span>
+      <span class="cp-item-tag ${ex.group}">${groupLabel(ex.group)}</span>
     </div>`
   ).join('');
 
@@ -1962,9 +2375,9 @@ function finish() {
 
   document.getElementById('done-stats').innerHTML =
     `${modeName} · ${durStr}<br>` +
-    `${workSteps.length} séries complétées<br>` +
-    `${Math.floor(totalWork/60)}min ${totalWork%60}s de travail effectif<br>` +
-    `Niveau : ${selectedLevel === 'beginner' ? 'Débutant' : 'Intermédiaire'}`;
+    `${workSteps.length} ${t('setsCompleted')}<br>` +
+    `${Math.floor(totalWork/60)}min ${totalWork%60}s ${t('effectiveWork')}<br>` +
+    `${t('levelLabel')} ${selectedLevel === 'beginner' ? t('beginnerLabel') : t('intermediateLabel')}`;
   document.getElementById('wo-progress-fill').style.width = '100%';
 
   // Save to history
