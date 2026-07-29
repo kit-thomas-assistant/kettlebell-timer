@@ -60,10 +60,16 @@
     text-transform: uppercase;
   }
 
-  /* Featured circuit card */
+  /* Featured training goals */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    width: 100%;
+  }
   .featured-card {
     background: var(--surface);
-    border: 2px solid var(--accent);
+    border: 2px solid var(--surface2);
     border-radius: 1.2rem;
     padding: 1.2rem 1.5rem;
     cursor: pointer;
@@ -71,8 +77,13 @@
     text-align: center;
     width: 100%;
     background: rgba(255,107,53,0.08);
+    min-height: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
-  .featured-card:hover { background: rgba(255,107,53,0.15); }
+  .featured-card:hover { background: rgba(255,107,53,0.15); border-color: var(--accent); }
   .featured-card.active {
     border-color: var(--accent);
     background: rgba(255,107,53,0.15);
@@ -81,6 +92,22 @@
   .featured-card .mode-icon { font-size: 2.2rem; margin-bottom: 0.3rem; }
   .featured-card .mode-name { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
   .featured-card .mode-desc { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+  .featured-card .mode-note {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: #c5a99d;
+    margin-top: 0.55rem;
+    max-width: 31rem;
+  }
+  .featured-card[data-mode="fatloss"] {
+    background:
+      linear-gradient(135deg, rgba(255,107,53,0.16), rgba(255,107,53,0.035)),
+      var(--surface);
+  }
+  @media (max-width: 650px) {
+    .featured-grid { grid-template-columns: 1fr; }
+    .featured-card { min-height: 128px; padding: 1rem; }
+  }
 
   .other-modes-label {
     color: var(--muted);
@@ -164,6 +191,10 @@
   .cp-tag.lower { background: rgba(52,211,153,0.2); color: #34d399; }
   .cp-tag.full { background: rgba(251,146,60,0.2); color: #fb923c; }
   .cp-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .cp-tag.prep { background: rgba(148,163,184,0.18); color: #cbd5e1; }
+  .cp-tag.metabolic { background: rgba(255,107,53,0.2); color: #ff986f; }
+  .cp-tag.strength { background: rgba(52,211,153,0.18); color: #5ee0ae; }
+  .cp-tag.finisher { background: rgba(244,114,182,0.2); color: #f58cc4; }
   .cp-tag { cursor: pointer; transition: all 0.2s; user-select: none; }
   .cp-tag:hover { filter: brightness(1.3); transform: scale(1.05); }
   .cp-tag:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
@@ -215,6 +246,22 @@
   .cp-item-tag.lower { background: rgba(52,211,153,0.2); color: #34d399; }
   .cp-item-tag.full { background: rgba(251,146,60,0.2); color: #fb923c; }
   .cp-item-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
+  .cp-item-tag.prep { background: rgba(148,163,184,0.18); color: #cbd5e1; }
+  .cp-item-tag.metabolic { background: rgba(255,107,53,0.2); color: #ff986f; }
+  .cp-item-tag.strength { background: rgba(52,211,153,0.18); color: #5ee0ae; }
+  .cp-item-tag.finisher { background: rgba(244,114,182,0.2); color: #f58cc4; }
+  .cp-science-note {
+    width: 100%;
+    max-width: 600px;
+    padding: 0.75rem 0.9rem;
+    border-left: 3px solid var(--accent);
+    background: rgba(255,107,53,0.07);
+    border-radius: 0 0.65rem 0.65rem 0;
+    color: #c7b5ae;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    text-align: left;
+  }
   .cp-buttons {
     display: flex;
     gap: 1rem;
@@ -888,10 +935,18 @@
   <h1>🏋️ <span>Kettlebell</span> Timer</h1>
 
   <div class="option-group">
-    <div class="featured-card active" data-mode="circuit">
-      <div class="mode-icon">🔄</div>
-      <div class="mode-name">Circuit Training</div>
-      <div class="mode-desc">Exos variés full-body · work/rest · le classique</div>
+    <div class="featured-grid">
+      <div class="featured-card active" data-mode="circuit">
+        <div class="mode-icon">🔄</div>
+        <div class="mode-name">Circuit Training</div>
+        <div class="mode-desc">Exos variés full-body · work/rest · le classique</div>
+      </div>
+      <div class="featured-card" data-mode="fatloss">
+        <div class="mode-icon">🔥</div>
+        <div class="mode-name">Objectif perte de graisse</div>
+        <div class="mode-desc">Intervalles kettlebell · force full-body · core</div>
+        <div class="mode-note">La graisse abdominale ne se cible pas localement. Ce plan agit sur la dépense globale, la force et le tour de taille.</div>
+      </div>
     </div>
   </div>
   <div class="option-group">
@@ -1022,6 +1077,7 @@
   <div class="cp-title">Ton Circuit</div>
   <div class="cp-subtitle" id="cp-subtitle">5 exercices · 3 rounds · 30s/15s</div>
   <div class="cp-coverage" id="cp-coverage"></div>
+  <div class="cp-science-note" id="cp-science-note" hidden></div>
   <div class="cp-list" id="cp-list"></div>
   <div class="cp-buttons">
     <button id="cp-regenerate">🔄 Régénérer</button>
@@ -1050,6 +1106,11 @@ const STRINGS = {
   fr: {
     // Setup
     circuitDesc: 'Exos variés full-body · work/rest · le classique',
+    fatlossName: 'Objectif perte de graisse',
+    fatlossDesc: 'Intervalles kettlebell · force full-body · core',
+    fatlossNote: 'La graisse abdominale ne se cible pas localement. Ce plan agit sur la dépense globale, la force et le tour de taille.',
+    fatlossPreview: (min, level) => `${min} min · ${level} · préparation progressive + intervalles + force + core · blocs actifs RPE 7–8`,
+    viewPlan: 'Voir le plan →',
     otherModes: 'Autres formats',
     emomDesc: 'Chaque minute',
     complexDesc: 'Séquence ABC',
@@ -1140,9 +1201,21 @@ const STRINGS = {
     demoShort: '▶ DÉMO',
     demoAria: (name) => `Voir une démonstration YouTube pour ${name}`,
     circuitEmpty: 'Active au moins une catégorie pour générer un circuit.',
+    yourFatlossPlan: 'Ton plan perte de graisse',
+    fatlossScience: 'Objectif honnête : aucun exercice ne fait fondre uniquement le ventre. La régularité, une alimentation adaptée, le sommeil et ce travail global peuvent réduire la graisse totale et le tour de taille.',
+    prepPhase: 'Préparation',
+    metabolicPhase: 'Intervalles',
+    strengthPhase: 'Force full-body',
+    finisherPhase: 'Core finisher',
+    fatlossSubtitle: (min, work, rest) => `${min} min environ · ${work}s travail / ${rest}s repos · blocs actifs RPE 7–8`,
   },
   en: {
     circuitDesc: 'Varied full-body exercises · work/rest · the classic',
+    fatlossName: 'Fat-loss goal',
+    fatlossDesc: 'Kettlebell intervals · full-body strength · core',
+    fatlossNote: 'Abdominal fat cannot be spot-reduced. This plan targets total energy expenditure, strength and waist outcomes.',
+    fatlossPreview: (min, level) => `${min} min · ${level} · progressive prep + intervals + strength + core · active blocks RPE 7–8`,
+    viewPlan: 'View plan →',
     otherModes: 'Other formats',
     emomDesc: 'Every minute',
     complexDesc: 'ABC Sequence',
@@ -1213,6 +1286,13 @@ const STRINGS = {
     demoShort: '▶ DEMO',
     demoAria: (name) => `Watch a YouTube demonstration for ${name}`,
     circuitEmpty: 'Enable at least one category to generate a circuit.',
+    yourFatlossPlan: 'Your fat-loss plan',
+    fatlossScience: 'The honest goal: no exercise melts belly fat alone. Consistency, appropriate nutrition, sleep and this whole-body work can reduce total fat and waist circumference.',
+    prepPhase: 'Preparation',
+    metabolicPhase: 'Intervals',
+    strengthPhase: 'Full-body strength',
+    finisherPhase: 'Core finisher',
+    fatlossSubtitle: (min, work, rest) => `About ${min} min · ${work}s work / ${rest}s rest · active blocks RPE 7–8`,
   }
 };
 
@@ -1240,6 +1320,12 @@ const EX_NAME_EN = {
   'High Pull (D)': 'High Pull (R)',
   'Push Press (G)': 'Push Press (L)',
   'Push Press (D)': 'Push Press (R)',
+  'Planche avant-bras': 'Forearm Plank',
+  'Planche latérale (G)': 'Side Plank (L)',
+  'Planche latérale (D)': 'Side Plank (R)',
+  'Dead Bug': 'Dead Bug',
+  'Mountain Climber': 'Mountain Climber',
+  'Bear Plank Shoulder Tap': 'Bear Plank Shoulder Tap',
 };
 
 // Exercise steps in English (keyed by French exercise name)
@@ -1290,6 +1376,12 @@ const EX_STEPS_EN = {
   'Goblet Cossack Squat': ['Take a very wide stance, KB at your chest', 'Bend one leg and send the hip back', 'Keep the other leg long with toes raised', 'Drive through the bent leg and switch sides'],
   'Dead Bug Pullover': ['Lie down, knees at 90°, KB over the chest', 'Gently press the lower back into the floor', 'Lower the KB behind your head without arching', 'Exhale and bring it back over the chest'],
   'Half-Kneeling Press': ['One knee down, KB racked on that side', 'Squeeze the glute of the back leg', 'Press vertically without arching', 'Lower to the rack, then switch sides'],
+  'Planche avant-bras': ['Elbows below shoulders, forearms parallel', 'Make one straight line from head to heels', 'Brace abs and glutes without holding your breath', 'Stop before the lower back sags'],
+  'Planche latérale (G)': ['Left elbow directly below the shoulder', 'Stack or stagger the feet', 'Lift the hips into one straight line', 'Breathe and keep the pelvis facing forward'],
+  'Planche latérale (D)': ['Right elbow directly below the shoulder', 'Stack or stagger the feet', 'Lift the hips into one straight line', 'Breathe and keep the pelvis facing forward'],
+  'Dead Bug': ['Lie down with hips and knees at 90°', 'Press the lower back gently into the floor', 'Extend opposite arm and leg slowly', 'Exhale, return, then alternate sides'],
+  'Mountain Climber': ['Hands below shoulders in a strong plank', 'Drive one knee toward the chest', 'Alternate smoothly without bouncing the hips', 'Keep shoulders over hands and breathe'],
+  'Bear Plank Shoulder Tap': ['Hands below shoulders, knees below hips', 'Lift knees a few centimetres off the floor', 'Tap the opposite shoulder without twisting', 'Alternate slowly with ribs and pelvis stable'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -1332,6 +1424,24 @@ function exDetail(frDetail) {
 
 function groupLabel(g) {
   return t(g);
+}
+
+function phaseLabel(phase) {
+  return {
+    prep: t('prepPhase'),
+    metabolic: t('metabolicPhase'),
+    strength: t('strengthPhase'),
+    finisher: t('finisherPhase'),
+  }[phase] || phase;
+}
+
+function phaseRpe(phase) {
+  return {
+    prep: '3–5',
+    metabolic: '7–8',
+    strength: '7–8',
+    finisher: '6–8',
+  }[phase] || '7–8';
 }
 
 // Translate rest-related display names
@@ -1392,6 +1502,10 @@ function displayDetail(step) {
 
 // Translate modeLabel for display
 function displayModeLabel(step) {
+  if (selectedMode === 'fatloss' && step.phase) {
+    if (step.type === 'rest' && step.name === '🧘 Transition') return t('transition');
+    return `${phaseLabel(step.phase).toUpperCase()} · ${step.round}/${step.totalRounds}`;
+  }
   if (currentLang === 'fr') return step.modeLabel;
   if (!step.modeLabel) return null;
   let ml = step.modeLabel;
@@ -1421,7 +1535,10 @@ function applyLangToUI() {
   toggle.textContent = currentLang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
 
   // Setup screen static elements
-  document.querySelector('.featured-card .mode-desc').textContent = t('circuitDesc');
+  document.querySelector('[data-mode="circuit"] .mode-desc').textContent = t('circuitDesc');
+  document.querySelector('[data-mode="fatloss"] .mode-name').textContent = t('fatlossName');
+  document.querySelector('[data-mode="fatloss"] .mode-desc').textContent = t('fatlossDesc');
+  document.querySelector('[data-mode="fatloss"] .mode-note').textContent = t('fatlossNote');
   document.querySelector('.other-modes-label').textContent = t('otherModes');
   document.querySelector('[data-mode="emom"] .mode-desc').textContent = t('emomDesc');
   document.querySelector('[data-mode="complex"] .mode-desc').textContent = t('complexDesc');
@@ -1453,7 +1570,7 @@ function applyLangToUI() {
 
   // Re-render circuit preview if it is currently visible
   if (document.getElementById('circuit-preview').style.display === 'flex') {
-    renderCircuitPreview();
+    renderPlanPreview();
   }
 }
 
@@ -1773,6 +1890,55 @@ for (const exercise of MODERN_EXERCISES) {
   YOUTUBE_DEMOS[exercise.name] = exercise.demo;
 }
 
+const BODYWEIGHT_CORE_EXERCISES = [
+  {
+    name: 'Planche avant-bras',
+    svg: `<svg viewBox="0 0 120 90" role="img"><circle cx="25" cy="36" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="33" y1="40" x2="82" y2="52" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="82" y1="52" x2="108" y2="58" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="47" y1="44" x2="37" y2="65" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="65" x2="17" y2="65" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="108" y1="58" x2="114" y2="64" stroke="${K}" stroke-width="4" stroke-linecap="round"/></svg>`,
+    steps: ['Coudes sous les épaules, avant-bras parallèles','Aligne tête, bassin et talons','Contracte abdos et fessiers sans bloquer le souffle','Arrête avant que les lombaires ne s’affaissent'],
+    demo: { query: 'forearm plank proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Planche latérale (G)',
+    svg: `<svg viewBox="0 0 120 90" role="img"><circle cx="25" cy="31" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="33" y1="36" x2="78" y2="51" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="78" y1="51" x2="108" y2="61" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="44" y1="40" x2="33" y2="63" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="33" y1="63" x2="17" y2="63" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="41" x2="47" y2="17" stroke="${B}" stroke-width="3" stroke-linecap="round"/></svg>`,
+    steps: ['Coude gauche directement sous l’épaule','Pieds superposés ou décalés','Monte le bassin pour former une ligne droite','Respire et garde le bassin face à l’avant'],
+    demo: { query: 'side plank proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Planche latérale (D)',
+    visualFrom: 'Planche latérale (G)',
+    steps: ['Coude droit directement sous l’épaule','Pieds superposés ou décalés','Monte le bassin pour former une ligne droite','Respire et garde le bassin face à l’avant'],
+    demo: { query: 'side plank proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Dead Bug',
+    svg: `<svg viewBox="0 0 120 90" role="img"><circle cx="28" cy="58" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="36" y1="58" x2="69" y2="58" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="55" x2="34" y2="25" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="56" y1="55" x2="82" y2="28" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="68" y1="58" x2="87" y2="42" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="87" y1="42" x2="103" y2="59" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="68" y1="58" x2="104" y2="70" stroke="${B}" stroke-width="4" stroke-linecap="round"/></svg>`,
+    steps: ['Allongé, hanches et genoux à 90°','Plaque doucement les lombaires au sol','Allonge lentement bras et jambe opposés','Expire, reviens puis alterne'],
+    demo: { query: 'dead bug exercise proper form tutorial' },
+  },
+  {
+    name: 'Mountain Climber',
+    svg: `<svg viewBox="0 0 120 90" role="img"><circle cx="28" cy="27" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="36" y1="33" x2="75" y2="48" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="45" y1="37" x2="32" y2="68" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="75" y1="48" x2="108" y2="65" stroke="${B}" stroke-width="4" stroke-linecap="round"/><polyline points="75,48 59,64 39,63" fill="none" stroke="${K}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    steps: ['Mains sous les épaules, planche solide','Ramène un genou vers la poitrine','Alterne sans faire rebondir le bassin','Garde les épaules au-dessus des mains et respire'],
+    demo: { query: 'mountain climber exercise proper form tutorial' },
+  },
+  {
+    name: 'Bear Plank Shoulder Tap',
+    svg: `<svg viewBox="0 0 120 90" role="img"><circle cx="28" cy="27" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="36" y1="34" x2="76" y2="47" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="49" y1="38" x2="34" y2="67" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="55" y1="40" x2="40" y2="29" stroke="${K}" stroke-width="4" stroke-linecap="round"/><polyline points="76,47 87,65 102,64" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    steps: ['Mains sous les épaules, genoux sous les hanches','Décolle les genoux de quelques centimètres','Touche l’épaule opposée sans pivoter','Alterne lentement, côtes et bassin stables'],
+    demo: { query: 'bear plank shoulder tap proper form tutorial' },
+  },
+];
+
+for (const exercise of BODYWEIGHT_CORE_EXERCISES) {
+  const sourceVisual = exercise.visualFrom && EX_DATA[exercise.visualFrom];
+  EX_DATA[exercise.name] = {
+    svg: exercise.svg || sourceVisual.svg,
+    steps: exercise.steps,
+    meta: { equipment: 'Sans kettlebell', difficulty: 'beginner' },
+  };
+  YOUTUBE_DEMOS[exercise.name] = exercise.demo;
+}
+
 function getYouTubeDemo(name) {
   const demo = YOUTUBE_DEMOS[name];
   if (!demo) return null;
@@ -1812,7 +1978,7 @@ function updateExerciseMeta(visual) {
     const equipment = document.createElement('span');
     equipment.className = 'pv-meta-chip';
     const equipmentText = currentLang === 'en'
-      ? visual.meta.equipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells')
+      ? visual.meta.equipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells').replace('Sans kettlebell', 'No kettlebell')
       : visual.meta.equipment;
     equipment.textContent = `🏋️ ${equipmentText}`;
     container.append(equipment);
@@ -1902,11 +2068,13 @@ const POOL = {
 // ══════════════════════════════════════════════
 const MODE_NAMES = {
   circuit: 'Circuit', emom: 'EMOM', tabata: 'Tabata',
-  complex: 'Complex', ladder: 'Ladder', ss: 'Simple & Sinister'
+  complex: 'Complex', ladder: 'Ladder', ss: 'Simple & Sinister',
+  fatloss: 'Objectif perte de graisse'
 };
 
 const MODE_DURATIONS = {
   circuit: [10, 15, 20],
+  fatloss: [15, 20, 25],
   emom: [8, 10, 12, 16],
   tabata: [4, 8, 12],
   complex: [10, 15, 20],
@@ -1920,6 +2088,32 @@ const CIRCUIT_CFG = {
   20: { beginner: { exCount: 5, rounds: 4, work: 30, rest: 15 }, inter: { exCount: 6, rounds: 3, work: 35, rest: 12 } },
 };
 
+const FATLOSS_CFG = {
+  15: { warmupCount: 3, metabolicCount: 2, metabolicRounds: 3, strengthCount: 2, strengthRounds: 2, coreCount: 2, coreRounds: 2, work: 35, rest: 20, strengthWork: 35, strengthRest: 25, coreWork: 30 },
+  20: { warmupCount: 4, metabolicCount: 3, metabolicRounds: 2, strengthCount: 3, strengthRounds: 2, coreCount: 3, coreRounds: 2, work: 40, rest: 20, strengthWork: 40, strengthRest: 25, coreWork: 35 },
+  25: { warmupCount: 4, metabolicCount: 3, metabolicRounds: 3, strengthCount: 3, strengthRounds: 2, coreCount: 3, coreRounds: 2, work: 40, rest: 20, strengthWork: 40, strengthRest: 25, coreWork: 35 },
+};
+
+const FATLOSS_POOLS = {
+  beginner: {
+    prep: ['Halo', 'KB Deadlift', 'Slingshot', 'Goblet Squat'],
+    metabolic: ['Kettlebell Swing', 'Suitcase March', 'Farmer Carry', 'Mountain Climber'],
+    strength: ['Goblet Squat', 'KB Deadlift', 'KB Romanian Deadlift', 'Row (gauche)', 'Row (droite)', 'Half-Kneeling Press', 'Goblet Reverse Lunge'],
+    finisher: ['Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Dead Bug', 'Bear Plank Shoulder Tap', 'Dead Bug Pullover'],
+  },
+  inter: {
+    prep: ['Halo', 'KB Romanian Deadlift', 'Slingshot', 'Goblet Squat'],
+    metabolic: ['Kettlebell Swing', 'High Pull (G)', 'High Pull (D)', 'Snatch (G)', 'Snatch (D)', 'Thruster (G)', 'Thruster (D)', 'Mountain Climber'],
+    strength: ['Goblet Squat', 'KB Romanian Deadlift', 'Clean & Press (G)', 'Clean & Press (D)', 'Gorilla Row', 'Goblet Reverse Lunge', 'Tactical Lunge'],
+    finisher: ['Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Dead Bug', 'Bear Plank Shoulder Tap', 'Suitcase March', 'Front Rack March'],
+  },
+};
+
+function modeName(mode) {
+  if (mode === 'fatloss') return t('fatlossName');
+  return MODE_NAMES[mode] || mode;
+}
+
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
@@ -1929,6 +2123,7 @@ let circuit = [], totalSteps = 0, currentStep = 0;
 let timeLeft = 0, timerInterval = null, paused = false;
 let wakeLock = null;
 let sessionExercises = [];
+let fatlossPlan = null;
 
 // ══════════════════════════════════════════════
 //  ANTI-REPETITION (localStorage)
@@ -1967,6 +2162,72 @@ function pickExercises(count, level) {
   const stale = shuffle(pool.filter(e => recent.has(e.name)));
   const ordered = [...fresh, ...stale];
   return ordered.slice(0, count);
+}
+
+function exerciseEntry(name, level) {
+  const candidates = [...POOL[level], ...POOL.beginner, ...POOL.inter];
+  const found = candidates.find(exercise => exercise.name === name);
+  if (found) return { ...found };
+  return { name, detail: 'contrôle propre', reps: 0, group: 'core' };
+}
+
+const FATLOSS_SIDE_PAIRS = [
+  ['Press (gauche)', 'Press (droite)'],
+  ['Row (gauche)', 'Row (droite)'],
+  ['Clean & Press (G)', 'Clean & Press (D)'],
+  ['Snatch (G)', 'Snatch (D)'],
+  ['Clean (G)', 'Clean (D)'],
+  ['Single Swing (G)', 'Single Swing (D)'],
+  ['Thruster (G)', 'Thruster (D)'],
+  ['High Pull (G)', 'High Pull (D)'],
+  ['Push Press (G)', 'Push Press (D)'],
+  ['Planche latérale (G)', 'Planche latérale (D)'],
+];
+const FATLOSS_COUNTERPART = new Map(
+  FATLOSS_SIDE_PAIRS.flatMap(([left, right]) => [[left, right], [right, left]])
+);
+
+function pickFatlossPhase(names, count, level) {
+  const recent = getRecentExercises();
+  const ordered = [
+    ...shuffle(names.filter(name => !recent.has(name))),
+    ...shuffle(names.filter(name => recent.has(name))),
+  ];
+  const selected = [];
+  const used = new Set();
+
+  for (const name of ordered) {
+    if (selected.length >= count || used.has(name)) continue;
+    const counterpart = FATLOSS_COUNTERPART.get(name);
+    const counterpartIsAvailable = counterpart && names.includes(counterpart);
+
+    if (counterpartIsAvailable) {
+      // A named left/right movement is always programmed as a complete pair.
+      // If only one slot remains, skip it and keep looking for a bilateral move.
+      if (count - selected.length < 2) continue;
+      selected.push(name, counterpart);
+      used.add(name);
+      used.add(counterpart);
+      continue;
+    }
+
+    selected.push(name);
+    used.add(name);
+  }
+
+  return selected.slice(0, count).map(name => exerciseEntry(name, level));
+}
+
+function generateFatlossPlan() {
+  const cfg = FATLOSS_CFG[selectedMin];
+  const pools = FATLOSS_POOLS[selectedLevel];
+  fatlossPlan = {
+    prep: pickFatlossPhase(pools.prep, cfg.warmupCount, selectedLevel),
+    metabolic: pickFatlossPhase(pools.metabolic, cfg.metabolicCount, selectedLevel),
+    strength: pickFatlossPhase(pools.strength, cfg.strengthCount, selectedLevel),
+    finisher: pickFatlossPhase(pools.finisher, cfg.coreCount, selectedLevel),
+  };
+  return fatlossPlan;
 }
 
 // Smart pick for Circuit: guarantees coverage of required groups + anti-repetition
@@ -2074,7 +2335,7 @@ function saveSession(mode, duration, exercises) {
     const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
     hist.unshift({
       date: new Date().toISOString(),
-      mode: MODE_NAMES[mode] || mode,
+      mode: modeName(mode),
       duration,
       exercises: [...new Set(exercises)]
     });
@@ -2138,6 +2399,57 @@ function buildCircuit() {
       }
     }
   }
+  totalSteps = circuit.length;
+  currentStep = 0;
+}
+
+function pushTimedPhase(target, exercises, phase, rounds, work, rest) {
+  let phaseStep = 0;
+  const totalWorkSteps = exercises.length * rounds;
+  for (let round = 0; round < rounds; round++) {
+    const roundExercises = round === 0 ? exercises : shuffle(exercises);
+    for (const exercise of roundExercises) {
+      phaseStep++;
+      target.push({
+        ...exercise,
+        type: 'work',
+        duration: work,
+        phase,
+        round: phaseStep,
+        totalRounds: totalWorkSteps,
+        modeLabel: `${phase.toUpperCase()} · ${phaseStep}/${totalWorkSteps}`,
+        detail: `${work}s · RPE ${phaseRpe(phase)}`,
+      });
+      if (phaseStep < totalWorkSteps) {
+        target.push({
+          name: '😤 Repos',
+          detail: 'Respire',
+          type: 'rest',
+          duration: rest,
+          phase,
+          round: phaseStep,
+          totalRounds: totalWorkSteps,
+          modeLabel: phase.toUpperCase(),
+        });
+      }
+    }
+  }
+}
+
+function buildFatloss() {
+  const cfg = FATLOSS_CFG[selectedMin];
+  const plan = fatlossPlan || generateFatlossPlan();
+  circuit = [];
+  sessionExercises = [...new Set(Object.values(plan).flat().map(exercise => exercise.name))];
+
+  pushTimedPhase(circuit, plan.prep, 'prep', 1, 30, 15);
+  circuit.push({ name: '🧘 Transition', detail: 'Respire', type: 'rest', duration: selectedMin === 15 ? 20 : 30, phase: 'prep', round: 1, totalRounds: 1, modeLabel: 'TRANSITION' });
+  pushTimedPhase(circuit, plan.metabolic, 'metabolic', cfg.metabolicRounds, cfg.work, cfg.rest);
+  circuit.push({ name: '🧘 Transition', detail: 'Respire profond', type: 'rest', duration: selectedMin === 15 ? 25 : 30, phase: 'metabolic', round: 1, totalRounds: 1, modeLabel: 'TRANSITION' });
+  pushTimedPhase(circuit, plan.strength, 'strength', cfg.strengthRounds, cfg.strengthWork, cfg.strengthRest);
+  circuit.push({ name: '🧘 Transition', detail: 'Respire', type: 'rest', duration: selectedMin === 15 ? 20 : 30, phase: 'strength', round: 1, totalRounds: 1, modeLabel: 'TRANSITION' });
+  pushTimedPhase(circuit, plan.finisher, 'finisher', cfg.coreRounds, cfg.coreWork, cfg.rest);
+
   totalSteps = circuit.length;
   currentStep = 0;
 }
@@ -2423,6 +2735,7 @@ function buildSS() {
 function buildWorkout() {
   switch (selectedMode) {
     case 'circuit': buildCircuit(); break;
+    case 'fatloss': buildFatloss(); break;
     case 'emom': buildEMOM(); break;
     case 'tabata': buildTabata(); break;
     case 'complex': buildComplex(); break;
@@ -2475,6 +2788,7 @@ function showOnly(id) {
 // Mode selection (featured + other cards)
 function selectMode(mode) {
   selectedMode = mode;
+  fatlossPlan = null;
   document.querySelectorAll('.mode-card, .featured-card').forEach(c => c.classList.remove('active'));
   document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
   updateDurationOptions();
@@ -2509,6 +2823,7 @@ function updateDurationOptions() {
         row.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedMin = +btn.dataset.min;
+        fatlossPlan = null;
         updatePreview();
       });
     });
@@ -2522,6 +2837,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedLevel = btn.dataset.level;
+    fatlossPlan = null;
     updatePreview();
   });
 });
@@ -2533,6 +2849,11 @@ function updatePreview() {
       if (!CIRCUIT_CFG[selectedMin]) { el.textContent = ''; return; }
       const c = CIRCUIT_CFG[selectedMin][selectedLevel];
       el.textContent = t('circuitPreview')(c.exCount, c.rounds, c.work, c.rest);
+      break;
+    }
+    case 'fatloss': {
+      const level = selectedLevel === 'beginner' ? t('beginner') : t('intermediate');
+      el.textContent = t('fatlossPreview')(selectedMin, level);
       break;
     }
     case 'emom': {
@@ -2559,7 +2880,10 @@ function updatePreview() {
     }
   }
   // Adapt go button label
-  document.getElementById('go-btn').textContent = selectedMode === 'circuit' ? t('viewCircuit') : t('letsGo');
+  document.getElementById('go-btn').textContent =
+    selectedMode === 'circuit' ? t('viewCircuit') :
+    selectedMode === 'fatloss' ? t('viewPlan') :
+    t('letsGo');
 }
 
 // Initialize
@@ -2626,7 +2950,7 @@ function showTimer() {
   showOnly('workout');
 
   // Mode badge
-  document.getElementById('wo-mode-badge').textContent = MODE_NAMES[selectedMode];
+  document.getElementById('wo-mode-badge').textContent = modeName(selectedMode);
 
   // Round info
   const roundLabel = (step.modeLabel ? displayModeLabel(step) : `ROUND ${step.round} / ${step.totalRounds}`) || `ROUND ${step.round} / ${step.totalRounds}`;
@@ -2681,6 +3005,8 @@ document.getElementById('go-btn').addEventListener('click', () => {
   audioCtx.resume();
   if (selectedMode === 'circuit') {
     showCircuitPreview();
+  } else if (selectedMode === 'fatloss') {
+    showFatlossPreview();
   } else {
     buildWorkout();
     requestWake();
@@ -2697,6 +3023,26 @@ let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 function showCircuitPreview() {
   activeGroups = new Set(['upper', 'lower', 'full', 'core']);
   regenerateCircuit();
+}
+
+function showFatlossPreview() {
+  generateFatlossPlan();
+  renderFatlossPreview();
+}
+
+function regenerateFatloss(animate) {
+  generateFatlossPlan();
+  renderFatlossPreview();
+  if (animate) {
+    const list = document.getElementById('cp-list');
+    list.classList.add('fading');
+    requestAnimationFrame(() => list.classList.remove('fading'));
+  }
+}
+
+function renderPlanPreview() {
+  if (selectedMode === 'fatloss') renderFatlossPreview();
+  else renderCircuitPreview();
 }
 
 function regenerateCircuit(animate) {
@@ -2728,6 +3074,8 @@ function toggleCircuitGroup(group) {
 function renderCircuitPreview() {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   const picked = pickedCircuitExercises;
+  document.querySelector('.cp-title').textContent = t('yourCircuit');
+  document.getElementById('cp-science-note').hidden = true;
 
   document.getElementById('cp-subtitle').textContent =
     t('circuitSubtitle')(picked.length, c.rounds, c.work, c.rest);
@@ -2765,6 +3113,44 @@ function renderCircuitPreview() {
   showOnly('circuit-preview');
 }
 
+function renderFatlossPreview() {
+  const cfg = FATLOSS_CFG[selectedMin];
+  const plan = fatlossPlan || generateFatlossPlan();
+  const previewItems = [
+    ...plan.prep.map(exercise => ({ ...exercise, phase: 'prep', rounds: 1, work: 30 })),
+    ...plan.metabolic.map(exercise => ({ ...exercise, phase: 'metabolic', rounds: cfg.metabolicRounds, work: cfg.work })),
+    ...plan.strength.map(exercise => ({ ...exercise, phase: 'strength', rounds: cfg.strengthRounds, work: cfg.strengthWork })),
+    ...plan.finisher.map(exercise => ({ ...exercise, phase: 'finisher', rounds: cfg.coreRounds, work: cfg.coreWork })),
+  ];
+
+  document.querySelector('.cp-title').textContent = t('yourFatlossPlan');
+  const minWork = Math.min(cfg.work, cfg.strengthWork, cfg.coreWork);
+  const maxWork = Math.max(cfg.work, cfg.strengthWork, cfg.coreWork);
+  document.getElementById('cp-subtitle').textContent = t('fatlossSubtitle')(selectedMin, `${minWork}–${maxWork}`, `${cfg.rest}–${cfg.strengthRest}`);
+  document.getElementById('cp-science-note').hidden = false;
+  document.getElementById('cp-science-note').textContent = t('fatlossScience');
+  document.getElementById('cp-coverage').innerHTML = ['prep', 'metabolic', 'strength', 'finisher']
+    .map(phase => `<span class="cp-tag ${phase} check">${phaseLabel(phase)}</span>`)
+    .join('');
+
+  document.getElementById('cp-list').innerHTML = previewItems.map((exercise, index) => {
+    const demo = getYouTubeDemo(exercise.name);
+    return `<div class="cp-item">
+      <div class="cp-item-num">${index + 1}</div>
+      <div class="cp-item-info">
+        <div class="cp-item-name">${exName(exercise.name)}</div>
+        <div class="cp-item-detail">${exercise.rounds}× ${exercise.work}s · ${phaseLabel(exercise.phase)} · RPE ${phaseRpe(exercise.phase)}</div>
+      </div>
+      <a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(exercise.name))}">${t('demoShort')}</a>
+      <span class="cp-item-tag ${exercise.phase}">${phaseLabel(exercise.phase)}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('cp-regenerate').disabled = false;
+  document.getElementById('cp-go').disabled = false;
+  showOnly('circuit-preview');
+}
+
 document.getElementById('cp-coverage').addEventListener('click', (event) => {
   const tag = event.target.closest('.cp-tag');
   if (!tag) return;
@@ -2776,7 +3162,8 @@ document.getElementById('cp-back').addEventListener('click', () => {
 });
 
 document.getElementById('cp-regenerate').addEventListener('click', () => {
-  regenerateCircuit(true);
+  if (selectedMode === 'fatloss') regenerateFatloss(true);
+  else regenerateCircuit(true);
 });
 
 document.getElementById('cp-go').addEventListener('click', () => {
@@ -2818,11 +3205,11 @@ function finish() {
   showOnly('done');
   const workSteps = circuit.filter(s => s.type === 'work');
   const totalWork = workSteps.reduce((a, s) => a + s.duration, 0);
-  const modeName = MODE_NAMES[selectedMode];
+  const completedModeName = modeName(selectedMode);
   const durStr = selectedMin ? `${selectedMin} min` : '~25 min';
 
   document.getElementById('done-stats').innerHTML =
-    `${modeName} · ${durStr}<br>` +
+    `${completedModeName} · ${durStr}<br>` +
     `${workSteps.length} ${t('setsCompleted')}<br>` +
     `${Math.floor(totalWork/60)}min ${totalWork%60}s ${t('effectiveWork')}<br>` +
     `${t('levelLabel')} ${selectedLevel === 'beginner' ? t('beginnerLabel') : t('intermediateLabel')}`;
