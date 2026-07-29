@@ -6,21 +6,22 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 
 ## Features
 
-- **Animated exercise demos** : SVG stick figures show each movement before and during the set
-- **15-second preview** before each exercise with step-by-step instructions
+- **Animated exercise demos** : SVG stick figures plus a correlated YouTube technique demo
+- **12-second preview** before each exercise with step-by-step instructions
 - **Configurable workouts** : 10 / 15 / 20 min, beginner or intermediate
-- **Auto-generated circuits** : randomized from a pool of 20+ kettlebell exercises
+- **Auto-generated circuits** : randomized from a pool of 40+ kettlebell exercises
+- **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
 - **Audio cues** : beeps at transitions and 3-second warnings
 - **Screen wake lock** : keeps the display on during your workout
-- **Fully offline** : single HTML file, zero dependencies, no network required
+- **Offline workout core** : the timer, SVG demos and workout history work without a network; YouTube demos require a connection
 
 ## Exercises
 
 ### Beginner
-Goblet Squat · Kettlebell Swing · KB Deadlift · Press (L/R) · Farmer Carry · Halo · Sumo Squat · Row (L/R)
+Goblet Squat · Kettlebell Swing · KB Deadlift/RDL · Press (L/R) · Farmer/Suitcase Carry · Halo/Slingshot · Sumo Squat · Row (L/R) · Arm Bar · Dead Bug Pullover · Half-Kneeling Press
 
 ### Intermediate
-KB Swing · Clean & Press (L/R) · Goblet Squat · Snatch (L/R) · Turkish Get-Up (L/R) · Windmill (L/R) · Double KB Front Squat
+KB Swing · Clean & Press (L/R) · Squat Clean · Goblet Squat · Snatch (L/R) · Turkish Get-Up (L/R) · Windmill (L/R) · Double KB Front Squat · Gorilla Row · Bottoms-Up Clean · Tactical Lunge · Rotational Swing · Goblet Cossack Squat
 
 ## How it works
 
@@ -41,6 +42,16 @@ KB Swing · Clean & Press (L/R) · Goblet Squat · Snatch (L/R) · Turkish Get-U
 ## Run locally
 
 Just open `index.html` in a browser. That's it.
+
+## Filter diagnostic
+
+With Node.js and Chromium installed:
+
+```bash
+node tests/filter-diagnostic.mjs
+```
+
+The browser diagnostic toggles categories against the real app, runs 100 regenerations, checks the zero-category state, and verifies YouTube demo coverage.
 
 ## License
 

@@ -154,6 +154,8 @@
   .cp-tag {
     padding: 0.3rem 0.7rem;
     border-radius: 0.5rem;
+    border: 0;
+    font-family: inherit;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -164,6 +166,7 @@
   .cp-tag.core { background: rgba(244,114,182,0.2); color: #f472b6; }
   .cp-tag { cursor: pointer; transition: all 0.2s; user-select: none; }
   .cp-tag:hover { filter: brightness(1.3); transform: scale(1.05); }
+  .cp-tag:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
   .cp-tag.check { opacity: 1; }
   .cp-tag.missing { opacity: 0.35; }
   .cp-list {
@@ -191,6 +194,15 @@
   .cp-item-info { flex: 1; }
   .cp-item-name { font-weight: 700; font-size: 0.95rem; }
   .cp-item-detail { font-size: 0.8rem; color: var(--muted); }
+  .cp-item-demo {
+    color: #ff8a5f;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+  .cp-item-demo:hover { text-decoration: underline; }
   .cp-item-tag {
     padding: 0.2rem 0.5rem;
     border-radius: 0.4rem;
@@ -258,6 +270,16 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
+  }
+  #cp-go:disabled, #cp-regenerate:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+  .cp-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 2rem 1rem;
+    line-height: 1.5;
   }
   .dur-btn:hover, .diff-btn:hover { border-color: var(--muted); }
   .dur-btn.active, .diff-btn.active {
@@ -334,6 +356,31 @@
     color: var(--green);
     font-weight: 600;
   }
+  .pv-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    max-width: 620px;
+  }
+  .pv-meta:empty { display: none; }
+  .pv-meta-chip {
+    color: var(--muted);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.32rem 0.65rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+  .pv-meta-warning {
+    color: #ffb38f;
+    border: 1px solid rgba(255,107,53,0.4);
+    border-radius: 0.65rem;
+    padding: 0.42rem 0.65rem;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    text-align: center;
+  }
   .pv-main {
     display: flex;
     align-items: center;
@@ -353,6 +400,74 @@
     flex-shrink: 0;
   }
   .pv-anim-container svg { width: 100%; height: 100%; }
+  .exercise-visual {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .youtube-demo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text);
+    background: #2b1b19;
+    border: 1px solid rgba(255, 107, 53, 0.45);
+    border-radius: 999px;
+    padding: 0.42rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 750;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .youtube-demo:hover { border-color: var(--accent); background: #39201b; }
+  .youtube-demo:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .youtube-demo.has-thumbnail {
+    position: relative;
+    width: 150px;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    border-radius: 0.8rem;
+    background: var(--surface);
+  }
+  .youtube-demo-thumb {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .youtube-demo.has-thumbnail .youtube-demo-thumb { display: block; }
+  .youtube-demo.has-thumbnail .youtube-demo-label {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 1.1rem 0.45rem 0.4rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    text-align: center;
+  }
+  .youtube-demo.has-thumbnail .youtube-demo-icon {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    width: 2.35rem;
+    height: 1.65rem;
+    font-size: 0.8rem;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.45);
+  }
+  .youtube-demo-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 0.9rem;
+    border-radius: 0.22rem;
+    color: #fff;
+    background: #f00;
+    font-size: 0.58rem;
+  }
   .pv-steps {
     display: flex;
     flex-direction: column;
@@ -644,6 +759,18 @@
     .cp-title { font-size: 1.3rem; }
     .cp-buttons { flex-direction: column; width: 100%; max-width: 300px; }
     #cp-regenerate, #cp-go { width: 100%; text-align: center; }
+    .youtube-demo.has-thumbnail { width: 128px; }
+    .wo-center .youtube-demo.has-thumbnail {
+      width: auto;
+      aspect-ratio: auto;
+      padding: 0.42rem 0.7rem;
+    }
+    .wo-center .youtube-demo.has-thumbnail .youtube-demo-thumb { display: none; }
+    .wo-center .youtube-demo.has-thumbnail .youtube-demo-label,
+    .wo-center .youtube-demo.has-thumbnail .youtube-demo-icon { position: static; transform: none; padding: 0; background: none; }
+  }
+  @media (max-width: 380px) {
+    .exercise-visual { flex-direction: column; }
   }
 
   /* ──── SVG ANIMATIONS ──── */
@@ -828,8 +955,16 @@
   <div class="pv-top-label" id="pv-label">PROCHAIN EXERCICE</div>
   <div class="pv-name" id="pv-name">Goblet Squat</div>
   <div class="pv-detail" id="pv-detail">10 reps · 30s</div>
+  <div class="pv-meta" id="pv-meta"></div>
   <div class="pv-main">
-    <div class="pv-anim-container" id="pv-anim"></div>
+    <div class="exercise-visual">
+      <div class="pv-anim-container" id="pv-anim"></div>
+      <a class="youtube-demo" id="pv-demo" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+        <img class="youtube-demo-thumb" alt="" loading="lazy" decoding="async">
+        <span class="youtube-demo-icon" aria-hidden="true">▶</span>
+        <span class="youtube-demo-label">Voir la démo YouTube</span>
+      </a>
+    </div>
     <div class="pv-steps" id="pv-steps"></div>
   </div>
   <div class="pv-countdown" id="pv-countdown">15</div>
@@ -845,7 +980,14 @@
     <div class="wo-detail" id="wo-detail">10 reps</div>
   </div>
   <div class="wo-center">
-    <div class="wo-anim-box" id="wo-anim"></div>
+    <div class="exercise-visual">
+      <div class="wo-anim-box" id="wo-anim"></div>
+      <a class="youtube-demo" id="wo-demo" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+        <img class="youtube-demo-thumb" alt="" loading="lazy" decoding="async">
+        <span class="youtube-demo-icon" aria-hidden="true">▶</span>
+        <span class="youtube-demo-label">Démo YouTube</span>
+      </a>
+    </div>
     <div class="wo-timer-wrap">
       <svg class="timer-ring" width="250" height="250" viewBox="0 0 250 250">
         <circle class="timer-ring-bg" cx="125" cy="125" r="110"/>
@@ -993,6 +1135,11 @@ const STRINGS = {
     circuitSubtitle: (n, rounds, work, rest) => `${n} exercices · ${rounds} rounds · ${work}s travail / ${rest}s repos`,
     // Circuit preview info
     circuitPreview: (n, rounds, work, rest) => `${n} exercices · ${rounds} rounds · ${work}s travail / ${rest}s repos`,
+    previewDemo: 'Voir la démo YouTube',
+    workoutDemo: 'Démo YouTube',
+    demoShort: '▶ DÉMO',
+    demoAria: (name) => `Voir une démonstration YouTube pour ${name}`,
+    circuitEmpty: 'Active au moins une catégorie pour générer un circuit.',
   },
   en: {
     circuitDesc: 'Varied full-body exercises · work/rest · the classic',
@@ -1061,6 +1208,11 @@ const STRINGS = {
     perSide: 'per side',
     circuitSubtitle: (n, rounds, work, rest) => `${n} exercises · ${rounds} rounds · ${work}s work / ${rest}s rest`,
     circuitPreview: (n, rounds, work, rest) => `${n} exercises · ${rounds} rounds · ${work}s work / ${rest}s rest`,
+    previewDemo: 'Watch the YouTube demo',
+    workoutDemo: 'YouTube demo',
+    demoShort: '▶ DEMO',
+    demoAria: (name) => `Watch a YouTube demonstration for ${name}`,
+    circuitEmpty: 'Enable at least one category to generate a circuit.',
   }
 };
 
@@ -1125,6 +1277,19 @@ const EX_STEPS_EN = {
   'Push Press (D)': ['KB in rack, slight knee bend', 'Quick leg extension', 'Use momentum to propel KB', 'Lock out at top, lower to rack'],
   'Floor Press': ['Lying on floor, knees bent, feet flat', 'KB in one hand, elbow on floor', 'Press KB straight to ceiling', 'Lower slowly, elbow to floor'],
   'Figure 8': ['Legs apart, slight squat', 'Pass KB between legs in figure 8', 'Switch hands at each pass', 'Back straight, look ahead'],
+  'KB Romanian Deadlift': ['KB in front of thighs, knees soft', 'Push hips back, shins nearly vertical', 'Keep a long spine and the KB close to your legs', 'Stand by driving the hips forward'],
+  'Squat Clean': ['KB on the floor between your feet', 'Clean explosively into the rack', 'Move straight into a deep squat', 'Stand up, then lower the KB with control'],
+  'Slingshot': ['Stand tall with abs and glutes engaged', 'Pass the KB around your waist', 'Switch hands in front and behind', 'Keep the pelvis still and reverse direction'],
+  'Suitcase March': ['Heavy KB in one hand, arm long', 'Stand tall without leaning toward the weight', 'Raise one knee to hip height', 'March slowly, then switch sides'],
+  'Front Rack March': ['KB in the rack, wrist neutral', 'Ribs down and pelvis stable', 'Raise one knee without leaning', 'March slowly, then switch rack side'],
+  'Gorilla Row': ['Two KBs on the floor, hips back, spine long', 'Press firmly into one handle', 'Row the other KB toward your hip', 'Set it down and alternate without twisting'],
+  'Bottoms-Up Clean': ['Hold a light KB by the handle', 'Use a short clean with elbow close', 'Stabilize with the bell facing the ceiling', 'Stack the wrist and control the descent'],
+  'Kettlebell Arm Bar': ['Lie down with the KB arm locked overhead', 'Cross the opposite leg and roll onto your side', 'Keep the shoulder down and eyes on the KB', 'Breathe, then return slowly to your back'],
+  'Tactical Lunge': ['Step back into a lunge with the KB in one hand', 'Pass the KB under the front thigh', 'Receive it with the other hand', 'Drive through the floor to stand and alternate'],
+  'Rotational Swing': ['Start light and let the feet pivot', 'Load the hip as in a regular swing', 'Pivot the foot and pelvis together', 'Decelerate with the hips, knee aligned with foot'],
+  'Goblet Cossack Squat': ['Take a very wide stance, KB at your chest', 'Bend one leg and send the hip back', 'Keep the other leg long with toes raised', 'Drive through the bent leg and switch sides'],
+  'Dead Bug Pullover': ['Lie down, knees at 90°, KB over the chest', 'Gently press the lower back into the floor', 'Lower the KB behind your head without arching', 'Exhale and bring it back over the chest'],
+  'Half-Kneeling Press': ['One knee down, KB racked on that side', 'Squeeze the glute of the back leg', 'Press vertically without arching', 'Lower to the rack, then switch sides'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -1154,6 +1319,12 @@ function exDetail(frDetail) {
   // "X par côté" -> "X per side"
   const perSideMatch = frDetail.match(/^(\d+)\s+par côté$/);
   if (perSideMatch) return `${perSideMatch[1]} per side`;
+  const perSideLightMatch = frDetail.match(/^(\d+)\s+par côté\s+·\s+léger$/);
+  if (perSideLightMatch) return `${perSideLightMatch[1]} per side · light`;
+  const perDirectionMatch = frDetail.match(/^(\d+)\s+par sens$/);
+  if (perDirectionMatch) return `${perDirectionMatch[1]} each direction`;
+  const secondsMatch = frDetail.match(/^(\d+)\s+secondes$/);
+  if (secondsMatch) return `${secondsMatch[1]} seconds`;
   // "X reps puis repos" -> "X reps then rest"
   if (frDetail.includes('reps puis repos')) return frDetail.replace('reps puis repos', 'reps then rest');
   return frDetail;
@@ -1211,6 +1382,9 @@ function displayDetail(step) {
   d = d.replace('sur place', 'in place');
   // "X par côté" -> "X per side"
   d = d.replace(/(\d+)\s+par côté/, '$1 per side');
+  d = d.replace(/(\d+)\s+par sens/, '$1 each direction');
+  d = d.replace(/(\d+)\s+secondes/, '$1 seconds');
+  d = d.replace('léger', 'light');
   // "Échelon X" -> "Rung X"
   d = d.replace(/Échelon\s+(\d+)/, 'Rung $1');
   return d;
@@ -1263,6 +1437,8 @@ function applyLangToUI() {
   document.querySelector('.cp-title').textContent = t('yourCircuit');
   document.getElementById('cp-regenerate').textContent = t('regenerate');
   document.getElementById('cp-go').textContent = t('letsGoBtn');
+  document.querySelector('#pv-demo .youtube-demo-label').textContent = t('previewDemo');
+  document.querySelector('#wo-demo .youtube-demo-label').textContent = t('workoutDemo');
 
   // Done screen
   document.querySelector('#done h2').textContent = t('done');
@@ -1276,7 +1452,7 @@ function applyLangToUI() {
   updatePreview();
 
   // Re-render circuit preview if it is currently visible
-  if (document.getElementById('circuit-preview').style.display === 'flex' && pickedCircuitExercises.length > 0) {
+  if (document.getElementById('circuit-preview').style.display === 'flex') {
     renderCircuitPreview();
   }
 }
@@ -1433,6 +1609,225 @@ const EX_DATA = {
 // Aliases
 EX_DATA['KB Swing'] = EX_DATA['Kettlebell Swing'];
 
+// Exercise demo metadata is deliberately separate from the SVG artwork.
+// A reviewed video can replace a search link by setting `videoId` while keeping
+// the UI and workout data untouched.
+const YOUTUBE_DEMOS = {
+  'Goblet Squat': { videoId: 'TcXOrjCAyPg', query: 'StrongFirst kettlebell goblet squat tutorial' },
+  'Kettlebell Swing': { videoId: 'yHxcTn1UeAc', query: 'StrongFirst hardstyle kettlebell swing tutorial' },
+  'KB Deadlift': { videoId: 'bej53DFL4WQ', query: 'kettlebell deadlift proper form tutorial' },
+  'Press (gauche)': { videoId: 'WO2JPxGCsnU', query: 'StrongFirst one arm kettlebell press tutorial' },
+  'Press (droite)': { videoId: 'WO2JPxGCsnU', query: 'StrongFirst one arm kettlebell press tutorial' },
+  'Farmer Carry': { videoId: 'z7E_YU9P1jU', query: 'kettlebell farmer carry proper form tutorial' },
+  'Halo': { videoId: 'LEjVh4scVy4', query: 'kettlebell halo proper form tutorial' },
+  'Sumo Squat': { videoId: '3h1A9GfB07w', query: 'kettlebell sumo squat proper form tutorial' },
+  'Row (gauche)': { videoId: 'j2OdaGOmHlM', query: 'single arm kettlebell row proper form tutorial' },
+  'Row (droite)': { videoId: 'j2OdaGOmHlM', query: 'single arm kettlebell row proper form tutorial' },
+  'Clean & Press (G)': { videoId: '48qvCvJJr8Y', query: 'StrongFirst kettlebell clean and press tutorial' },
+  'Clean & Press (D)': { videoId: '48qvCvJJr8Y', query: 'StrongFirst kettlebell clean and press tutorial' },
+  'Snatch (G)': { videoId: 'AR6E01ABoHk', query: 'StrongFirst kettlebell snatch tutorial' },
+  'Snatch (D)': { videoId: 'AR6E01ABoHk', query: 'StrongFirst kettlebell snatch tutorial' },
+  'Turkish Get-Up (G)': { videoId: '0bWRPC49-KI', query: 'StrongFirst Turkish get up kettlebell tutorial' },
+  'Turkish Get-Up (D)': { videoId: '0bWRPC49-KI', query: 'StrongFirst Turkish get up kettlebell tutorial' },
+  'Windmill (G)': { videoId: 'xtTI8yNgbS0', query: 'kettlebell windmill proper form tutorial' },
+  'Windmill (D)': { videoId: 'xtTI8yNgbS0', query: 'kettlebell windmill proper form tutorial' },
+  'Double KB Front Squat': { videoId: '7AETiEZEOVQ', query: 'double kettlebell front squat tutorial' },
+  'Clean (G)': { videoId: 'C0B1SrcGAIA', query: 'StrongFirst kettlebell clean tutorial' },
+  'Clean (D)': { videoId: 'C0B1SrcGAIA', query: 'StrongFirst kettlebell clean tutorial' },
+  'Single Swing (G)': { videoId: 'BXrXhyudA80', query: 'one arm kettlebell swing proper form tutorial' },
+  'Single Swing (D)': { videoId: 'BXrXhyudA80', query: 'one arm kettlebell swing proper form tutorial' },
+  'Thruster (G)': { videoId: 'Mr-l0Kvowi4', query: 'single arm kettlebell thruster tutorial' },
+  'Thruster (D)': { videoId: 'Mr-l0Kvowi4', query: 'single arm kettlebell thruster tutorial' },
+  'Renegade Row': { videoId: 'KG_JGuhjBeY', query: 'kettlebell renegade row proper form tutorial' },
+  'High Pull (G)': { videoId: 'OkLpueSAKrY', query: 'single arm kettlebell high pull tutorial' },
+  'High Pull (D)': { videoId: 'OkLpueSAKrY', query: 'single arm kettlebell high pull tutorial' },
+  'Goblet Reverse Lunge': { videoId: 'gWN9epxFqX8', query: 'kettlebell goblet reverse lunge tutorial' },
+  'Push Press (G)': { videoId: 'CCqru4q9RK0', query: 'single arm kettlebell push press tutorial' },
+  'Push Press (D)': { videoId: 'CCqru4q9RK0', query: 'single arm kettlebell push press tutorial' },
+  'Floor Press': { videoId: '4ULa6AJcjr8', query: 'single arm kettlebell floor press tutorial' },
+  'Figure 8': { videoId: '5kE9fvbbCP0', query: 'kettlebell figure 8 proper form tutorial' },
+};
+YOUTUBE_DEMOS['KB Swing'] = YOUTUBE_DEMOS['Kettlebell Swing'];
+
+// Curated modern additions. Technique, programming metadata and media are kept
+// together, so adding an exercise does not require editing several UI branches.
+const MODERN_EXERCISES = [
+  {
+    name: 'KB Romanian Deadlift', level: 'beginner', group: 'lower',
+    detail: '10 reps', reps: 10, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'KB Deadlift',
+    steps: ['KB devant les cuisses, genoux souples','Recule les hanches, tibias presque verticaux','Garde le dos long et la KB près des jambes','Remonte en poussant les hanches vers l’avant'],
+    demo: { videoId: 'Uc5rP5xs7qQ', query: 'kettlebell Romanian deadlift RDL proper form tutorial' },
+  },
+  {
+    name: 'Squat Clean', level: 'inter', group: 'full',
+    detail: '8 reps', reps: 8, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Clean (G)',
+    steps: ['KB au sol entre les pieds','Clean explosif jusque dans le rack','Enchaîne immédiatement un squat profond','Remonte puis repose la KB avec contrôle'],
+    demo: { videoId: 'yK-s3HEe3A0', query: 'single kettlebell squat clean proper form tutorial' },
+  },
+  {
+    name: 'Slingshot', level: 'beginner', group: 'core',
+    detail: '8 par sens', reps: 8, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Halo',
+    steps: ['Debout, abdos et fessiers engagés','Passe la KB autour de la taille','Change de main devant puis derrière','Garde le bassin immobile, alterne le sens'],
+    demo: { videoId: 'uwwlJAwn5zM', query: 'kettlebell slingshot around the world tutorial' },
+  },
+  {
+    name: 'Suitcase March', level: 'beginner', group: 'core',
+    detail: '30 secondes', reps: 0, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Farmer Carry',
+    steps: ['KB lourde dans une main, bras long','Grandis-toi sans pencher vers le poids','Monte un genou à hauteur de hanche','Marche lentement puis change de côté'],
+    demo: { videoId: 'a9HkuLYNyJ0', query: 'single kettlebell suitcase march proper form' },
+  },
+  {
+    name: 'Front Rack March', level: 'inter', group: 'core',
+    detail: '30 secondes', reps: 0, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Farmer Carry',
+    steps: ['KB en rack, poignet neutre','Côtes basses, bassin stable','Monte un genou sans te pencher','Marche lentement puis change de rack'],
+    demo: { videoId: 'aAbVFCqY4Ac', query: 'kettlebell front rack march tutorial' },
+  },
+  {
+    name: 'Gorilla Row', level: 'inter', group: 'upper',
+    detail: '8 par côté', reps: 8, equipment: '2 kettlebells',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Renegade Row',
+    steps: ['Deux KB au sol, hanches reculées, dos plat','Appuie fort sur une poignée','Tire l’autre KB vers la hanche','Repose et alterne sans tourner le buste'],
+    demo: { videoId: 'UsxcaALqr2c', query: 'kettlebell gorilla row proper form tutorial' },
+  },
+  {
+    name: 'Bottoms-Up Clean', level: 'inter', group: 'upper',
+    detail: '6 par côté', reps: 6, equipment: '1 kettlebell légère',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Clean (G)',
+    steps: ['Prends une KB légère par la poignée','Clean court, coude près du corps','Stabilise la cloche vers le plafond','Poignet empilé, contrôle avant de redescendre'],
+    demo: { videoId: 'GXP8zcBGds4', query: 'bottoms up kettlebell clean tutorial' },
+  },
+  {
+    name: 'Kettlebell Arm Bar', level: 'beginner', group: 'core',
+    detail: '5 par côté', reps: 5, equipment: '1 kettlebell légère',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Floor Press',
+    steps: ['Allongé, KB bras verrouillé au-dessus','Croise la jambe opposée et roule sur le côté','Garde l’épaule basse et le regard sur la KB','Respire puis reviens lentement sur le dos'],
+    demo: { videoId: '83Nbd-VddVo', query: 'kettlebell arm bar tutorial' },
+  },
+  {
+    name: 'Tactical Lunge', level: 'inter', group: 'lower',
+    detail: '8 par côté', reps: 8, equipment: '1 kettlebell',
+    source: 'https://kettlebellcircuits.com/guides/movement-patterns/rotation/kettlebell-rotation-exercises/',
+    visualFrom: 'Goblet Reverse Lunge',
+    steps: ['Recule en fente avec la KB dans une main','Passe la KB sous la cuisse avant','Récupère-la avec l’autre main','Pousse le sol pour revenir puis alterne'],
+    demo: { videoId: 'd0pZegEHxwM', query: 'kettlebell tactical lunge pass under tutorial' },
+  },
+  {
+    name: 'Rotational Swing', level: 'inter', group: 'full',
+    detail: '8 par côté · léger', reps: 8, equipment: '1 kettlebell légère',
+    source: 'https://www.cavemantraining.com/caveman-kettlebells/rotational-pivot-swing-and-other-rotational-kettlebell-exercises/',
+    warning: 'Technique avancée : charge légère et pivot du pied, jamais de torsion forcée du genou.',
+    visualFrom: 'Single Swing (G)',
+    steps: ['Commence léger, pieds libres de pivoter','Charge la hanche comme sur un swing','Pivote pied et bassin ensemble','Freine avec les hanches, genou aligné avec le pied'],
+    demo: { videoId: 'HF2JE6RMQio', query: 'rotational pivot kettlebell swing tutorial' },
+  },
+  {
+    name: 'Goblet Cossack Squat', level: 'inter', group: 'lower',
+    detail: '6 par côté', reps: 6, equipment: '1 kettlebell légère',
+    source: 'https://kettlebellcircuits.com/guides/movement-patterns/rotation/kettlebell-rotation-exercises/',
+    visualFrom: 'Sumo Squat',
+    steps: ['Position très large, KB contre la poitrine','Plie une jambe et recule la hanche','Garde l’autre jambe longue, pointe relevée','Pousse dans le pied plié et change de côté'],
+    demo: { videoId: '1-y-7CfpQXo', query: 'kettlebell goblet Cossack squat proper form tutorial' },
+  },
+  {
+    name: 'Dead Bug Pullover', level: 'beginner', group: 'core',
+    detail: '8 reps', reps: 8, equipment: '1 kettlebell légère',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Floor Press',
+    steps: ['Allongé, genoux à 90°, KB au-dessus du torse','Plaque doucement les lombaires au sol','Descends la KB derrière la tête sans cambrer','Ramène-la au-dessus du torse en expirant'],
+    demo: { videoId: 'DE7yIaGnUWU', query: 'kettlebell dead bug pullover tutorial' },
+  },
+  {
+    name: 'Half-Kneeling Press', level: 'beginner', group: 'upper',
+    detail: '6 par côté', reps: 6, equipment: '1 kettlebell',
+    source: 'https://kettlebellsworkouts.com/kettlebell-exercises/',
+    visualFrom: 'Press (gauche)',
+    steps: ['Un genou au sol, KB en rack côté genou bas','Serre le fessier de la jambe arrière','Presse verticalement sans cambrer','Redescends en rack puis change de côté'],
+    demo: { videoId: '-YRtKyJ0t90', query: 'half kneeling kettlebell press proper form tutorial' },
+  },
+];
+
+for (const exercise of MODERN_EXERCISES) {
+  EX_DATA[exercise.name] = {
+    svg: EX_DATA[exercise.visualFrom].svg,
+    steps: exercise.steps,
+    meta: {
+      equipment: exercise.equipment,
+      difficulty: exercise.level,
+      source: exercise.source,
+      warning: exercise.warning || null,
+    },
+  };
+  YOUTUBE_DEMOS[exercise.name] = exercise.demo;
+}
+
+function getYouTubeDemo(name) {
+  const demo = YOUTUBE_DEMOS[name];
+  if (!demo) return null;
+  const url = demo.videoId
+    ? `https://www.youtube.com/watch?v=${encodeURIComponent(demo.videoId)}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(demo.query)}`;
+  return { ...demo, url };
+}
+
+function updateDemoLink(elementId, exerciseName) {
+  const link = document.getElementById(elementId);
+  const demo = getYouTubeDemo(exerciseName);
+  const thumbnail = link.querySelector('.youtube-demo-thumb');
+  link.hidden = !demo;
+  if (!demo) {
+    link.removeAttribute('href');
+    link.classList.remove('has-thumbnail');
+    thumbnail.removeAttribute('src');
+    return;
+  }
+  link.href = demo.url;
+  link.setAttribute('aria-label', t('demoAria')(exName(exerciseName)));
+  link.classList.toggle('has-thumbnail', Boolean(demo.videoId));
+  if (demo.videoId) {
+    thumbnail.src = `https://i.ytimg.com/vi/${encodeURIComponent(demo.videoId)}/mqdefault.jpg`;
+  } else {
+    thumbnail.removeAttribute('src');
+  }
+}
+
+function updateExerciseMeta(visual) {
+  const container = document.getElementById('pv-meta');
+  container.replaceChildren();
+  if (!visual.meta) return;
+
+  if (visual.meta.equipment) {
+    const equipment = document.createElement('span');
+    equipment.className = 'pv-meta-chip';
+    const equipmentText = currentLang === 'en'
+      ? visual.meta.equipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells')
+      : visual.meta.equipment;
+    equipment.textContent = `🏋️ ${equipmentText}`;
+    container.append(equipment);
+  }
+  if (visual.meta.warning) {
+    const warning = document.createElement('span');
+    warning.className = 'pv-meta-warning';
+    const warningText = currentLang === 'en'
+      ? 'Advanced technique: use a light load, pivot the foot, and never force the knee to twist.'
+      : visual.meta.warning;
+    warning.textContent = `⚠️ ${warningText}`;
+    container.append(warning);
+  }
+}
+
 function getVisual(name) {
   return EX_DATA[name] || EX_DATA['_rest'];
 }
@@ -1446,6 +1841,12 @@ function getGroupLabels() {
 }
 // Keep GROUP_LABELS as a getter for backward compat
 const GROUP_LABELS = new Proxy({}, { get: (_, prop) => t(prop) });
+
+function modernPoolEntries(level) {
+  return MODERN_EXERCISES
+    .filter(exercise => exercise.level === level)
+    .map(({ name, detail, reps, group }) => ({ name, detail, reps, group }));
+}
 
 const POOL = {
   beginner: [
@@ -1464,6 +1865,7 @@ const POOL = {
     { name: 'Goblet Reverse Lunge', detail: '8 par côté', reps: 8, group: 'lower' },
     { name: 'Figure 8', detail: '10 reps', reps: 10, group: 'core' },
     { name: 'Floor Press', detail: '8 reps', reps: 8, group: 'upper' },
+    ...modernPoolEntries('beginner'),
   ],
   inter: [
     { name: 'Kettlebell Swing', detail: '20 reps', reps: 20, group: 'full' },
@@ -1491,6 +1893,7 @@ const POOL = {
     { name: 'Goblet Reverse Lunge', detail: '10 par côté', reps: 10, group: 'lower' },
     { name: 'Figure 8', detail: '12 reps', reps: 12, group: 'core' },
     { name: 'Floor Press', detail: '10 reps', reps: 10, group: 'upper' },
+    ...modernPoolEntries('inter'),
   ]
 };
 
@@ -1568,8 +1971,12 @@ function pickExercises(count, level) {
 
 // Smart pick for Circuit: guarantees coverage of required groups + anti-repetition
 function pickCircuitExercises(count, level, groups) {
-  const requiredGrps = groups || new Set(['upper', 'lower', 'full']);
-  const pool = [...POOL[level]];
+  const requiredGrps = groups || new Set(['upper', 'lower', 'full', 'core']);
+  // A disabled category is removed from the candidate pool itself. Previously,
+  // it was only removed from the "pick one of each group" requirement, then the
+  // unfiltered pool could add it again while filling the remaining slots.
+  const pool = POOL[level].filter(ex => requiredGrps.has(ex.group));
+  if (pool.length === 0 || count <= 0) return [];
   const recentSessions = getRecentCircuitSessions(2);
   const maxOverlapPct = level === 'beginner' ? 0.6 : 0.5;
   const maxAttempts = 50;
@@ -1628,6 +2035,34 @@ function pickCircuitExercises(count, level, groups) {
   return shuffle(pool).slice(0, count);
 }
 
+// Keep valid displayed exercises and fill only the slots freed by a category
+// toggle. This makes a filter click immediate and avoids reshuffling the whole
+// circuit under the user's eyes.
+function refillCircuitExercises(current, count, level, groups) {
+  if (groups.size === 0) return [];
+
+  const kept = [];
+  const usedNames = new Set();
+  for (const ex of current) {
+    if (kept.length >= count) break;
+    if (!groups.has(ex.group) || usedNames.has(ex.name)) continue;
+    kept.push(ex);
+    usedNames.add(ex.name);
+  }
+
+  if (kept.length >= count) return kept;
+
+  const preferred = pickCircuitExercises(count, level, groups);
+  const eligible = POOL[level].filter(ex => groups.has(ex.group));
+  for (const ex of [...preferred, ...shuffle(eligible)]) {
+    if (kept.length >= count) break;
+    if (usedNames.has(ex.name)) continue;
+    kept.push(ex);
+    usedNames.add(ex.name);
+  }
+  return kept;
+}
+
 // Currently picked exercises for circuit preview
 let pickedCircuitExercises = [];
 
@@ -1680,7 +2115,9 @@ function showHistory() {
 function buildCircuit() {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   // Use pre-picked exercises from circuit preview
-  const picked = pickedCircuitExercises.length > 0 ? pickedCircuitExercises : pickCircuitExercises(c.exCount, selectedLevel);
+  const picked = pickedCircuitExercises.length > 0
+    ? pickedCircuitExercises
+    : pickCircuitExercises(c.exCount, selectedLevel, activeGroups);
   circuit = [];
   sessionExercises = picked.map(e => e.name);
 
@@ -2143,6 +2580,8 @@ function showPreview() {
   document.getElementById('pv-name').textContent = displayName(step);
   document.getElementById('pv-detail').textContent = `${displayDetail(step)} · ${step.duration}s`;
   document.getElementById('pv-anim').innerHTML = visual.svg;
+  updateDemoLink('pv-demo', step.name);
+  updateExerciseMeta(visual);
 
   const stepsForDisplay = displaySteps(step.name);
   const stepsEl = document.getElementById('pv-steps');
@@ -2201,6 +2640,7 @@ function showTimer() {
 
   const visual = getVisual(step.type === 'work' ? step.name : '_rest');
   document.getElementById('wo-anim').innerHTML = visual.svg;
+  updateDemoLink('wo-demo', step.type === 'work' ? step.name : '');
   const miniSteps = step.type === 'work' ? displaySteps(step.name) : displaySteps('_rest');
   document.getElementById('wo-steps-mini').innerHTML = miniSteps.map(s =>
     `<div class="mini-step">${s}</div>`
@@ -2251,27 +2691,38 @@ document.getElementById('go-btn').addEventListener('click', () => {
 // ══════════════════════════════════════════════
 //  CIRCUIT PREVIEW SCREEN
 // ══════════════════════════════════════════════
-// Required groups that the user can toggle
-let requiredGroups = new Set(['upper', 'lower', 'full']);
+// Active categories are a hard allow-list for every circuit generation.
+let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 
 function showCircuitPreview() {
-  requiredGroups = new Set(['upper', 'lower', 'full']);
+  activeGroups = new Set(['upper', 'lower', 'full', 'core']);
   regenerateCircuit();
 }
 
 function regenerateCircuit(animate) {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel, requiredGroups);
+  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel, activeGroups);
+  renderCircuitPreview();
   if (animate) {
     const list = document.getElementById('cp-list');
     list.classList.add('fading');
-    setTimeout(() => {
-      renderCircuitPreview();
-      list.classList.remove('fading');
-    }, 200);
-  } else {
-    renderCircuitPreview();
+    requestAnimationFrame(() => list.classList.remove('fading'));
   }
+}
+
+function toggleCircuitGroup(group) {
+  if (!['upper', 'lower', 'full', 'core'].includes(group)) return;
+  if (activeGroups.has(group)) activeGroups.delete(group);
+  else activeGroups.add(group);
+
+  const c = CIRCUIT_CFG[selectedMin][selectedLevel];
+  pickedCircuitExercises = refillCircuitExercises(
+    pickedCircuitExercises,
+    c.exCount,
+    selectedLevel,
+    activeGroups
+  );
+  renderCircuitPreview();
 }
 
 function renderCircuitPreview() {
@@ -2281,47 +2732,44 @@ function renderCircuitPreview() {
   document.getElementById('cp-subtitle').textContent =
     t('circuitSubtitle')(picked.length, c.rounds, c.work, c.rest);
 
-  // Coverage tags (clickable)
-  const presentGroups = {};
-  picked.forEach(e => presentGroups[e.group] = true);
-
+  // Category filters (clickable). Visual state reflects the allow-list, not
+  // whether a random generation happened to contain a category.
   const coverageEl = document.getElementById('cp-coverage');
   coverageEl.innerHTML =
     ['upper', 'lower', 'full', 'core'].map(g => {
-      const has = !!presentGroups[g];
-      return `<span class="cp-tag ${g} ${has ? 'check' : 'missing'}" data-group="${g}">${has ? '✓' : '✗'} ${groupLabel(g)}</span>`;
+      const active = activeGroups.has(g);
+      return `<button type="button" class="cp-tag ${g} ${active ? 'check' : 'missing'}" data-group="${g}" aria-pressed="${active}">${active ? '✓' : '✗'} ${groupLabel(g)}</button>`;
     }).join('');
 
-  // Attach click handlers to tags
-  coverageEl.querySelectorAll('.cp-tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      const g = tag.dataset.group;
-      if (requiredGroups.has(g)) {
-        // Only remove if more than 1 required group remains
-        if (requiredGroups.size > 1) {
-          requiredGroups.delete(g);
-        }
-      } else {
-        requiredGroups.add(g);
-      }
-      regenerateCircuit(true);
-    });
-  });
-
   // Exercise list
-  document.getElementById('cp-list').innerHTML = picked.map((ex, i) =>
-    `<div class="cp-item">
+  document.getElementById('cp-list').innerHTML = picked.length ? picked.map((ex, i) => {
+    const demo = getYouTubeDemo(ex.name);
+    const demoLink = demo
+      ? `<a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(ex.name))}">${t('demoShort')}</a>`
+      : '';
+    return `<div class="cp-item">
       <div class="cp-item-num">${i + 1}</div>
       <div class="cp-item-info">
         <div class="cp-item-name">${exName(ex.name)}</div>
         <div class="cp-item-detail">${exDetail(ex.detail)}</div>
       </div>
+      ${demoLink}
       <span class="cp-item-tag ${ex.group}">${groupLabel(ex.group)}</span>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('') : `<div class="cp-empty">${t('circuitEmpty')}</div>`;
+
+  const noCategories = activeGroups.size === 0;
+  document.getElementById('cp-go').disabled = noCategories || picked.length === 0;
+  document.getElementById('cp-regenerate').disabled = noCategories;
 
   showOnly('circuit-preview');
 }
+
+document.getElementById('cp-coverage').addEventListener('click', (event) => {
+  const tag = event.target.closest('.cp-tag');
+  if (!tag) return;
+  toggleCircuitGroup(tag.dataset.group);
+});
 
 document.getElementById('cp-back').addEventListener('click', () => {
   showOnly('setup');
