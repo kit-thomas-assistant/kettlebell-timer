@@ -10,6 +10,9 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **12-second preview** before each exercise with step-by-step instructions
 - **Configurable workouts** : 10 / 15 / 20 min, beginner or intermediate
 - **Auto-generated circuits** : randomized from a pool of 40+ kettlebell exercises
+- **Equipment-aware plans** : tap 8–24 kg buttons to record zero, one or two matching bells; incompatible two-bell exercises are excluded automatically
+- **Conservative load suggestions** : lighter available bells for overhead/technical work, heavier available bells for hinges, squats, rows and carries, with one optional “Use lighter weights” action
+- **Guided 20-minute recipe** : the David Nateli full-body sequence runs inside Circuit mode with automatic transitions, four ordered passes, rep targets as guidance and midpoint side-switch cues
 - **Fat-loss goal mode** : a structured 15 / 20 / 25 min plan combining preparation, kettlebell intervals, full-body strength and a core finisher
 - **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
 - **Audio cues** : beeps at transitions and 3-second warnings
@@ -48,8 +51,8 @@ Sessions are available in 15, 20 and 25 minute versions, with beginner and inter
 
 ## How it works
 
-1. Pick duration and level
-2. Watch the 15s exercise preview with animation + instructions
+1. Select the kettlebells you own, then pick duration and level
+2. Watch the 12s exercise preview with animation, instructions and suggested load
 3. Follow the timer — mini-animation stays visible during the set
 4. Rest periods with breathing animation
 5. Summary at the end
@@ -60,7 +63,9 @@ Sessions are available in 15, 20 and 25 minute versions, with beginner and inter
 - SVG animations (CSS keyframes)
 - Web Audio API for beeps
 - Screen Wake Lock API
-- localStorage ready (future: workout history)
+- localStorage for equipment selection and automatic workout history
+
+For Circuit 20 min, the first preview surfaces the curated David Nateli recipe deterministically. “Regenerate” then switches to the standard generated Circuit plan, so the recipe is easy to find without becoming a separate home mode.
 
 ## Run locally
 
@@ -81,6 +86,12 @@ node tests/fatloss-diagnostic.mjs
 ```
 
 The fat-loss diagnostic checks the homepage card, mode-specific durations, beginner/intermediate constraints, phase coverage, approximate duration, translations, SVG/demo coverage, and regeneration invariants.
+
+```bash
+node tests/equipment-recipe-diagnostic.mjs
+```
+
+The equipment/recipe diagnostic checks selector cycling and persistence, 44px accessible controls, repeated single-bell filtering, equal-pair unlocking, conservative mixed-load recommendations, the lighten action, recipe order/timing/laterality, midpoint cues, history metadata and FR/EN translations.
 
 ## License
 

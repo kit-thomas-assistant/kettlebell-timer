@@ -305,8 +305,70 @@
     transition: transform 0.1s;
   }
   #cp-go:hover { transform: scale(1.03); }
+  #cp-lighten {
+    display: none;
+    padding: 0.8rem 1.1rem;
+    border-radius: 1.2rem;
+    border: 2px solid rgba(78,205,196,0.45);
+    background: rgba(78,205,196,0.08);
+    color: var(--rest);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #cp-lighten:hover { border-color: var(--rest); }
+  #cp-lighten:focus-visible { outline: 3px solid var(--rest); outline-offset: 3px; }
+  .cp-recipe-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.25rem;
+    color: #ffd2c2;
+    font-size: 0.66rem;
+    font-weight: 850;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .cp-load { color: var(--rest); font-weight: 750; }
 
   .option-row { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+  .equipment-panel {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--surface2);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(78,205,196,0.08), rgba(78,205,196,0.02));
+  }
+  .equipment-panel label { margin-bottom: 0.65rem; color: #9ca3af; }
+  .equipment-row {
+    display: flex;
+    gap: 0.45rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .equipment-btn {
+    min-width: 58px;
+    min-height: 44px;
+    padding: 0.42rem 0.55rem;
+    border: 2px solid var(--surface2);
+    border-radius: 0.8rem;
+    background: var(--surface);
+    color: var(--muted);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.15s;
+  }
+  .equipment-btn:hover { border-color: var(--rest); color: var(--text); }
+  .equipment-btn:active { transform: scale(0.96); }
+  .equipment-btn:focus-visible { outline: 3px solid var(--rest); outline-offset: 3px; }
+  .equipment-btn[aria-pressed="true"] {
+    border-color: var(--rest);
+    color: var(--text);
+    background: rgba(78,205,196,0.13);
+  }
+  .equipment-weight { display: block; font-size: 0.86rem; font-weight: 800; line-height: 1.05; }
+  .equipment-count { display: block; margin-top: 0.2rem; font-size: 0.65rem; color: var(--rest); font-weight: 800; }
+  .equipment-count.is-zero { color: var(--muted); }
   .dur-btn, .diff-btn {
     padding: 0.8rem 1.5rem;
     border-radius: 1rem;
@@ -360,6 +422,11 @@
   }
   #go-btn:hover { transform: scale(1.03); }
   #go-btn:active { transform: scale(0.97); }
+  #go-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+    transform: none;
+  }
   #history-btn {
     padding: 1rem 1.5rem;
     border-radius: 1.5rem;
@@ -599,6 +666,18 @@
     font-size: 1rem;
     color: var(--muted);
   }
+  .wo-switch-cue {
+    min-height: 1.55rem;
+    margin-top: 0.35rem;
+    color: var(--rest);
+    font-size: 0.88rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  .wo-switch-cue.active { animation: switch-cue 1.8s ease both; }
 
   .wo-center {
     display: flex;
@@ -794,6 +873,8 @@
 
   /* ──── RESPONSIVE ──── */
   @media (max-width: 768px) {
+    body { justify-content: flex-start; }
+    #setup { min-height: 100vh; flex-shrink: 0; }
     .pv-main { flex-direction: column; gap: 1.5rem; }
     .pv-anim-container { width: 200px; height: 200px; padding: 1.5rem; }
     .pv-name { font-size: 2rem; }
@@ -805,7 +886,7 @@
     #setup h1 { font-size: 1.8rem; }
     .cp-title { font-size: 1.3rem; }
     .cp-buttons { flex-direction: column; width: 100%; max-width: 300px; }
-    #cp-regenerate, #cp-go { width: 100%; text-align: center; }
+    #cp-regenerate, #cp-lighten, #cp-go { width: 100%; text-align: center; }
     .youtube-demo.has-thumbnail { width: 128px; }
     .wo-center .youtube-demo.has-thumbnail {
       width: auto;
@@ -815,6 +896,11 @@
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-thumb { display: none; }
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-label,
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-icon { position: static; transform: none; padding: 0; background: none; }
+  }
+  @media (max-width: 600px) {
+    .equipment-panel { padding-inline: 0.55rem; }
+    .equipment-row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding: 0.2rem 0.1rem 0.45rem; scrollbar-width: thin; }
+    .equipment-btn { flex: 0 0 58px; }
   }
   @media (max-width: 380px) {
     .exercise-visual { flex-direction: column; }
@@ -906,6 +992,11 @@
     40% { transform: translateY(-15px); }
     60% { transform: translateY(-15px); }
   }
+  @keyframes switch-cue {
+    0% { opacity: 0; transform: scale(0.92); }
+    15%, 70% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.04); }
+  }
 
   /* ──── LANGUAGE TOGGLE ──── */
   #lang-toggle {
@@ -980,6 +1071,11 @@
     </div>
   </div>
 
+  <div class="option-group equipment-panel" id="equipment-group">
+    <label id="equipment-label">Mes kettlebells</label>
+    <div class="equipment-row" id="equipment-row"></div>
+  </div>
+
   <div class="option-group" id="duration-group">
     <label>Durée</label>
     <div class="option-row" id="duration-row">
@@ -1033,6 +1129,7 @@
     <div class="wo-round" id="wo-round">ROUND 1 / 3</div>
     <div class="wo-name" id="wo-name">Goblet Squat</div>
     <div class="wo-detail" id="wo-detail">10 reps</div>
+    <div class="wo-switch-cue" id="wo-switch-cue" aria-live="assertive"></div>
   </div>
   <div class="wo-center">
     <div class="exercise-visual">
@@ -1080,6 +1177,7 @@
   <div class="cp-science-note" id="cp-science-note" hidden></div>
   <div class="cp-list" id="cp-list"></div>
   <div class="cp-buttons">
+    <button id="cp-lighten">↘ Tout alléger</button>
     <button id="cp-regenerate">🔄 Régénérer</button>
     <button id="cp-go">C'EST PARTI 🔥</button>
   </div>
@@ -1118,6 +1216,20 @@ const STRINGS = {
     level: 'Niveau',
     beginner: 'Débutant',
     intermediate: 'Intermédiaire',
+    equipment: 'Mes kettlebells',
+    equipmentButton: (weight, count) => `${weight} kg, ${count === 0 ? 'aucune' : count === 1 ? 'une kettlebell' : 'deux kettlebells'}. Appuie pour changer.`,
+    inventoryEmpty: 'Aucune kettlebell sélectionnée',
+    useLighter: '↘ Tout alléger',
+    useSuggested: '↗ Charges conseillées',
+    loadSuggested: 'charge conseillée',
+    twoBells: (weight) => `2 × ${weight} kg`,
+    oneBell: (weight) => `${weight} kg`,
+    perSideCue: '↔ Change de côté',
+    alternateReps: 'Alterne à chaque répétition',
+    perSideTimed: 'par côté',
+    recipeLabel: 'Séquence guidée',
+    nateliRecipe: 'Full-body David Nateli',
+    recipeSubtitle: (rounds, duration) => `${rounds} passages · environ ${duration} min · transitions automatiques`,
     viewCircuit: 'Voir le circuit →',
     history: '📋 Historique',
     letsGo: 'C\'EST PARTI 🔥',
@@ -1223,6 +1335,20 @@ const STRINGS = {
     level: 'Level',
     beginner: 'Beginner',
     intermediate: 'Intermediate',
+    equipment: 'My kettlebells',
+    equipmentButton: (weight, count) => `${weight} kg, ${count === 0 ? 'none' : count === 1 ? 'one kettlebell' : 'two kettlebells'}. Press to change.`,
+    inventoryEmpty: 'No kettlebell selected',
+    useLighter: '↘ Use lighter weights',
+    useSuggested: '↗ Use suggested weights',
+    loadSuggested: 'suggested load',
+    twoBells: (weight) => `2 × ${weight} kg`,
+    oneBell: (weight) => `${weight} kg`,
+    perSideCue: '↔ Switch sides',
+    alternateReps: 'Alternate every rep',
+    perSideTimed: 'per side',
+    recipeLabel: 'Guided sequence',
+    nateliRecipe: 'David Nateli full-body',
+    recipeSubtitle: (rounds, duration) => `${rounds} passes · about ${duration} min · automatic transitions`,
     viewCircuit: 'View circuit →',
     history: '📋 History',
     letsGo: 'LET\'S GO 🔥',
@@ -1298,6 +1424,9 @@ const STRINGS = {
 
 // Exercise name translations (FR key -> EN display)
 const EX_NAME_EN = {
+  'Clean à deux mains': 'Two-Hand Clean',
+  'Press par côté': 'Press per side',
+  'Row par côté': 'Row per side',
   'Press (gauche)': 'Press (left)',
   'Press (droite)': 'Press (right)',
   'Row (gauche)': 'Row (left)',
@@ -1330,6 +1459,9 @@ const EX_NAME_EN = {
 
 // Exercise steps in English (keyed by French exercise name)
 const EX_STEPS_EN = {
+  'Clean à deux mains': ['KB between your feet, both hands on the handle', 'Hinge with a long spine', 'Drive the hips and guide the KB to the chest', 'Keep it close, then lower with control'],
+  'Press par côté': ['KB in rack, straight wrist, elbow tucked', 'Brace abs and glutes', 'Press straight overhead', 'Switch sides at the midpoint cue'],
+  'Row par côté': ['Hinge with a long spine', 'Brace the free hand on your thigh', 'Pull the KB toward your hip', 'Switch sides at the midpoint cue'],
   'Goblet Squat': ['Feet shoulder-width, toes out', 'KB by the horns against chest', 'Lower hips below knees, back straight', 'Push through heels, squeeze glutes at top'],
   'Kettlebell Swing': ['Feet hip-width, KB on floor', 'Hip hinge, flat back', 'Explosive hip extension', 'KB rises to shoulders, control descent'],
   'KB Deadlift': ['KB on floor between feet', 'Hip hinge, flat back', 'Grip KB, engage lats', 'Full extension, squeeze glutes'],
@@ -1417,6 +1549,8 @@ function exDetail(frDetail) {
   if (perDirectionMatch) return `${perDirectionMatch[1]} each direction`;
   const secondsMatch = frDetail.match(/^(\d+)\s+secondes$/);
   if (secondsMatch) return `${secondsMatch[1]} seconds`;
+  const secondsPerSideMatch = frDetail.match(/^(\d+)\s+secondes\s+par côté$/);
+  if (secondsPerSideMatch) return `${secondsPerSideMatch[1]} seconds per side`;
   // "X reps puis repos" -> "X reps then rest"
   if (frDetail.includes('reps puis repos')) return frDetail.replace('reps puis repos', 'reps then rest');
   return frDetail;
@@ -1484,19 +1618,27 @@ function displayName(step) {
 // Translate a step's display detail
 function displayDetail(step) {
   if (step.type === 'rest') return translateRestDetail(step.detail);
-  if (currentLang === 'fr') return step.detail;
   let d = step.detail;
-  // "X reps puis repos" -> "X reps then rest"
-  d = d.replace('reps puis repos', 'reps then rest');
-  // "sur place" -> "in place"
-  d = d.replace('sur place', 'in place');
-  // "X par côté" -> "X per side"
-  d = d.replace(/(\d+)\s+par côté/, '$1 per side');
-  d = d.replace(/(\d+)\s+par sens/, '$1 each direction');
-  d = d.replace(/(\d+)\s+secondes/, '$1 seconds');
-  d = d.replace('léger', 'light');
-  // "Échelon X" -> "Rung X"
-  d = d.replace(/Échelon\s+(\d+)/, 'Rung $1');
+  if (currentLang === 'en') {
+    d = d.replace('reps puis repos', 'reps then rest');
+    d = d.replace('sur place', 'in place');
+    d = d.replace(/(\d+)\s+par côté/, '$1 per side');
+    d = d.replace(/(\d+)\s+par sens/, '$1 each direction');
+    d = d.replace(/(\d+)\s+secondes/, '$1 seconds');
+    d = d.replace('par côté', 'per side');
+    d = d.replace('par sens', 'each direction');
+    d = d.replace('léger', 'light');
+    d = d.replace(/Échelon\s+(\d+)/, 'Rung $1');
+  }
+  const laterality = step.laterality || exerciseMeta(step.name).laterality;
+  if (laterality === 'per-side' && !/(par côté|per side)/i.test(d)) {
+    d += ` · ${t('perSideTimed')}`;
+  }
+  if (laterality === 'alternating' && !/(alterne|alternate)/i.test(d)) {
+    d += ` · ${t('alternateReps')}`;
+  }
+  const load = equipmentLoadText(step);
+  if (load) d += ` · 🏋️ ${load}`;
   return d;
 }
 
@@ -1542,6 +1684,8 @@ function applyLangToUI() {
   document.querySelector('.other-modes-label').textContent = t('otherModes');
   document.querySelector('[data-mode="emom"] .mode-desc').textContent = t('emomDesc');
   document.querySelector('[data-mode="complex"] .mode-desc').textContent = t('complexDesc');
+  document.getElementById('equipment-label').textContent = t('equipment');
+  renderEquipmentSelector();
   document.querySelector('#duration-group > label').textContent = t('duration');
   document.querySelector('#diff-group > label').textContent = t('level');
   document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -1553,6 +1697,7 @@ function applyLangToUI() {
   document.getElementById('cp-back').textContent = t('back');
   document.querySelector('.cp-title').textContent = t('yourCircuit');
   document.getElementById('cp-regenerate').textContent = t('regenerate');
+  document.getElementById('cp-lighten').textContent = lighterWeights ? t('useSuggested') : t('useLighter');
   document.getElementById('cp-go').textContent = t('letsGoBtn');
   document.querySelector('#pv-demo .youtube-demo-label').textContent = t('previewDemo');
   document.querySelector('#wo-demo .youtube-demo-label').textContent = t('workoutDemo');
@@ -1725,6 +1870,18 @@ const EX_DATA = {
 
 // Aliases
 EX_DATA['KB Swing'] = EX_DATA['Kettlebell Swing'];
+EX_DATA['Clean à deux mains'] = {
+  svg: EX_DATA['Clean (G)'].svg,
+  steps: ['KB entre les pieds, deux mains sur la poignée','Charnière de hanche, dos long','Pousse les hanches et guide la KB à la poitrine','Garde-la près du corps puis redescends avec contrôle']
+};
+EX_DATA['Press par côté'] = {
+  svg: EX_DATA['Press (gauche)'].svg,
+  steps: ['KB en rack, poignet droit, coude au corps','Contracte abdos et fessiers','Pousse droit au-dessus de la tête','Change de côté au signal de mi-temps']
+};
+EX_DATA['Row par côté'] = {
+  svg: EX_DATA['Row (gauche)'].svg,
+  steps: ['Charnière de hanche, dos long','Main libre en appui sur la cuisse','Tire la KB vers la hanche','Change de côté au signal de mi-temps']
+};
 
 // Exercise demo metadata is deliberately separate from the SVG artwork.
 // A reviewed video can replace a search link by setting `videoId` while keeping
@@ -1740,6 +1897,9 @@ const YOUTUBE_DEMOS = {
   'Sumo Squat': { videoId: '3h1A9GfB07w', query: 'kettlebell sumo squat proper form tutorial' },
   'Row (gauche)': { videoId: 'j2OdaGOmHlM', query: 'single arm kettlebell row proper form tutorial' },
   'Row (droite)': { videoId: 'j2OdaGOmHlM', query: 'single arm kettlebell row proper form tutorial' },
+  'Clean à deux mains': { videoId: '48qvCvJJr8Y', query: 'two hand kettlebell clean tutorial' },
+  'Press par côté': { videoId: 'WO2JPxGCsnU', query: 'StrongFirst one arm kettlebell press tutorial' },
+  'Row par côté': { videoId: 'j2OdaGOmHlM', query: 'single arm kettlebell row proper form tutorial' },
   'Clean & Press (G)': { videoId: '48qvCvJJr8Y', query: 'StrongFirst kettlebell clean and press tutorial' },
   'Clean & Press (D)': { videoId: '48qvCvJJr8Y', query: 'StrongFirst kettlebell clean and press tutorial' },
   'Snatch (G)': { videoId: 'AR6E01ABoHk', query: 'StrongFirst kettlebell snatch tutorial' },
@@ -1969,21 +2129,23 @@ function updateDemoLink(elementId, exerciseName) {
   }
 }
 
-function updateExerciseMeta(visual) {
+function updateExerciseMeta(visual, step) {
   const container = document.getElementById('pv-meta');
   container.replaceChildren();
-  if (!visual.meta) return;
-
-  if (visual.meta.equipment) {
+  const load = step ? equipmentLoadText(step) : '';
+  if (load || visual.meta?.equipment) {
     const equipment = document.createElement('span');
     equipment.className = 'pv-meta-chip';
-    const equipmentText = currentLang === 'en'
-      ? visual.meta.equipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells').replace('Sans kettlebell', 'No kettlebell')
-      : visual.meta.equipment;
-    equipment.textContent = `🏋️ ${equipmentText}`;
+    const rawEquipment = visual.meta?.equipment || '';
+    const fallbackText = currentLang === 'en'
+      ? rawEquipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells').replace('Sans kettlebell', 'No kettlebell')
+      : rawEquipment;
+    equipment.textContent = load
+      ? `🏋️ ${load} · ${t('loadSuggested')}`
+      : `🏋️ ${fallbackText}`;
     container.append(equipment);
   }
-  if (visual.meta.warning) {
+  if (visual.meta?.warning) {
     const warning = document.createElement('span');
     warning.className = 'pv-meta-warning';
     const warningText = currentLang === 'en'
@@ -2063,6 +2225,112 @@ const POOL = {
   ]
 };
 
+// Equipment metadata is kept separate from the exercise copy so generation,
+// recipes and the timer can all apply the same compatibility rules.
+const EQUIPMENT_WEIGHTS = [8, 10, 12, 14, 16, 20, 24];
+const DOUBLE_BELL_EXERCISES = new Set([
+  'Double KB Front Squat', 'Farmer Carry', 'Gorilla Row', 'Renegade Row'
+]);
+const BODYWEIGHT_EXERCISES = new Set(
+  BODYWEIGHT_CORE_EXERCISES.map(exercise => exercise.name)
+);
+const LIGHT_LOAD_EXERCISES = new Set([
+  'Halo', 'Slingshot', 'Bottoms-Up Clean', 'Kettlebell Arm Bar',
+  'Rotational Swing', 'Goblet Cossack Squat', 'Dead Bug Pullover',
+  'Turkish Get-Up (G)', 'Turkish Get-Up (D)', 'Windmill (G)', 'Windmill (D)'
+]);
+const OVERHEAD_EXERCISES = new Set([
+  'Press (gauche)', 'Press (droite)', 'Press par côté',
+  'Clean & Press (G)', 'Clean & Press (D)', 'Snatch (G)', 'Snatch (D)',
+  'Thruster (G)', 'Thruster (D)', 'Push Press (G)', 'Push Press (D)',
+  'Half-Kneeling Press'
+]);
+const HEAVY_LOAD_EXERCISES = new Set([
+  'Goblet Squat', 'Sumo Squat', 'KB Deadlift', 'KB Romanian Deadlift',
+  'Kettlebell Swing', 'Clean à deux mains', 'Row (gauche)', 'Row (droite)', 'Row par côté',
+  'Farmer Carry', 'Suitcase March', 'Front Rack March', 'Gorilla Row',
+  'Renegade Row', 'Double KB Front Squat'
+]);
+const PER_SIDE_EXERCISES = new Set([
+  'Press par côté', 'Row par côté', 'Suitcase March', 'Front Rack March',
+  'Half-Kneeling Press', 'Goblet Reverse Lunge', 'Goblet Cossack Squat',
+  'Bottoms-Up Clean', 'Kettlebell Arm Bar', 'Rotational Swing'
+]);
+const ALTERNATING_EXERCISES = new Set([
+  'Figure 8', 'Tactical Lunge', 'Gorilla Row', 'Renegade Row'
+]);
+
+function exerciseMeta(name) {
+  const bellCount = BODYWEIGHT_EXERCISES.has(name) ? 0 : DOUBLE_BELL_EXERCISES.has(name) ? 2 : 1;
+  const laterality = PER_SIDE_EXERCISES.has(name)
+    ? 'per-side'
+    : ALTERNATING_EXERCISES.has(name) ? 'alternating' : 'bilateral';
+  const style = bellCount === 2
+    ? 'two-bell-simultaneous'
+    : laterality === 'per-side' ? 'per-side'
+      : laterality === 'alternating' ? 'alternating'
+        : ['Goblet Squat', 'Kettlebell Swing', 'KB Deadlift', 'KB Romanian Deadlift', 'Sumo Squat', 'Halo', 'Slingshot', 'Clean à deux mains'].includes(name)
+          ? 'two-hands-one-bell' : 'single-bell';
+  const loadBias = LIGHT_LOAD_EXERCISES.has(name) ? 'light'
+    : OVERHEAD_EXERCISES.has(name) ? 'overhead'
+      : HEAVY_LOAD_EXERCISES.has(name) ? 'heavy' : 'standard';
+  return { bellCount, sameWeight: bellCount === 2, laterality, style, loadBias };
+}
+
+function selectedWeights(requiredCount = 1) {
+  return EQUIPMENT_WEIGHTS.filter(weight => (equipmentInventory[weight] || 0) >= requiredCount);
+}
+
+function hasCompatibleEquipment(name) {
+  const meta = exerciseMeta(name);
+  if (meta.bellCount === 0) return true;
+  return selectedWeights(meta.sameWeight ? 2 : 1).length > 0;
+}
+
+function recommendedWeight(name) {
+  const meta = exerciseMeta(name);
+  if (meta.bellCount === 0) return null;
+  const available = selectedWeights(meta.sameWeight ? 2 : 1);
+  if (!available.length) return null;
+  if (lighterWeights || meta.loadBias === 'light' || meta.loadBias === 'overhead') return available[0];
+  if (meta.loadBias === 'heavy') return available[available.length - 1];
+  return available[Math.floor((available.length - 1) / 2)];
+}
+
+function enrichExercise(exercise) {
+  const meta = exerciseMeta(exercise.name);
+  return {
+    ...exercise,
+    ...meta,
+    weightKg: recommendedWeight(exercise.name),
+  };
+}
+
+function equipmentLoadText(exercise) {
+  const meta = exerciseMeta(exercise.name);
+  const weight = exercise.weightKg ?? recommendedWeight(exercise.name);
+  if (meta.bellCount === 0 || weight == null) return '';
+  return meta.bellCount === 2 ? t('twoBells')(weight) : t('oneBell')(weight);
+}
+
+const CURATED_RECIPES = {
+  nateliFullBody: {
+    id: 'nateli-full-body',
+    nameKey: 'nateliRecipe',
+    rounds: 4,
+    stationRest: 10,
+    roundRest: 45,
+    approximateMinutes: 20,
+    exercises: [
+      { name: 'Clean à deux mains', detail: '10 reps', target: '10', reps: 10, duration: 35, group: 'full' },
+      { name: 'Goblet Squat', detail: '12 reps', target: '12', reps: 12, duration: 40, group: 'lower' },
+      { name: 'Press par côté', detail: '6 par côté', target: '6/side', reps: 6, duration: 50, group: 'upper', laterality: 'per-side' },
+      { name: 'Row par côté', detail: '8 par côté', target: '8/side', reps: 8, duration: 50, group: 'upper', laterality: 'per-side' },
+      { name: 'Suitcase March', detail: '20 secondes par côté', target: '20s/side', reps: 0, duration: 40, group: 'core', laterality: 'per-side' },
+    ],
+  },
+};
+
 // ══════════════════════════════════════════════
 //  MODE CONFIGURATIONS
 // ══════════════════════════════════════════════
@@ -2124,6 +2392,57 @@ let timeLeft = 0, timerInterval = null, paused = false;
 let wakeLock = null;
 let sessionExercises = [];
 let fatlossPlan = null;
+let selectedRecipe = null;
+let circuitPreviewFresh = true;
+let lighterWeights = false;
+
+function loadEquipmentInventory() {
+  const fallback = Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => [weight, weight === 12 ? 1 : 0]));
+  try {
+    const saved = JSON.parse(localStorage.getItem('kb_equipment_v1') || 'null');
+    if (!saved || typeof saved !== 'object') return fallback;
+    return Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => {
+      const count = Number(saved[weight]);
+      return [weight, [0, 1, 2].includes(count) ? count : 0];
+    }));
+  } catch {
+    return fallback;
+  }
+}
+
+let equipmentInventory = loadEquipmentInventory();
+
+function saveEquipmentInventory() {
+  localStorage.setItem('kb_equipment_v1', JSON.stringify(equipmentInventory));
+}
+
+function renderEquipmentSelector() {
+  const row = document.getElementById('equipment-row');
+  if (!row) return;
+  row.replaceChildren(...EQUIPMENT_WEIGHTS.map(weight => {
+    const count = equipmentInventory[weight] || 0;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'equipment-btn';
+    button.dataset.weight = String(weight);
+    button.setAttribute('aria-pressed', String(count > 0));
+    button.setAttribute('aria-label', t('equipmentButton')(weight, count));
+    button.innerHTML = `<span class="equipment-weight">${weight} kg</span><span class="equipment-count${count === 0 ? ' is-zero' : ''}">${count === 0 ? '＋' : `×${count}`}</span>`;
+    button.addEventListener('click', () => cycleEquipment(weight));
+    return button;
+  }));
+}
+
+function cycleEquipment(weight) {
+  equipmentInventory[weight] = ((equipmentInventory[weight] || 0) + 1) % 3;
+  saveEquipmentInventory();
+  fatlossPlan = null;
+  selectedRecipe = null;
+  circuitPreviewFresh = true;
+  lighterWeights = false;
+  renderEquipmentSelector();
+  updatePreview();
+}
 
 // ══════════════════════════════════════════════
 //  ANTI-REPETITION (localStorage)
@@ -2157,11 +2476,11 @@ function shuffle(arr) {
 // Generic pick (for non-circuit modes)
 function pickExercises(count, level) {
   const recent = getRecentExercises();
-  const pool = [...POOL[level]];
+  const pool = POOL[level].filter(exercise => hasCompatibleEquipment(exercise.name));
   const fresh = shuffle(pool.filter(e => !recent.has(e.name)));
   const stale = shuffle(pool.filter(e => recent.has(e.name)));
   const ordered = [...fresh, ...stale];
-  return ordered.slice(0, count);
+  return ordered.slice(0, count).map(enrichExercise);
 }
 
 function exerciseEntry(name, level) {
@@ -2189,9 +2508,10 @@ const FATLOSS_COUNTERPART = new Map(
 
 function pickFatlossPhase(names, count, level) {
   const recent = getRecentExercises();
+  const compatibleNames = names.filter(hasCompatibleEquipment);
   const ordered = [
-    ...shuffle(names.filter(name => !recent.has(name))),
-    ...shuffle(names.filter(name => recent.has(name))),
+    ...shuffle(compatibleNames.filter(name => !recent.has(name))),
+    ...shuffle(compatibleNames.filter(name => recent.has(name))),
   ];
   const selected = [];
   const used = new Set();
@@ -2199,7 +2519,7 @@ function pickFatlossPhase(names, count, level) {
   for (const name of ordered) {
     if (selected.length >= count || used.has(name)) continue;
     const counterpart = FATLOSS_COUNTERPART.get(name);
-    const counterpartIsAvailable = counterpart && names.includes(counterpart);
+    const counterpartIsAvailable = counterpart && compatibleNames.includes(counterpart);
 
     if (counterpartIsAvailable) {
       // A named left/right movement is always programmed as a complete pair.
@@ -2215,7 +2535,7 @@ function pickFatlossPhase(names, count, level) {
     used.add(name);
   }
 
-  return selected.slice(0, count).map(name => exerciseEntry(name, level));
+  return selected.slice(0, count).map(name => enrichExercise(exerciseEntry(name, level)));
 }
 
 function generateFatlossPlan() {
@@ -2236,7 +2556,7 @@ function pickCircuitExercises(count, level, groups) {
   // A disabled category is removed from the candidate pool itself. Previously,
   // it was only removed from the "pick one of each group" requirement, then the
   // unfiltered pool could add it again while filling the remaining slots.
-  const pool = POOL[level].filter(ex => requiredGrps.has(ex.group));
+  const pool = POOL[level].filter(ex => requiredGrps.has(ex.group) && hasCompatibleEquipment(ex.name));
   if (pool.length === 0 || count <= 0) return [];
   const recentSessions = getRecentCircuitSessions(2);
   const maxOverlapPct = level === 'beginner' ? 0.6 : 0.5;
@@ -2288,12 +2608,12 @@ function pickCircuitExercises(count, level, groups) {
     }
 
     if (!tooSimilar || attempt === maxAttempts - 1) {
-      return picked.slice(0, count);
+      return picked.slice(0, count).map(enrichExercise);
     }
   }
 
   // Fallback (should not reach here)
-  return shuffle(pool).slice(0, count);
+  return shuffle(pool).slice(0, count).map(enrichExercise);
 }
 
 // Keep valid displayed exercises and fill only the slots freed by a category
@@ -2306,19 +2626,19 @@ function refillCircuitExercises(current, count, level, groups) {
   const usedNames = new Set();
   for (const ex of current) {
     if (kept.length >= count) break;
-    if (!groups.has(ex.group) || usedNames.has(ex.name)) continue;
-    kept.push(ex);
+    if (!groups.has(ex.group) || !hasCompatibleEquipment(ex.name) || usedNames.has(ex.name)) continue;
+    kept.push(enrichExercise(ex));
     usedNames.add(ex.name);
   }
 
   if (kept.length >= count) return kept;
 
   const preferred = pickCircuitExercises(count, level, groups);
-  const eligible = POOL[level].filter(ex => groups.has(ex.group));
+  const eligible = POOL[level].filter(ex => groups.has(ex.group) && hasCompatibleEquipment(ex.name));
   for (const ex of [...preferred, ...shuffle(eligible)]) {
     if (kept.length >= count) break;
     if (usedNames.has(ex.name)) continue;
-    kept.push(ex);
+    kept.push(enrichExercise(ex));
     usedNames.add(ex.name);
   }
   return kept;
@@ -2337,7 +2657,9 @@ function saveSession(mode, duration, exercises) {
       date: new Date().toISOString(),
       mode: modeName(mode),
       duration,
-      exercises: [...new Set(exercises)]
+      exercises: [...new Set(exercises)],
+      equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
+      recipeId: selectedRecipe?.id || null,
     });
     // Keep last 20
     localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, 20)));
@@ -2357,10 +2679,14 @@ function showHistory() {
         const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
         const dateStr = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const exDisplay = (s.exercises || []).map(e => exName(e)).join(', ');
+        const equipmentDisplay = s.equipment
+          ? Object.entries(s.equipment).map(([weight, count]) => `${weight} kg ×${count}`).join(' · ')
+          : '';
+        const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe') : '';
         return `<div class="history-item">
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
-          <div class="history-detail">${exDisplay}</div>
+          <div class="history-detail">${[recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
         </div>`;
       }).join('');
     }
@@ -2374,6 +2700,10 @@ function showHistory() {
 //  BUILD WORKOUTS
 // ══════════════════════════════════════════════
 function buildCircuit() {
+  if (selectedRecipe) {
+    buildRecipeCircuit(selectedRecipe);
+    return;
+  }
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   // Use pre-picked exercises from circuit preview
   const picked = pickedCircuitExercises.length > 0
@@ -2398,6 +2728,49 @@ function buildCircuit() {
         });
       }
     }
+  }
+  totalSteps = circuit.length;
+  currentStep = 0;
+}
+
+function buildRecipeCircuit(recipe) {
+  const exercises = recipe.exercises.map(enrichExercise);
+  circuit = [];
+  sessionExercises = exercises.map(exercise => exercise.name);
+  for (let round = 1; round <= recipe.rounds; round++) {
+    exercises.forEach((exercise, index) => {
+      circuit.push({
+        ...exercise,
+        type: 'work',
+        round,
+        totalRounds: recipe.rounds,
+        recipeId: recipe.id,
+        modeLabel: `${t(recipe.nameKey)} · ${round}/${recipe.rounds}`,
+      });
+      const isLastExercise = index === exercises.length - 1;
+      const isLastRound = round === recipe.rounds;
+      if (!isLastExercise) {
+        circuit.push({
+          name: '😤 Repos',
+          detail: 'Changement d\'exercice',
+          type: 'rest',
+          duration: recipe.stationRest,
+          round,
+          totalRounds: recipe.rounds,
+          recipeId: recipe.id,
+        });
+      } else if (!isLastRound) {
+        circuit.push({
+          name: '🧘 Repos long',
+          detail: 'Respire profond',
+          type: 'rest',
+          duration: recipe.roundRest,
+          round,
+          totalRounds: recipe.rounds,
+          recipeId: recipe.id,
+        });
+      }
+    });
   }
   totalSteps = circuit.length;
   currentStep = 0;
@@ -2760,6 +3133,22 @@ function beep(freq, dur) {
 function beepStart() { beep(880, 0.12); setTimeout(() => beep(880, 0.12), 180); }
 function beepWarn() { beep(440, 0.08); }
 function beepDone() { beep(660, 0.2); setTimeout(() => beep(880, 0.2), 250); setTimeout(() => beep(1100, 0.3), 500); }
+function beepSwitch() { beep(620, 0.11); setTimeout(() => beep(920, 0.16), 150); }
+
+function shouldTriggerMidpointCue(step, remaining) {
+  return step.type === 'work'
+    && (step.laterality || exerciseMeta(step.name).laterality) === 'per-side'
+    && remaining === Math.floor(step.duration / 2);
+}
+
+function triggerMidpointCue() {
+  const cue = document.getElementById('wo-switch-cue');
+  cue.textContent = t('perSideCue');
+  cue.classList.remove('active');
+  void cue.offsetWidth;
+  cue.classList.add('active');
+  beepSwitch();
+}
 
 // ══════════════════════════════════════════════
 //  WAKE LOCK
@@ -2789,6 +3178,9 @@ function showOnly(id) {
 function selectMode(mode) {
   selectedMode = mode;
   fatlossPlan = null;
+  selectedRecipe = null;
+  circuitPreviewFresh = true;
+  lighterWeights = false;
   document.querySelectorAll('.mode-card, .featured-card').forEach(c => c.classList.remove('active'));
   document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
   updateDurationOptions();
@@ -2824,6 +3216,9 @@ function updateDurationOptions() {
         btn.classList.add('active');
         selectedMin = +btn.dataset.min;
         fatlossPlan = null;
+        selectedRecipe = null;
+        circuitPreviewFresh = true;
+        lighterWeights = false;
         updatePreview();
       });
     });
@@ -2838,12 +3233,26 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.classList.add('active');
     selectedLevel = btn.dataset.level;
     fatlossPlan = null;
+    selectedRecipe = null;
+    circuitPreviewFresh = true;
+    lighterWeights = false;
     updatePreview();
   });
 });
 
 function updatePreview() {
   const el = document.getElementById('preview-text');
+  const goButton = document.getElementById('go-btn');
+  const hasBell = selectedWeights().length > 0;
+  goButton.disabled = !hasBell;
+  if (!hasBell) {
+    el.textContent = t('inventoryEmpty');
+    goButton.textContent =
+      selectedMode === 'circuit' ? t('viewCircuit') :
+      selectedMode === 'fatloss' ? t('viewPlan') :
+      t('letsGo');
+    return;
+  }
   switch (selectedMode) {
     case 'circuit': {
       if (!CIRCUIT_CFG[selectedMin]) { el.textContent = ''; return; }
@@ -2905,7 +3314,7 @@ function showPreview() {
   document.getElementById('pv-detail').textContent = `${displayDetail(step)} · ${step.duration}s`;
   document.getElementById('pv-anim').innerHTML = visual.svg;
   updateDemoLink('pv-demo', step.name);
-  updateExerciseMeta(visual);
+  updateExerciseMeta(visual, step);
 
   const stepsForDisplay = displaySteps(step.name);
   const stepsEl = document.getElementById('pv-steps');
@@ -2960,6 +3369,9 @@ function showTimer() {
   nameEl.textContent = displayName(step);
   nameEl.className = 'wo-name' + (step.type === 'rest' ? ' rest' : '');
   document.getElementById('wo-detail').textContent = displayDetail(step);
+  const switchCue = document.getElementById('wo-switch-cue');
+  switchCue.classList.remove('active');
+  switchCue.textContent = '';
   ringFill.className.baseVal = 'timer-ring-fill' + (step.type === 'rest' ? ' rest' : '');
 
   const visual = getVisual(step.type === 'work' ? step.name : '_rest');
@@ -2985,6 +3397,7 @@ function showTimer() {
   timerInterval = setInterval(() => {
     if (paused) return;
     timeLeft--;
+    if (shouldTriggerMidpointCue(step, timeLeft)) triggerMidpointCue();
     if (timeLeft <= 3 && timeLeft > 0) beepWarn();
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
@@ -3022,6 +3435,9 @@ let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 
 function showCircuitPreview() {
   activeGroups = new Set(['upper', 'lower', 'full', 'core']);
+  selectedRecipe = null;
+  circuitPreviewFresh = true;
+  lighterWeights = false;
   regenerateCircuit();
 }
 
@@ -3047,7 +3463,18 @@ function renderPlanPreview() {
 
 function regenerateCircuit(animate) {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
-  pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel, activeGroups);
+  const recipe = CURATED_RECIPES.nateliFullBody;
+  const recipeIsAvailable = recipe.exercises.every(exercise => hasCompatibleEquipment(exercise.name));
+  // Circuit 20 intentionally opens on the curated recipe once. Regenerate then
+  // returns to the existing random generator instead of adding another home mode.
+  if (circuitPreviewFresh && selectedMin === 20 && recipeIsAvailable) {
+    selectedRecipe = recipe;
+    pickedCircuitExercises = recipe.exercises.map(enrichExercise);
+  } else {
+    selectedRecipe = null;
+    pickedCircuitExercises = pickCircuitExercises(c.exCount, selectedLevel, activeGroups);
+  }
+  circuitPreviewFresh = false;
   renderCircuitPreview();
   if (animate) {
     const list = document.getElementById('cp-list');
@@ -3057,6 +3484,7 @@ function regenerateCircuit(animate) {
 }
 
 function toggleCircuitGroup(group) {
+  if (selectedRecipe) return;
   if (!['upper', 'lower', 'full', 'core'].includes(group)) return;
   if (activeGroups.has(group)) activeGroups.delete(group);
   else activeGroups.add(group);
@@ -3074,17 +3502,19 @@ function toggleCircuitGroup(group) {
 function renderCircuitPreview() {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   const picked = pickedCircuitExercises;
-  document.querySelector('.cp-title').textContent = t('yourCircuit');
+  document.querySelector('.cp-title').textContent = selectedRecipe ? t(selectedRecipe.nameKey) : t('yourCircuit');
   document.getElementById('cp-science-note').hidden = true;
 
-  document.getElementById('cp-subtitle').textContent =
-    t('circuitSubtitle')(picked.length, c.rounds, c.work, c.rest);
+  document.getElementById('cp-subtitle').textContent = selectedRecipe
+    ? t('recipeSubtitle')(selectedRecipe.rounds, selectedRecipe.approximateMinutes)
+    : t('circuitSubtitle')(picked.length, c.rounds, c.work, c.rest);
 
   // Category filters (clickable). Visual state reflects the allow-list, not
   // whether a random generation happened to contain a category.
   const coverageEl = document.getElementById('cp-coverage');
-  coverageEl.innerHTML =
-    ['upper', 'lower', 'full', 'core'].map(g => {
+  coverageEl.innerHTML = selectedRecipe
+    ? `<span class="cp-recipe-badge">✦ ${t('recipeLabel')}</span>`
+    : ['upper', 'lower', 'full', 'core'].map(g => {
       const active = activeGroups.has(g);
       return `<button type="button" class="cp-tag ${g} ${active ? 'check' : 'missing'}" data-group="${g}" aria-pressed="${active}">${active ? '✓' : '✗'} ${groupLabel(g)}</button>`;
     }).join('');
@@ -3099,7 +3529,7 @@ function renderCircuitPreview() {
       <div class="cp-item-num">${i + 1}</div>
       <div class="cp-item-info">
         <div class="cp-item-name">${exName(ex.name)}</div>
-        <div class="cp-item-detail">${exDetail(ex.detail)}</div>
+        <div class="cp-item-detail">${exDetail(ex.detail)}${equipmentLoadText(ex) ? ` · <span class="cp-load">🏋️ ${equipmentLoadText(ex)}</span>` : ''}</div>
       </div>
       ${demoLink}
       <span class="cp-item-tag ${ex.group}">${groupLabel(ex.group)}</span>
@@ -3109,8 +3539,27 @@ function renderCircuitPreview() {
   const noCategories = activeGroups.size === 0;
   document.getElementById('cp-go').disabled = noCategories || picked.length === 0;
   document.getElementById('cp-regenerate').disabled = noCategories;
+  updateLightenAction(picked);
 
   showOnly('circuit-preview');
+}
+
+function updateLightenAction(exercises) {
+  const weights = [...new Set(exercises.map(exercise => exercise.weightKg ?? recommendedWeight(exercise.name)).filter(Number.isFinite))];
+  const button = document.getElementById('cp-lighten');
+  button.style.display = weights.length > 1 || lighterWeights ? 'block' : 'none';
+  button.textContent = lighterWeights ? t('useSuggested') : t('useLighter');
+}
+
+function toggleLighterWeights() {
+  lighterWeights = !lighterWeights;
+  pickedCircuitExercises = pickedCircuitExercises.map(enrichExercise);
+  if (fatlossPlan) {
+    for (const phase of Object.keys(fatlossPlan)) {
+      fatlossPlan[phase] = fatlossPlan[phase].map(enrichExercise);
+    }
+  }
+  renderPlanPreview();
 }
 
 function renderFatlossPreview() {
@@ -3139,7 +3588,7 @@ function renderFatlossPreview() {
       <div class="cp-item-num">${index + 1}</div>
       <div class="cp-item-info">
         <div class="cp-item-name">${exName(exercise.name)}</div>
-        <div class="cp-item-detail">${exercise.rounds}× ${exercise.work}s · ${phaseLabel(exercise.phase)} · RPE ${phaseRpe(exercise.phase)}</div>
+        <div class="cp-item-detail">${exercise.rounds}× ${exercise.work}s · ${phaseLabel(exercise.phase)} · RPE ${phaseRpe(exercise.phase)}${equipmentLoadText(exercise) ? ` · <span class="cp-load">🏋️ ${equipmentLoadText(exercise)}</span>` : ''}</div>
       </div>
       <a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(exercise.name))}">${t('demoShort')}</a>
       <span class="cp-item-tag ${exercise.phase}">${phaseLabel(exercise.phase)}</span>
@@ -3148,6 +3597,7 @@ function renderFatlossPreview() {
 
   document.getElementById('cp-regenerate').disabled = false;
   document.getElementById('cp-go').disabled = false;
+  updateLightenAction(previewItems);
   showOnly('circuit-preview');
 }
 
@@ -3165,6 +3615,8 @@ document.getElementById('cp-regenerate').addEventListener('click', () => {
   if (selectedMode === 'fatloss') regenerateFatloss(true);
   else regenerateCircuit(true);
 });
+
+document.getElementById('cp-lighten').addEventListener('click', toggleLighterWeights);
 
 document.getElementById('cp-go').addEventListener('click', () => {
   buildWorkout();
