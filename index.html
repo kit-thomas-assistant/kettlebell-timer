@@ -405,8 +405,9 @@
 
   .setup-buttons {
     display: flex;
-    gap: 1rem;
+    justify-content: center;
     align-items: center;
+    width: 100%;
   }
   #go-btn {
     padding: 1rem 3rem;
@@ -428,17 +429,121 @@
     transform: none;
   }
   #history-btn {
-    padding: 1rem 1.5rem;
-    border-radius: 1.5rem;
-    border: 2px solid var(--surface2);
-    background: transparent;
-    color: var(--muted);
-    font-size: 1rem;
-    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    width: min(100%, 540px);
+    min-height: 44px;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--surface2);
+    background: rgba(255, 255, 255, 0.015);
+    color: var(--text);
+    font: inherit;
+    text-align: start;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
   }
-  #history-btn:hover { border-color: var(--muted); color: var(--text); }
+  #history-btn:hover {
+    border-color: #555;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  #history-btn:active { transform: scale(0.99); }
+  #history-btn:focus-visible,
+  #go-btn:focus-visible,
+  #history-close:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .consistency-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+  }
+  .consistency-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+  .consistency-count {
+    font-size: 0.9rem;
+    line-height: 1.25;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+  .consistency-markers {
+    display: flex;
+    gap: 0.3rem;
+    flex: 0 0 auto;
+  }
+  .consistency-marker {
+    width: 0.72rem;
+    height: 0.72rem;
+    border: 1px solid #555;
+    border-radius: 0.18rem;
+    background: var(--surface2);
+  }
+  .consistency-marker.is-done {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .consistency-open {
+    color: #aaa;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .consistency-heatmap {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(2px, 0.8vw, 4px);
+    width: 100%;
+  }
+  .consistency-week {
+    display: grid;
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+    gap: clamp(2px, 0.8vw, 4px);
+    min-width: 0;
+  }
+  .consistency-day {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid #393939;
+    border-radius: 0.18rem;
+    background: #292929;
+  }
+  .consistency-day.has-session {
+    border-color: #ff8a60;
+    background: var(--accent);
+  }
+  .consistency-day.is-future {
+    border-color: #303030;
+    background: #222;
+  }
+  .consistency-footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .consistency-message {
+    color: #aaa;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+  .consistency-message.has-streak { color: #f0b199; }
+  .consistency-history-label {
+    color: var(--muted);
+    font-size: 0.68rem;
+    flex: 0 0 auto;
+  }
 
   /* ──── PREVIEW SCREEN ──── */
   #preview-screen {
@@ -896,6 +1001,7 @@
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-thumb { display: none; }
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-label,
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-icon { position: static; transform: none; padding: 0; background: none; }
+    #history-btn { width: 100%; }
   }
   @media (max-width: 600px) {
     .equipment-panel { padding-inline: 0.55rem; }
@@ -904,6 +1010,13 @@
   }
   @media (max-width: 380px) {
     .exercise-visual { flex-direction: column; }
+    .consistency-topline { align-items: flex-start; }
+    .consistency-progress { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+    .consistency-footer { align-items: flex-start; }
+  }
+
+  @media (forced-colors: active) {
+    .consistency-day.has-session { background: Highlight; }
   }
 
   /* ──── SVG ANIMATIONS ──── */
@@ -1097,8 +1210,8 @@
 
   <div class="setup-buttons">
     <button id="go-btn">Voir le circuit →</button>
-    <button id="history-btn">📋 Historique</button>
   </div>
+  <button id="history-btn" type="button"></button>
 </div>
 
 <!-- ──── PREVIEW ──── -->
@@ -1184,9 +1297,9 @@
 </div>
 
 <!-- ──── HISTORY MODAL ──── -->
-<div id="history-modal">
+<div id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-title">
   <div class="history-box">
-    <h3>📋 Historique</h3>
+    <h3 id="history-title">📋 Historique</h3>
     <div id="history-list"></div>
     <button id="history-close">Fermer</button>
   </div>
@@ -1232,6 +1345,16 @@ const STRINGS = {
     recipeSubtitle: (rounds, duration) => `${rounds} passages · environ ${duration} min · transitions automatiques`,
     viewCircuit: 'Voir le circuit →',
     history: '📋 Historique',
+    consistencyProgress: (count) => `${count} / 3 cette semaine`,
+    consistencyOpen: 'Voir le détail',
+    consistencyEmpty: 'Ta première semaine commence ici',
+    consistencySteady: 'Chaque séance compte',
+    consistencyStreak: (count) => `${count} semaine${count > 1 ? 's' : ''} dans le rythme`,
+    consistencyHistory: 'Historique',
+    consistencyAria: (count, streak) => `Historique et régularité. ${count} séance${count !== 1 ? 's' : ''} sur 3 cette semaine.${streak ? ` ${streak} semaine${streak > 1 ? 's' : ''} dans le rythme.` : ''}`,
+    heatmapAria: 'Séances des 12 dernières semaines',
+    sessionDone: 'séance effectuée',
+    noSession: 'aucune séance',
     letsGo: 'C\'EST PARTI 🔥',
     // Circuit preview
     back: '← Retour',
@@ -1351,6 +1474,16 @@ const STRINGS = {
     recipeSubtitle: (rounds, duration) => `${rounds} passes · about ${duration} min · automatic transitions`,
     viewCircuit: 'View circuit →',
     history: '📋 History',
+    consistencyProgress: (count) => `${count} / 3 this week`,
+    consistencyOpen: 'View details',
+    consistencyEmpty: 'Your first week starts here',
+    consistencySteady: 'Every session counts',
+    consistencyStreak: (count) => `${count} week${count > 1 ? 's' : ''} in rhythm`,
+    consistencyHistory: 'History',
+    consistencyAria: (count, streak) => `History and consistency. ${count} session${count !== 1 ? 's' : ''} out of 3 this week.${streak ? ` ${streak} week${streak > 1 ? 's' : ''} in rhythm.` : ''}`,
+    heatmapAria: 'Sessions over the last 12 weeks',
+    sessionDone: 'session completed',
+    noSession: 'no session',
     letsGo: 'LET\'S GO 🔥',
     back: '← Back',
     yourCircuit: 'Your Circuit',
@@ -1691,7 +1824,7 @@ function applyLangToUI() {
   document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.textContent = btn.dataset.level === 'beginner' ? t('beginner') : t('intermediate');
   });
-  document.getElementById('history-btn').textContent = t('history');
+  renderConsistency();
 
   // Circuit preview static elements
   document.getElementById('cp-back').textContent = t('back');
@@ -2650,9 +2783,159 @@ let pickedCircuitExercises = [];
 // ══════════════════════════════════════════════
 //  HISTORY
 // ══════════════════════════════════════════════
+const WEEKLY_SESSION_TARGET = 3;
+const CONSISTENCY_WEEK_COUNT = 12;
+const HISTORY_LIMIT = 200;
+
+function readHistory() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('kb_history') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function localDayStart(value) {
+  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function localDateKey(value) {
+  const date = localDayStart(value);
+  if (!date) return null;
+  const pad = number => String(number).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function localWeekStart(value) {
+  const date = localDayStart(value);
+  if (!date) return null;
+  const daysSinceMonday = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - daysSinceMonday);
+  return date;
+}
+
+function addLocalDays(value, amount) {
+  const date = localDayStart(value);
+  if (!date) return null;
+  date.setDate(date.getDate() + amount);
+  return date;
+}
+
+function aggregateSessionsByDay(history) {
+  return (Array.isArray(history) ? history : []).reduce((days, session) => {
+    const key = localDateKey(session?.date);
+    if (key) days[key] = (days[key] || 0) + 1;
+    return days;
+  }, {});
+}
+
+function aggregateSessionsByWeek(history) {
+  return (Array.isArray(history) ? history : []).reduce((weeks, session) => {
+    const week = localWeekStart(session?.date);
+    const key = week && localDateKey(week);
+    if (key) weeks[key] = (weeks[key] || 0) + 1;
+    return weeks;
+  }, {});
+}
+
+function weeklyConsistency(history, now = new Date(), target = WEEKLY_SESSION_TARGET) {
+  const weekCounts = aggregateSessionsByWeek(history);
+  const currentWeek = localWeekStart(now);
+  if (!currentWeek) return { currentCount: 0, streak: 0 };
+
+  const currentCount = weekCounts[localDateKey(currentWeek)] || 0;
+  let cursor = currentCount >= target ? currentWeek : addLocalDays(currentWeek, -7);
+  let streak = 0;
+
+  while (cursor && (weekCounts[localDateKey(cursor)] || 0) >= target) {
+    streak++;
+    cursor = addLocalDays(cursor, -7);
+  }
+
+  return { currentCount, streak };
+}
+
+function buildConsistencyHeatmap(history, now = new Date(), weekCount = CONSISTENCY_WEEK_COUNT) {
+  const days = aggregateSessionsByDay(history);
+  const today = localDayStart(now);
+  const currentWeek = localWeekStart(now);
+  if (!today || !currentWeek) return [];
+  const firstWeek = addLocalDays(currentWeek, -(weekCount - 1) * 7);
+
+  return Array.from({ length: weekCount }, (_, weekIndex) => {
+    const weekStart = addLocalDays(firstWeek, weekIndex * 7);
+    return Array.from({ length: 7 }, (_, dayIndex) => {
+      const date = addLocalDays(weekStart, dayIndex);
+      const key = localDateKey(date);
+      return {
+        date,
+        key,
+        count: days[key] || 0,
+        isFuture: date.getTime() > today.getTime(),
+      };
+    });
+  });
+}
+
+function renderConsistency(now = new Date()) {
+  const button = document.getElementById('history-btn');
+  if (!button) return;
+
+  const history = readHistory();
+  const { currentCount, streak } = weeklyConsistency(history, now);
+  const progress = Math.min(currentCount, WEEKLY_SESSION_TARGET);
+  const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+  const heatmap = buildConsistencyHeatmap(history, now);
+  const heatmapHtml = heatmap.map(week => `
+    <span class="consistency-week">
+      ${week.map(day => {
+        const state = day.count > 0 ? t('sessionDone') : t('noSession');
+        const label = `${dateFormatter.format(day.date)} : ${state}`;
+        return `<span class="consistency-day${day.count > 0 ? ' has-session' : ''}${day.isFuture ? ' is-future' : ''}" title="${label}" aria-label="${label}"></span>`;
+      }).join('')}
+    </span>
+  `).join('');
+  const message = history.length === 0
+    ? t('consistencyEmpty')
+    : streak > 0
+      ? t('consistencyStreak')(streak)
+      : t('consistencySteady');
+
+  button.setAttribute('aria-label', t('consistencyAria')(progress, streak));
+  button.innerHTML = `
+    <span class="consistency-topline">
+      <span class="consistency-progress">
+        <span class="consistency-count">${t('consistencyProgress')(progress)}</span>
+        <span class="consistency-markers" aria-hidden="true">
+          ${Array.from({ length: WEEKLY_SESSION_TARGET }, (_, index) =>
+            `<span class="consistency-marker${index < progress ? ' is-done' : ''}"></span>`
+          ).join('')}
+        </span>
+      </span>
+      <span class="consistency-open">${t('consistencyOpen')} →</span>
+    </span>
+    <span class="consistency-heatmap" role="img" aria-label="${t('heatmapAria')}">
+      ${heatmapHtml}
+    </span>
+    <span class="consistency-footer">
+      <span class="consistency-message${streak > 0 ? ' has-streak' : ''}">${message}</span>
+      <span class="consistency-history-label">📋 ${t('consistencyHistory')}</span>
+    </span>
+  `;
+}
+
 function saveSession(mode, duration, exercises) {
   try {
-    const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
+    const hist = readHistory();
     hist.unshift({
       date: new Date().toISOString(),
       mode: modeName(mode),
@@ -2661,16 +2944,19 @@ function saveSession(mode, duration, exercises) {
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
       recipeId: selectedRecipe?.id || null,
     });
-    // Keep last 20
-    localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, 20)));
+    localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, HISTORY_LIMIT)));
+    renderConsistency();
   } catch {}
 }
+
+let historyReturnFocus = null;
 
 function showHistory() {
   const modal = document.getElementById('history-modal');
   const list = document.getElementById('history-list');
+  historyReturnFocus = document.activeElement;
   try {
-    const hist = JSON.parse(localStorage.getItem('kb_history') || '[]');
+    const hist = readHistory();
     if (hist.length === 0) {
       list.innerHTML = `<div class="history-empty">${t('noSessions')}</div>`;
     } else {
@@ -2694,6 +2980,14 @@ function showHistory() {
     list.innerHTML = `<div class="history-empty">${t('readError')}</div>`;
   }
   modal.style.display = 'flex';
+  requestAnimationFrame(() => document.getElementById('history-close').focus());
+}
+
+function closeHistory() {
+  document.getElementById('history-modal').style.display = 'none';
+  if (historyReturnFocus && typeof historyReturnFocus.focus === 'function') {
+    historyReturnFocus.focus();
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -3642,12 +3936,15 @@ document.getElementById('btn-stop').addEventListener('click', () => {
 });
 
 document.getElementById('history-btn').addEventListener('click', showHistory);
-document.getElementById('history-close').addEventListener('click', () => {
-  document.getElementById('history-modal').style.display = 'none';
-});
+document.getElementById('history-close').addEventListener('click', closeHistory);
 document.getElementById('history-modal').addEventListener('click', (e) => {
   if (e.target === e.currentTarget) {
-    document.getElementById('history-modal').style.display = 'none';
+    closeHistory();
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.getElementById('history-modal').style.display === 'flex') {
+    closeHistory();
   }
 });
 

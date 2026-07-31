@@ -18,6 +18,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Audio cues** : beeps at transitions and 3-second warnings
 - **Screen wake lock** : keeps the display on during your workout
 - **Offline workout core** : the timer, SVG demos and workout history work without a network; YouTube demos require a connection
+- **Weekly consistency** : a 12-week activity heatmap, three-session weekly target and non-punitive weekly streak appear below the primary start action
 
 ## Exercises
 
@@ -92,6 +93,12 @@ node tests/equipment-recipe-diagnostic.mjs
 ```
 
 The equipment/recipe diagnostic checks selector cycling and persistence, 44px accessible controls, repeated single-bell filtering, equal-pair unlocking, conservative mixed-load recommendations, the lighten action, recipe order/timing/laterality, midpoint cues, history metadata and FR/EN translations.
+
+```bash
+node tests/consistency-diagnostic.mjs
+```
+
+The consistency diagnostic checks day/week aggregation, the three-session target, in-progress week streak logic, the 12×7 heatmap, empty and bilingual states, history opening, post-session refresh, 200-session retention, legacy data compatibility, accessibility and 320px layout containment.
 
 ## License
 
