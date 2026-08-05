@@ -172,6 +172,20 @@
     color: var(--muted);
     text-align: center;
   }
+  .cp-lane-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: calc(100vw - 2rem);
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgba(255,107,53,0.42);
+    border-radius: 999px;
+    background: rgba(255,107,53,0.09);
+    color: #ffd2c2;
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+  }
   .cp-coverage {
     display: flex;
     gap: 0.5rem;
@@ -222,7 +236,7 @@
     min-width: 1.5rem;
     text-align: center;
   }
-  .cp-item-info { flex: 1; }
+  .cp-item-info { flex: 1; min-width: 0; }
   .cp-item-name { font-weight: 700; font-size: 0.95rem; }
   .cp-item-detail { font-size: 0.8rem; color: var(--muted); }
   .cp-item-demo {
@@ -1009,6 +1023,9 @@
     .equipment-btn { flex: 0 0 58px; }
   }
   @media (max-width: 380px) {
+    #circuit-preview { padding-inline: 0.65rem; }
+    .cp-item { gap: 0.45rem; padding-inline: 0.65rem; }
+    .cp-item-tag { display: none; }
     .exercise-visual { flex-direction: column; }
     .consistency-topline { align-items: flex-start; }
     .consistency-progress { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
@@ -1037,6 +1054,10 @@
   @keyframes row-pull {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-12px); }
+  }
+  @keyframes push-up {
+    0%, 100% { transform: translateY(-5px); }
+    50% { transform: translateY(6px); }
   }
   @keyframes carry-walk {
     0%, 100% { transform: translateX(-8px); }
@@ -1286,6 +1307,7 @@
   <button id="cp-back">← Retour</button>
   <div class="cp-title">Ton Circuit</div>
   <div class="cp-subtitle" id="cp-subtitle">5 exercices · 3 rounds · 30s/15s</div>
+  <div class="cp-lane-badge" id="cp-lane-badge" hidden></div>
   <div class="cp-coverage" id="cp-coverage"></div>
   <div class="cp-science-note" id="cp-science-note" hidden></div>
   <div class="cp-list" id="cp-list"></div>
@@ -1360,6 +1382,11 @@ const STRINGS = {
     back: '← Retour',
     yourCircuit: 'Ton Circuit',
     regenerate: '🔄 Régénérer',
+    varySession: '🔄 Varier cette séance',
+    weeklyLane: (number, name) => `Séance ${number}/3 · ${name}`,
+    laneBase: 'Base force',
+    lanePower: 'Hinge & puissance',
+    laneMixed: 'Mixte & unilatéral',
     letsGoBtn: 'C\'EST PARTI 🔥',
     // Group labels
     upper: 'Haut du corps',
@@ -1488,6 +1515,11 @@ const STRINGS = {
     back: '← Back',
     yourCircuit: 'Your Circuit',
     regenerate: '🔄 Regenerate',
+    varySession: '🔄 Vary this session',
+    weeklyLane: (number, name) => `Session ${number}/3 · ${name}`,
+    laneBase: 'Strength base',
+    lanePower: 'Hinge & power',
+    laneMixed: 'Mixed & unilateral',
     letsGoBtn: 'LET\'S GO 🔥',
     upper: 'Upper Body',
     lower: 'Lower Body',
@@ -1588,6 +1620,15 @@ const EX_NAME_EN = {
   'Dead Bug': 'Dead Bug',
   'Mountain Climber': 'Mountain Climber',
   'Bear Plank Shoulder Tap': 'Bear Plank Shoulder Tap',
+  'Pompes au sol': 'Floor Push-Up',
+  'Pompes inclinées': 'Incline Push-Up',
+  'Pompe décalée sur kettlebell': 'Offset Kettlebell Push-Up',
+  'Push-up + kettlebell drag': 'Push-Up + Kettlebell Drag',
+  'Floor Press par côté': 'Single-Arm Floor Press',
+  'Half Get-Up Press': 'Half Get-Up Press',
+  'Kettlebell Pullover': 'Light Kettlebell Pullover',
+  'Suitcase Row': 'Suitcase Row',
+  'Seated Strict Press': 'Seated Strict Press',
 };
 
 // Exercise steps in English (keyed by French exercise name)
@@ -1647,6 +1688,15 @@ const EX_STEPS_EN = {
   'Dead Bug': ['Lie down with hips and knees at 90°', 'Press the lower back gently into the floor', 'Extend opposite arm and leg slowly', 'Exhale, return, then alternate sides'],
   'Mountain Climber': ['Hands below shoulders in a strong plank', 'Drive one knee toward the chest', 'Alternate smoothly without bouncing the hips', 'Keep shoulders over hands and breathe'],
   'Bear Plank Shoulder Tap': ['Hands below shoulders, knees below hips', 'Lift knees a few centimetres off the floor', 'Tap the opposite shoulder without twisting', 'Alternate slowly with ribs and pelvis stable'],
+  'Pompes au sol': ['Hands slightly wider than shoulders', 'Brace the body from head to heels', 'Lower the chest between the hands', 'Press the floor away without flaring the elbows'],
+  'Pompes inclinées': ['Hands on a solid raised support', 'Brace the body from head to heels', 'Lower the chest toward the support', 'Press away; lower the support only when ready'],
+  'Pompe décalée sur kettlebell': ['Use only a kettlebell with a perfectly stable flat base', 'One hand centred on the bell, the other on the floor', 'Perform controlled push-ups and switch sides at midpoint', 'If the bell moves at all, return to floor push-ups'],
+  'Push-up + kettlebell drag': ['Place the kettlebell on the floor beside your torso', 'Perform one controlled push-up from a wide stable plank', 'Reach underneath with the opposite hand and drag the bell across', 'Repeat on the other side while keeping hips square; use a light bell'],
+  'Floor Press par côté': ['Lie down, knees bent and kettlebell in one hand', 'Keep the wrist stacked and upper arm on the floor', 'Press vertically without rolling the torso', 'Lower slowly and switch sides at midpoint'],
+  'Half Get-Up Press': ['Lie down with one knee bent and a light bell racked', 'Roll to the opposite elbow, then the hand', 'At the tall seated position, press without shrugging', 'Lower to rack, reverse slowly, then switch sides'],
+  'Kettlebell Pullover': ['Lie down with knees bent and hold a light bell by the horns', 'Keep ribs down and elbows softly bent', 'Lower the bell behind the head only as far as you control', 'Exhale and pull it back over the chest'],
+  'Suitcase Row': ['Stagger the feet and hinge with a long spine', 'Hold the bell in the hand opposite the front foot', 'Row toward the hip without rotating the chest', 'Lower with control and switch sides at midpoint'],
+  'Seated Strict Press': ['Sit tall with legs comfortable and the bell racked', 'Brace the trunk without leaning back', 'Press vertically with a neutral wrist', 'Lower slowly and switch sides at midpoint'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -1829,7 +1879,7 @@ function applyLangToUI() {
   // Circuit preview static elements
   document.getElementById('cp-back').textContent = t('back');
   document.querySelector('.cp-title').textContent = t('yourCircuit');
-  document.getElementById('cp-regenerate').textContent = t('regenerate');
+  document.getElementById('cp-regenerate').textContent = selectedMode === 'fatloss' ? t('varySession') : t('regenerate');
   document.getElementById('cp-lighten').textContent = lighterWeights ? t('useSuggested') : t('useLighter');
   document.getElementById('cp-go').textContent = t('letsGoBtn');
   document.querySelector('#pv-demo .youtube-demo-label').textContent = t('previewDemo');
@@ -2017,8 +2067,9 @@ EX_DATA['Row par côté'] = {
 };
 
 // Exercise demo metadata is deliberately separate from the SVG artwork.
-// A reviewed video can replace a search link by setting `videoId` while keeping
-// the UI and workout data untouched.
+// Legacy `videoId` values are retained as metadata, but the UI deliberately
+// opens the targeted query so a removed or unsuitable single video is never a
+// dead end.
 const YOUTUBE_DEMOS = {
   'Goblet Squat': { videoId: 'TcXOrjCAyPg', query: 'StrongFirst kettlebell goblet squat tutorial' },
   'Kettlebell Swing': { videoId: 'yHxcTn1UeAc', query: 'StrongFirst hardstyle kettlebell swing tutorial' },
@@ -2139,6 +2190,7 @@ const MODERN_EXERCISES = [
     detail: '8 par côté · léger', reps: 8, equipment: '1 kettlebell légère',
     source: 'https://www.cavemantraining.com/caveman-kettlebells/rotational-pivot-swing-and-other-rotational-kettlebell-exercises/',
     warning: 'Technique avancée : charge légère et pivot du pied, jamais de torsion forcée du genou.',
+    warningEn: 'Advanced technique: use a light load, pivot the foot, and never force the knee to twist.',
     visualFrom: 'Single Swing (G)',
     steps: ['Commence léger, pieds libres de pivoter','Charge la hanche comme sur un swing','Pivote pied et bassin ensemble','Freine avec les hanches, genou aligné avec le pied'],
     demo: { videoId: 'HF2JE6RMQio', query: 'rotational pivot kettlebell swing tutorial' },
@@ -2167,17 +2219,77 @@ const MODERN_EXERCISES = [
     steps: ['Un genou au sol, KB en rack côté genou bas','Serre le fessier de la jambe arrière','Presse verticalement sans cambrer','Redescends en rack puis change de côté'],
     demo: { videoId: '-YRtKyJ0t90', query: 'half kneeling kettlebell press proper form tutorial' },
   },
+  {
+    name: 'Pompes au sol', level: 'beginner', group: 'upper', family: 'push-up', pattern: 'horizontal-push',
+    detail: '8 reps', reps: 8, equipment: 'Sans kettlebell',
+    svg: `<svg viewBox="0 0 120 90" role="img"><g style="animation:push-up 1.8s ease-in-out infinite;transform-origin:60px 54px"><circle cx="24" cy="37" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="32" y1="42" x2="79" y2="54" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="79" y1="54" x2="109" y2="61" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="46" x2="34" y2="68" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="34" y1="68" x2="24" y2="68" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="109" y1="61" x2="115" y2="68" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Mains un peu plus larges que les épaules','Gaine tout le corps, tête aux talons','Descends la poitrine entre les mains','Repousse le sol sans écarter excessivement les coudes'],
+    demo: { query: 'push up proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Pompes inclinées', level: 'beginner', group: 'upper', family: 'push-up', pattern: 'horizontal-push',
+    detail: '10 reps', reps: 10, equipment: 'Sans kettlebell', visualFrom: 'Pompes au sol',
+    steps: ['Mains sur un support surélevé parfaitement stable','Gaine le corps de la tête aux talons','Descends la poitrine vers le support','Repousse, puis baisse le support seulement si tu es prêt'],
+    demo: { query: 'incline push up proper form tutorial' },
+  },
+  {
+    name: 'Pompe décalée sur kettlebell', level: 'beginner', group: 'upper', family: 'offset-push-up', pattern: 'horizontal-push',
+    detail: '6 par côté', reps: 6, equipment: '1 kettlebell', visualFrom: 'Pompes au sol',
+    warning: 'Base parfaitement stable obligatoire. Si la cloche bouge, reviens aux pompes au sol pour éviter chute et doigts écrasés.',
+    warningEn: 'Use only a perfectly stable flat base. If the bell moves, return to floor push-ups to avoid a fall or crushed fingers.',
+    steps: ['Pose une main au sol, l’autre centrée sur la cloche stable','Gaine le corps et garde les épaules de niveau','Fais des pompes lentes et contrôlées','Change de côté au signal de mi-temps'],
+    demo: { query: 'offset kettlebell push up one hand on kettlebell tutorial' },
+  },
+  {
+    name: 'Push-up + kettlebell drag', level: 'inter', group: 'upper', family: 'push-up-drag', pattern: 'horizontal-push',
+    detail: '6 alternées', reps: 6, equipment: '1 kettlebell légère', visualFrom: 'Pompes au sol',
+    warning: 'Fais glisser une cloche légère sous le torse, sans la soulever. Bassin stable et pieds larges.',
+    warningEn: 'Drag a light bell under the torso without lifting it. Keep the hips square and feet wide.',
+    steps: ['Place la KB au sol à côté du torse','Fais une pompe contrôlée depuis une planche large','Passe la main opposée dessous et fais glisser la KB','Répète de l’autre côté sans laisser le bassin pivoter'],
+    demo: { query: 'push up kettlebell drag proper form tutorial' },
+  },
+  {
+    name: 'Floor Press par côté', level: 'beginner', group: 'upper', family: 'floor-press', pattern: 'horizontal-push',
+    detail: '8 par côté', reps: 8, equipment: '1 kettlebell', visualFrom: 'Floor Press',
+    steps: ['Allongé, genoux pliés, KB dans une main','Poignet empilé, bras posé au sol','Presse verticalement sans rouler le buste','Redescends lentement et change à mi-temps'],
+    demo: { query: 'single arm kettlebell floor press proper form tutorial' },
+  },
+  {
+    name: 'Half Get-Up Press', level: 'inter', group: 'upper', family: 'get-up-press', pattern: 'vertical-push',
+    detail: '5 par côté', reps: 5, equipment: '1 kettlebell légère', visualFrom: 'Turkish Get-Up (G)',
+    steps: ['Allongé, un genou plié, KB légère en rack','Monte sur le coude opposé puis sur la main','Assis haut, presse sans hausser l’épaule','Reviens lentement puis change de côté'],
+    demo: { query: 'half Turkish get up kettlebell press tutorial' },
+  },
+  {
+    name: 'Kettlebell Pullover', level: 'beginner', group: 'upper', family: 'pullover', pattern: 'horizontal-pull',
+    detail: '8 reps · léger', reps: 8, equipment: '1 kettlebell légère', visualFrom: 'Dead Bug Pullover',
+    steps: ['Allongé, genoux pliés, KB légère par les cornes','Garde les côtes basses et les coudes souples','Descends derrière la tête sans perdre le contrôle','Expire et ramène au-dessus de la poitrine'],
+    demo: { query: 'light kettlebell pullover proper form tutorial' },
+  },
+  {
+    name: 'Suitcase Row', level: 'beginner', group: 'upper', family: 'row', pattern: 'horizontal-pull',
+    detail: '8 par côté', reps: 8, equipment: '1 kettlebell', visualFrom: 'Row (gauche)',
+    steps: ['Pieds décalés, charnière de hanche, dos long','KB dans la main opposée au pied avant','Tire vers la hanche sans tourner la poitrine','Contrôle la descente et change à mi-temps'],
+    demo: { query: 'single arm suitcase kettlebell row proper form tutorial' },
+  },
+  {
+    name: 'Seated Strict Press', level: 'inter', group: 'upper', family: 'strict-press', pattern: 'vertical-push',
+    detail: '6 par côté', reps: 6, equipment: '1 kettlebell', visualFrom: 'Press (gauche)',
+    steps: ['Assieds-toi grand, jambes confortables, KB en rack','Gaine le tronc sans te pencher en arrière','Presse verticalement, poignet neutre','Redescends lentement et change à mi-temps'],
+    demo: { query: 'seated single arm kettlebell strict press tutorial' },
+  },
 ];
 
 for (const exercise of MODERN_EXERCISES) {
   EX_DATA[exercise.name] = {
-    svg: EX_DATA[exercise.visualFrom].svg,
+    svg: exercise.svg || EX_DATA[exercise.visualFrom].svg,
     steps: exercise.steps,
     meta: {
       equipment: exercise.equipment,
       difficulty: exercise.level,
       source: exercise.source,
       warning: exercise.warning || null,
+      warningEn: exercise.warningEn || null,
     },
   };
   YOUTUBE_DEMOS[exercise.name] = exercise.demo;
@@ -2235,9 +2347,10 @@ for (const exercise of BODYWEIGHT_CORE_EXERCISES) {
 function getYouTubeDemo(name) {
   const demo = YOUTUBE_DEMOS[name];
   if (!demo) return null;
-  const url = demo.videoId
-    ? `https://www.youtube.com/watch?v=${encodeURIComponent(demo.videoId)}`
-    : `https://www.youtube.com/results?search_query=${encodeURIComponent(demo.query)}`;
+  // Always open a targeted search page: it remains useful if a particular
+  // video disappears and lets the athlete choose the coach/demo that fits.
+  const query = demo.query || `${exName(name)} kettlebell proper form tutorial`;
+  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
   return { ...demo, url };
 }
 
@@ -2254,12 +2367,8 @@ function updateDemoLink(elementId, exerciseName) {
   }
   link.href = demo.url;
   link.setAttribute('aria-label', t('demoAria')(exName(exerciseName)));
-  link.classList.toggle('has-thumbnail', Boolean(demo.videoId));
-  if (demo.videoId) {
-    thumbnail.src = `https://i.ytimg.com/vi/${encodeURIComponent(demo.videoId)}/mqdefault.jpg`;
-  } else {
-    thumbnail.removeAttribute('src');
-  }
+  link.classList.remove('has-thumbnail');
+  thumbnail.removeAttribute('src');
 }
 
 function updateExerciseMeta(visual, step) {
@@ -2282,7 +2391,7 @@ function updateExerciseMeta(visual, step) {
     const warning = document.createElement('span');
     warning.className = 'pv-meta-warning';
     const warningText = currentLang === 'en'
-      ? 'Advanced technique: use a light load, pivot the foot, and never force the knee to twist.'
+      ? (visual.meta.warningEn || 'Use a light load, move with control, and stop if the setup is not stable.')
       : visual.meta.warning;
     warning.textContent = `⚠️ ${warningText}`;
     container.append(warning);
@@ -2358,6 +2467,54 @@ const POOL = {
   ]
 };
 
+// Intermediate athletes keep access to sound upper-body fundamentals. This
+// prevents the upper-only filter from shrinking to a few advanced variants.
+for (const exercise of POOL.beginner.filter(exercise => exercise.group === 'upper')) {
+  if (!POOL.inter.some(candidate => candidate.name === exercise.name)) {
+    POOL.inter.push({ ...exercise });
+  }
+}
+
+const EXERCISE_MOVEMENT_META = new Map(
+  MODERN_EXERCISES.map(exercise => [exercise.name, {
+    family: exercise.family,
+    pattern: exercise.pattern,
+  }])
+);
+
+function exerciseFamily(name) {
+  const explicit = EXERCISE_MOVEMENT_META.get(name)?.family;
+  if (explicit) return explicit;
+  if (/^Row |^Row \(|^Row par|Suitcase Row|Gorilla Row|Renegade Row/.test(name)) return 'row';
+  if (/Press \(|Press par côté|Half-Kneeling Press|Seated Strict Press/.test(name)) return 'strict-press';
+  if (/Clean & Press/.test(name)) return 'clean-and-press';
+  if (/Push Press/.test(name)) return 'push-press';
+  if (/Snatch/.test(name)) return 'snatch';
+  if (/High Pull/.test(name)) return 'high-pull';
+  if (/Single Swing|Rotational Swing|Kettlebell Swing|KB Swing/.test(name)) return 'swing';
+  if (/Clean \(|Clean à deux mains|Squat Clean|Bottoms-Up Clean/.test(name)) return 'clean';
+  if (/Turkish Get-Up/.test(name)) return 'get-up';
+  if (/Windmill/.test(name)) return 'windmill';
+  if (/Planche latérale/.test(name)) return 'side-plank';
+  if (/Goblet Squat|Sumo Squat|Front Squat|Cossack/.test(name)) return 'squat';
+  if (/Deadlift|Romanian/.test(name)) return 'hinge';
+  if (/Lunge/.test(name)) return 'lunge';
+  if (/Carry|Suitcase March|Front Rack March/.test(name)) return 'carry';
+  return name.replace(/\s*\((?:G|D|gauche|droite)\)$/, '').toLowerCase();
+}
+
+function exercisePattern(name) {
+  const explicit = EXERCISE_MOVEMENT_META.get(name)?.pattern;
+  if (explicit) return explicit;
+  if (/Row|Pullover|High Pull/.test(name)) return 'horizontal-pull';
+  if (/Press|Thruster|Snatch/.test(name)) return 'vertical-push';
+  if (/Swing|Deadlift|Romanian|Clean/.test(name)) return 'hinge';
+  if (/Squat/.test(name)) return 'squat';
+  if (/Lunge/.test(name)) return 'lunge';
+  if (/Carry|March|Planche|Dead Bug|Arm Bar|Figure 8|Slingshot|Halo|Windmill/.test(name)) return 'stability';
+  return 'full-body';
+}
+
 // Equipment metadata is kept separate from the exercise copy so generation,
 // recipes and the timer can all apply the same compatibility rules.
 const EQUIPMENT_WEIGHTS = [8, 10, 12, 14, 16, 20, 24];
@@ -2365,18 +2522,22 @@ const DOUBLE_BELL_EXERCISES = new Set([
   'Double KB Front Squat', 'Farmer Carry', 'Gorilla Row', 'Renegade Row'
 ]);
 const BODYWEIGHT_EXERCISES = new Set(
-  BODYWEIGHT_CORE_EXERCISES.map(exercise => exercise.name)
+  [
+    ...BODYWEIGHT_CORE_EXERCISES.map(exercise => exercise.name),
+    ...MODERN_EXERCISES.filter(exercise => exercise.equipment === 'Sans kettlebell').map(exercise => exercise.name),
+  ]
 );
 const LIGHT_LOAD_EXERCISES = new Set([
   'Halo', 'Slingshot', 'Bottoms-Up Clean', 'Kettlebell Arm Bar',
   'Rotational Swing', 'Goblet Cossack Squat', 'Dead Bug Pullover',
+  'Push-up + kettlebell drag', 'Half Get-Up Press', 'Kettlebell Pullover',
   'Turkish Get-Up (G)', 'Turkish Get-Up (D)', 'Windmill (G)', 'Windmill (D)'
 ]);
 const OVERHEAD_EXERCISES = new Set([
   'Press (gauche)', 'Press (droite)', 'Press par côté',
   'Clean & Press (G)', 'Clean & Press (D)', 'Snatch (G)', 'Snatch (D)',
   'Thruster (G)', 'Thruster (D)', 'Push Press (G)', 'Push Press (D)',
-  'Half-Kneeling Press'
+  'Half-Kneeling Press', 'Half Get-Up Press', 'Seated Strict Press'
 ]);
 const HEAVY_LOAD_EXERCISES = new Set([
   'Goblet Squat', 'Sumo Squat', 'KB Deadlift', 'KB Romanian Deadlift',
@@ -2387,10 +2548,12 @@ const HEAVY_LOAD_EXERCISES = new Set([
 const PER_SIDE_EXERCISES = new Set([
   'Press par côté', 'Row par côté', 'Suitcase March', 'Front Rack March',
   'Half-Kneeling Press', 'Goblet Reverse Lunge', 'Goblet Cossack Squat',
-  'Bottoms-Up Clean', 'Kettlebell Arm Bar', 'Rotational Swing'
+  'Bottoms-Up Clean', 'Kettlebell Arm Bar', 'Rotational Swing',
+  'Pompe décalée sur kettlebell', 'Floor Press par côté',
+  'Half Get-Up Press', 'Suitcase Row', 'Seated Strict Press'
 ]);
 const ALTERNATING_EXERCISES = new Set([
-  'Figure 8', 'Tactical Lunge', 'Gorilla Row', 'Renegade Row'
+  'Figure 8', 'Tactical Lunge', 'Gorilla Row', 'Renegade Row', 'Push-up + kettlebell drag'
 ]);
 
 function exerciseMeta(name) {
@@ -2407,7 +2570,15 @@ function exerciseMeta(name) {
   const loadBias = LIGHT_LOAD_EXERCISES.has(name) ? 'light'
     : OVERHEAD_EXERCISES.has(name) ? 'overhead'
       : HEAVY_LOAD_EXERCISES.has(name) ? 'heavy' : 'standard';
-  return { bellCount, sameWeight: bellCount === 2, laterality, style, loadBias };
+  return {
+    bellCount,
+    sameWeight: bellCount === 2,
+    laterality,
+    style,
+    loadBias,
+    family: exerciseFamily(name),
+    pattern: exercisePattern(name),
+  };
 }
 
 function selectedWeights(requiredCount = 1) {
@@ -2497,18 +2668,39 @@ const FATLOSS_CFG = {
 
 const FATLOSS_POOLS = {
   beginner: {
-    prep: ['Halo', 'KB Deadlift', 'Slingshot', 'Goblet Squat'],
-    metabolic: ['Kettlebell Swing', 'Suitcase March', 'Farmer Carry', 'Mountain Climber'],
-    strength: ['Goblet Squat', 'KB Deadlift', 'KB Romanian Deadlift', 'Row (gauche)', 'Row (droite)', 'Half-Kneeling Press', 'Goblet Reverse Lunge'],
+    prep: ['Halo', 'KB Deadlift', 'KB Romanian Deadlift', 'Slingshot', 'Goblet Squat', 'Kettlebell Arm Bar'],
+    metabolic: ['Kettlebell Swing', 'Suitcase March', 'Farmer Carry', 'Mountain Climber', 'Bear Plank Shoulder Tap'],
+    strength: ['Goblet Squat', 'KB Deadlift', 'KB Romanian Deadlift', 'Row (gauche)', 'Row (droite)', 'Suitcase Row', 'Half-Kneeling Press', 'Floor Press par côté', 'Pompes au sol', 'Pompes inclinées', 'Pompe décalée sur kettlebell', 'Kettlebell Pullover', 'Goblet Reverse Lunge'],
     finisher: ['Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Dead Bug', 'Bear Plank Shoulder Tap', 'Dead Bug Pullover'],
   },
   inter: {
     prep: ['Halo', 'KB Romanian Deadlift', 'Slingshot', 'Goblet Squat'],
-    metabolic: ['Kettlebell Swing', 'High Pull (G)', 'High Pull (D)', 'Snatch (G)', 'Snatch (D)', 'Thruster (G)', 'Thruster (D)', 'Mountain Climber'],
-    strength: ['Goblet Squat', 'KB Romanian Deadlift', 'Clean & Press (G)', 'Clean & Press (D)', 'Gorilla Row', 'Goblet Reverse Lunge', 'Tactical Lunge'],
+    metabolic: ['Kettlebell Swing', 'High Pull (G)', 'High Pull (D)', 'Snatch (G)', 'Snatch (D)', 'Thruster (G)', 'Thruster (D)', 'Mountain Climber', 'Push-up + kettlebell drag', 'Suitcase March'],
+    strength: ['Goblet Squat', 'KB Romanian Deadlift', 'Clean & Press (G)', 'Clean & Press (D)', 'Gorilla Row', 'Suitcase Row', 'Floor Press par côté', 'Half Get-Up Press', 'Seated Strict Press', 'Pompe décalée sur kettlebell', 'Goblet Reverse Lunge', 'Tactical Lunge'],
     finisher: ['Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Dead Bug', 'Bear Plank Shoulder Tap', 'Suitcase March', 'Front Rack March'],
   },
 };
+
+const WEEKLY_LANES = [
+  { id: 'base-force', number: 1, nameKey: 'laneBase', patterns: ['squat', 'horizontal-push', 'horizontal-pull', 'carry', 'stability'] },
+  { id: 'hinge-power', number: 2, nameKey: 'lanePower', patterns: ['hinge', 'vertical-push', 'lunge', 'stability'] },
+  { id: 'mixed-unilateral', number: 3, nameKey: 'laneMixed', patterns: ['full-body', 'stability', 'horizontal-pull', 'horizontal-push', 'lunge'] },
+];
+
+function isSessionInWeek(session, now = new Date()) {
+  const sessionWeek = localWeekStart(session?.date);
+  const currentWeek = localWeekStart(now);
+  return Boolean(sessionWeek && currentWeek && sessionWeek.getTime() === currentWeek.getTime());
+}
+
+function weeklyLaneForHistory(history = readHistory(), now = new Date()) {
+  const completedThisWeek = history.filter(session => isSessionInWeek(session, now)).length;
+  return WEEKLY_LANES[completedThisWeek % WEEKLY_LANES.length];
+}
+
+function laneLabel(lane) {
+  return t('weeklyLane')(lane.number, t(lane.nameKey));
+}
 
 function modeName(mode) {
   if (mode === 'fatloss') return t('fatlossName');
@@ -2525,6 +2717,8 @@ let timeLeft = 0, timerInterval = null, paused = false;
 let wakeLock = null;
 let sessionExercises = [];
 let fatlossPlan = null;
+let activeWeeklyLane = null;
+let fatlossGenerationNonce = 0;
 let selectedRecipe = null;
 let circuitPreviewFresh = true;
 let lighterWeights = false;
@@ -2639,20 +2833,43 @@ const FATLOSS_COUNTERPART = new Map(
   FATLOSS_SIDE_PAIRS.flatMap(([left, right]) => [[left, right], [right, left]])
 );
 
-function pickFatlossPhase(names, count, level) {
+function lanePriority(name, lane, phase) {
+  const pattern = exercisePattern(name);
+  let score = lane?.patterns.indexOf(pattern) ?? -1;
+  score = score < 0 ? 20 : score;
+  if (lane?.id === 'mixed-unilateral' && exerciseMeta(name).laterality !== 'bilateral') score -= 3;
+  if (phase === 'metabolic' && ['hinge', 'full-body'].includes(pattern)) score -= 2;
+  if (phase === 'strength' && ['horizontal-push', 'horizontal-pull', 'vertical-push', 'squat', 'lunge'].includes(pattern)) score -= 1;
+  return score;
+}
+
+function rotateArray(items, offset) {
+  if (!items.length) return [];
+  const start = ((offset % items.length) + items.length) % items.length;
+  return [...items.slice(start), ...items.slice(0, start)];
+}
+
+function pickFatlossPhase(names, count, level, lane, offset = 0) {
   const recent = getRecentExercises();
   const compatibleNames = names.filter(hasCompatibleEquipment);
-  const ordered = [
+  const freshnessOrdered = [
     ...shuffle(compatibleNames.filter(name => !recent.has(name))),
     ...shuffle(compatibleNames.filter(name => recent.has(name))),
   ];
+  const ordered = rotateArray(freshnessOrdered, offset)
+    .map((name, index) => ({ name, index, priority: lanePriority(name, lane, null) }))
+    .sort((a, b) => a.priority - b.priority || a.index - b.index)
+    .map(item => item.name);
   const selected = [];
   const used = new Set();
+  const usedFamilies = new Set();
 
   for (const name of ordered) {
     if (selected.length >= count || used.has(name)) continue;
     const counterpart = FATLOSS_COUNTERPART.get(name);
     const counterpartIsAvailable = counterpart && compatibleNames.includes(counterpart);
+    const family = exerciseFamily(name);
+    if (usedFamilies.has(family)) continue;
 
     if (counterpartIsAvailable) {
       // A named left/right movement is always programmed as a complete pair.
@@ -2661,25 +2878,77 @@ function pickFatlossPhase(names, count, level) {
       selected.push(name, counterpart);
       used.add(name);
       used.add(counterpart);
+      usedFamilies.add(family);
       continue;
     }
 
     selected.push(name);
     used.add(name);
+    usedFamilies.add(family);
   }
 
   return selected.slice(0, count).map(name => enrichExercise(exerciseEntry(name, level)));
 }
 
-function generateFatlossPlan() {
+function fatlossPlanSignature(plan) {
+  return ['prep', 'metabolic', 'strength', 'finisher']
+    .map(phase => `${phase}:${(plan?.[phase] || []).map(exercise => exerciseFamily(exercise.name)).sort().join(',')}`)
+    .join('|');
+}
+
+function fatlossPlanFamilies(plan) {
+  return new Set(Object.values(plan || {}).flat().map(exercise => exerciseFamily(exercise.name)));
+}
+
+function familyOverlapRatio(a, b) {
+  const aFamilies = fatlossPlanFamilies(a);
+  const bFamilies = fatlossPlanFamilies(b);
+  if (!aFamilies.size || !bFamilies.size) return 0;
+  return [...aFamilies].filter(family => bFamilies.has(family)).length / aFamilies.size;
+}
+
+function getRecentFatlossPlans(limit = 2) {
+  return readHistory()
+    .filter(session => session.modeId === 'fatloss' || session.mode === 'Objectif perte de graisse' || session.mode === 'Fat-loss goal')
+    .slice(0, limit)
+    .map(session => ({ history: (session.exercises || []).map(name => ({ name })) }));
+}
+
+function createFatlossCandidate(lane, nonce) {
   const cfg = FATLOSS_CFG[selectedMin];
   const pools = FATLOSS_POOLS[selectedLevel];
-  fatlossPlan = {
-    prep: pickFatlossPhase(pools.prep, cfg.warmupCount, selectedLevel),
-    metabolic: pickFatlossPhase(pools.metabolic, cfg.metabolicCount, selectedLevel),
-    strength: pickFatlossPhase(pools.strength, cfg.strengthCount, selectedLevel),
-    finisher: pickFatlossPhase(pools.finisher, cfg.coreCount, selectedLevel),
+  return {
+    prep: pickFatlossPhase(pools.prep, cfg.warmupCount, selectedLevel, lane, nonce),
+    metabolic: pickFatlossPhase(pools.metabolic, cfg.metabolicCount, selectedLevel, lane, nonce + 1),
+    strength: pickFatlossPhase(pools.strength, cfg.strengthCount, selectedLevel, lane, nonce + 2),
+    finisher: pickFatlossPhase(pools.finisher, cfg.coreCount, selectedLevel, lane, nonce + 3),
   };
+}
+
+function generateFatlossPlan({ avoidPlan = fatlossPlan } = {}) {
+  const lane = activeWeeklyLane || weeklyLaneForHistory();
+  const historyPlans = getRecentFatlossPlans(2);
+  const comparisons = [avoidPlan, ...historyPlans].filter(Boolean);
+  const previousSignature = avoidPlan && fatlossPlanSignature(avoidPlan);
+  let best = null;
+  let bestOverlap = Infinity;
+
+  // Bounded retries with progressive fallback. 40% is the target; when the
+  // available pool is constrained we still reject an identical displayed plan.
+  for (let attempt = 0; attempt < 48; attempt++) {
+    const candidate = createFatlossCandidate(lane, fatlossGenerationNonce + attempt);
+    const signature = fatlossPlanSignature(candidate);
+    if (previousSignature && signature === previousSignature) continue;
+    const overlap = comparisons.length
+      ? Math.max(...comparisons.map(plan => familyOverlapRatio(candidate, plan)))
+      : 0;
+    if (overlap < bestOverlap) { best = candidate; bestOverlap = overlap; }
+    const allowed = attempt < 20 ? 0.4 : attempt < 36 ? 0.6 : 0.8;
+    if (overlap <= allowed) { best = candidate; break; }
+  }
+
+  fatlossGenerationNonce += 7;
+  fatlossPlan = best || createFatlossCandidate(lane, fatlossGenerationNonce);
   return fatlossPlan;
 }
 
@@ -2696,7 +2965,11 @@ function pickCircuitExercises(count, level, groups) {
   const maxAttempts = 50;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const shuffled = shuffle(pool);
+    const lane = activeWeeklyLane || weeklyLaneForHistory();
+    const shuffled = shuffle(pool)
+      .map((exercise, index) => ({ exercise, index, priority: lanePriority(exercise.name, lane, null) }))
+      .sort((a, b) => a.priority - b.priority || a.index - b.index)
+      .map(item => item.exercise);
 
     // Group exercises by muscle group
     const byGroup = { upper: [], lower: [], full: [], core: [] };
@@ -2704,17 +2977,47 @@ function pickCircuitExercises(count, level, groups) {
 
     const picked = [];
     const usedNames = new Set();
+    const usedFamilies = new Set();
+
+    // An upper-only plan should train both sides of the shoulder girdle. Pick
+    // one horizontal push and one horizontal pull before filling other slots.
+    if (requiredGrps.size === 1 && requiredGrps.has('upper') && count >= 2) {
+      for (const pattern of ['horizontal-push', 'horizontal-pull']) {
+        const exercise = shuffled.find(candidate =>
+          candidate.group === 'upper'
+          && exercisePattern(candidate.name) === pattern
+          && !usedFamilies.has(exerciseFamily(candidate.name))
+        );
+        if (exercise) {
+          picked.push(exercise);
+          usedNames.add(exercise.name);
+          usedFamilies.add(exerciseFamily(exercise.name));
+        }
+      }
+    }
 
     // Pick one from each required group
     for (const g of requiredGrps) {
+      if (picked.some(exercise => exercise.group === g)) continue;
       if (byGroup[g] && byGroup[g].length > 0) {
-        const ex = byGroup[g][0];
+        const ex = byGroup[g].find(candidate => !usedFamilies.has(exerciseFamily(candidate.name))) || byGroup[g][0];
         picked.push(ex);
         usedNames.add(ex.name);
+        usedFamilies.add(exerciseFamily(ex.name));
       }
     }
 
     // Fill remaining slots from shuffled pool (varied groups)
+    for (const ex of shuffled) {
+      if (picked.length >= count) break;
+      if (usedNames.has(ex.name)) continue;
+      if (usedFamilies.has(exerciseFamily(ex.name))) continue;
+      picked.push(ex);
+      usedNames.add(ex.name);
+      usedFamilies.add(exerciseFamily(ex.name));
+    }
+
+    // Small pools may require a repeated family; only relax after diversity is exhausted.
     for (const ex of shuffled) {
       if (picked.length >= count) break;
       if (usedNames.has(ex.name)) continue;
@@ -2939,6 +3242,8 @@ function saveSession(mode, duration, exercises) {
     hist.unshift({
       date: new Date().toISOString(),
       mode: modeName(mode),
+      modeId: mode,
+      weeklyLaneId: activeWeeklyLane?.id || weeklyLaneForHistory(hist).id,
       duration,
       exercises: [...new Set(exercises)],
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
@@ -3728,6 +4033,7 @@ document.getElementById('go-btn').addEventListener('click', () => {
 let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 
 function showCircuitPreview() {
+  activeWeeklyLane = weeklyLaneForHistory();
   activeGroups = new Set(['upper', 'lower', 'full', 'core']);
   selectedRecipe = null;
   circuitPreviewFresh = true;
@@ -3736,7 +4042,8 @@ function showCircuitPreview() {
 }
 
 function showFatlossPreview() {
-  generateFatlossPlan();
+  activeWeeklyLane = weeklyLaneForHistory();
+  generateFatlossPlan({ avoidPlan: null });
   renderFatlossPreview();
 }
 
@@ -3798,6 +4105,8 @@ function renderCircuitPreview() {
   const picked = pickedCircuitExercises;
   document.querySelector('.cp-title').textContent = selectedRecipe ? t(selectedRecipe.nameKey) : t('yourCircuit');
   document.getElementById('cp-science-note').hidden = true;
+  document.getElementById('cp-lane-badge').hidden = true;
+  document.getElementById('cp-regenerate').textContent = t('regenerate');
 
   document.getElementById('cp-subtitle').textContent = selectedRecipe
     ? t('recipeSubtitle')(selectedRecipe.rounds, selectedRecipe.approximateMinutes)
@@ -3867,6 +4176,11 @@ function renderFatlossPreview() {
   ];
 
   document.querySelector('.cp-title').textContent = t('yourFatlossPlan');
+  const lane = activeWeeklyLane || weeklyLaneForHistory();
+  const laneBadge = document.getElementById('cp-lane-badge');
+  laneBadge.hidden = false;
+  laneBadge.textContent = laneLabel(lane);
+  document.getElementById('cp-regenerate').textContent = t('varySession');
   const minWork = Math.min(cfg.work, cfg.strengthWork, cfg.coreWork);
   const maxWork = Math.max(cfg.work, cfg.strengthWork, cfg.coreWork);
   document.getElementById('cp-subtitle').textContent = t('fatlossSubtitle')(selectedMin, `${minWork}–${maxWork}`, `${cfg.rest}–${cfg.strengthRest}`);

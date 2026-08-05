@@ -110,7 +110,10 @@ try {
     const demoCoverage = [...new Set([
       ...POOL.beginner.map(ex => ex.name),
       ...POOL.inter.map(ex => ex.name),
-    ])].every(name => Boolean(getYouTubeDemo(name)?.url));
+    ])].every(name => {
+      const url = getYouTubeDemo(name)?.url || '';
+      return url.startsWith('https://www.youtube.com/results?search_query=') && !url.includes('watch?v=');
+    });
 
     setLang('en');
     showCircuitPreview();
