@@ -13,6 +13,9 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Equipment-aware plans** : tap 8–24 kg buttons to record zero, one or two matching bells; incompatible two-bell exercises are excluded automatically
 - **Conservative load suggestions** : lighter available bells for overhead/technical work, heavier available bells for hinges, squats, rows and carries, with one optional “Use lighter weights” action
 - **Guided 20-minute recipe** : the David Nateli full-body sequence runs inside Circuit mode with automatic transitions, four ordered passes, rep targets as guidance and midpoint side-switch cues
+- **Guided sessions layer** : progressive disclosure keeps fixed recipes separate from random generation. Minimal 3 runs 10 total thrusters (5/side), 12 total rows (6/side), then 15 swings in that exact order, with a 60 / 90 / 120 / 180s round-rest choice and a 3–4 quality-round cue
+- **Real AMRAP runner** : Full-body Density uses a fixed six-movement checklist, 10 / 12 / 15 / 20-minute clock, manual exercise advancement, visible round counter, pause/resume and free rest
+- **Optional 5-minute finisher** : after a completed main workout, add two or three rounds of two-hand goblet curls, light overhead triceps extensions and halos. It is attached to the original history entry and never advances the weekly lane twice
 - **Fat-loss goal mode** : a structured 15 / 20 / 25 min plan combining preparation, kettlebell intervals, full-body strength and a core finisher; “Vary this session” changes the movement families while preserving phases, timing, side balance and available equipment
 - **Three complementary weekly sessions** : a stable preview lane rotates only after completion through Strength base, Hinge & power, then Mixed & unilateral. Every fat-loss session remains full-body; the lane is a bias, not a body-part split
 - **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
@@ -24,10 +27,10 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 ## Exercises
 
 ### Beginner
-Goblet Squat · Kettlebell Swing · KB Deadlift/RDL · Press (L/R) · Farmer/Suitcase Carry · Halo/Slingshot · Sumo Squat · Row (L/R) · Arm Bar · Dead Bug Pullover · Half-Kneeling Press · Floor/Incline Push-Up · Offset Kettlebell Push-Up · Single-Arm Floor Press · Light Kettlebell Pullover · Suitcase Row
+Goblet Squat · Kettlebell Swing · KB Deadlift/RDL · Press (L/R) · Farmer/Suitcase Carry · Halo/Slingshot · Sumo Squat · Row (L/R) · Arm Bar · Dead Bug Pullover · Half-Kneeling Press · Floor/Incline Push-Up · Offset Kettlebell Push-Up · Single-Arm Floor Press · Light Kettlebell Pullover · Suitcase Row · Two-Hand Goblet Curl · Two-Hand Overhead Triceps Extension · Toe Taps
 
 ### Intermediate
-KB Swing · Clean & Press (L/R) · Squat Clean · Goblet Squat · Snatch (L/R) · Turkish Get-Up (L/R) · Windmill (L/R) · Double KB Front Squat · Gorilla Row · Bottoms-Up Clean · Tactical Lunge · Rotational Swing · Goblet Cossack Squat · Push-Up + Kettlebell Drag · Half Get-Up Press · Seated Strict Press, plus the beginner upper-body fundamentals
+KB Swing · Clean & Press (L/R) · Dead Clean from the floor (L/R) · Clean + Thruster per side · Squat Clean · Goblet Squat · Snatch (L/R) · Turkish Get-Up (L/R) · Windmill (L/R) · Double KB Front Squat · Gorilla Row · Bottoms-Up Clean · Tactical Lunge · Rotational Swing · Goblet Cossack Squat · Push-Up + Kettlebell Drag · Half Get-Up Press · Seated Strict Press, plus the beginner upper-body fundamentals
 
 The offset push-up is only offered with one hand centred on a kettlebell that has a perfectly stable flat base. If the bell moves, the on-screen instruction explicitly sends the athlete back to floor push-ups. The app intentionally excludes crush-grip presses and does not ask the athlete to balance on two unstable handles.
 
@@ -64,7 +67,8 @@ Regeneration compares movement-family signatures with the displayed plan and the
 2. Watch the 12s exercise preview with animation, instructions and suggested load
 3. Follow the timer — mini-animation stays visible during the set
 4. Rest periods with breathing animation
-5. Summary at the end
+5. For AMRAP and fixed guided recipes, tick through the checklist manually while the workout clock stays visible
+6. At the summary, either finish cleanly or add the optional five-minute arms and shoulders finisher
 
 ## Stack
 
@@ -113,6 +117,12 @@ node tests/consistency-diagnostic.mjs
 ```
 
 The consistency diagnostic checks day/week aggregation, the three-session target, in-progress week streak logic, the 12×7 heatmap, empty and bilingual states, history opening, post-session refresh, 200-session retention, legacy data compatibility, accessibility and 320px layout containment.
+
+```bash
+node tests/guided-amrap-finisher-diagnostic.mjs
+```
+
+The guided/AMRAP/finisher diagnostic checks the exact fixed recipes and rep targets, duration and rest choices, manual round advancement, pause and free-rest states, single-save completion, finisher history attachment and weekly-lane invariants, FR/EN copy, query-only demos, new exercise metadata/equipment filtering and 320px containment.
 
 ## License
 

@@ -122,7 +122,7 @@
   /* Mode cards */
   .mode-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 0.6rem;
     width: 100%;
   }
@@ -149,6 +149,69 @@
   .mode-icon { font-size: 1.4rem; margin-bottom: 0.2rem; }
   .mode-name { font-size: 0.8rem; font-weight: 700; }
   .mode-desc { font-size: 0.6rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.2; }
+
+  /* Guided workouts stay one level below the primary modes: discoverable,
+     without turning setup into a wall of competing cards. */
+  .guided-disclosure {
+    width: 100%;
+    border: 1px solid var(--surface2);
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.018);
+    overflow: hidden;
+  }
+  .guided-disclosure summary {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    color: #c9c9c9;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    list-style: none;
+  }
+  .guided-disclosure summary::-webkit-details-marker { display: none; }
+  .guided-disclosure summary::after { content: '＋'; color: var(--accent); font-size: 1.1rem; }
+  .guided-disclosure[open] summary::after { content: '−'; }
+  .guided-recipes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+  .guided-recipe {
+    min-height: 88px;
+    padding: 0.8rem;
+    border: 1px solid #383838;
+    border-radius: 0.8rem;
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .guided-recipe.active { border-color: var(--rest); box-shadow: inset 3px 0 var(--rest); }
+  .guided-recipe strong { display: block; font-size: 0.92rem; }
+  .guided-recipe span { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.7rem; line-height: 1.35; }
+  .rest-options { display: none; }
+  .rest-options.visible { display: block; }
+  .rest-btn {
+    min-width: 56px;
+    min-height: 44px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--surface2);
+    border-radius: 0.7rem;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 750;
+    cursor: pointer;
+  }
+  .rest-btn.active { border-color: var(--rest); background: rgba(78,205,196,0.12); color: var(--rest); }
 
   /* ──── CIRCUIT PREVIEW SCREEN ──── */
   #circuit-preview {
@@ -915,6 +978,67 @@
     font-weight: 700;
     cursor: pointer;
   }
+  .done-actions { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; width: min(100%, 360px); }
+  .finisher-offer {
+    display: none;
+    width: min(100%, 420px);
+    padding: 1rem;
+    border: 1px solid #3b3b3b;
+    border-left: 4px solid var(--rest);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+  .finisher-offer.visible { display: block; }
+  .finisher-offer h3 { font-size: 1rem; }
+  .finisher-offer p { margin: 0.4rem 0 0.8rem; color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
+  .finisher-rounds { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.7rem; }
+  .finisher-rounds button, #finisher-start, #finisher-skip {
+    min-height: 44px;
+    border: 1px solid #484848;
+    border-radius: 0.7rem;
+    background: #272727;
+    color: var(--text);
+    padding: 0.6rem 0.85rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .finisher-rounds button.active, #finisher-start { border-color: var(--rest); color: var(--rest); }
+  #finisher-skip { border-color: transparent; color: var(--muted); background: transparent; }
+
+  /* Manual sequence runner for AMRAP and fixed guided recipes. */
+  #sequence-runner {
+    display: none;
+    width: 100vw;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.2rem max(0.75rem, env(safe-area-inset-right)) max(1.2rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+  }
+  .seq-top { width: min(100%, 700px); text-align: center; }
+  .seq-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 0.4rem; background: var(--rest); color: #092724; font-size: 0.68rem; font-weight: 900; letter-spacing: 1.4px; }
+  .seq-clock { margin-top: 0.55rem; font-size: clamp(2.4rem, 10vw, 4.8rem); font-weight: 950; line-height: 1; font-variant-numeric: tabular-nums; }
+  .seq-round { margin-top: 0.45rem; color: var(--muted); font-size: 0.76rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .seq-main { width: min(100%, 700px); display: grid; grid-template-columns: 180px minmax(0,1fr); align-items: center; gap: 1.25rem; }
+  .seq-visual { aspect-ratio: 1; border-radius: 1.2rem; background: var(--surface); padding: 1rem; }
+  .seq-visual svg { width: 100%; height: 100%; }
+  .seq-copy { min-width: 0; }
+  .seq-name { font-size: clamp(1.55rem, 5vw, 2.6rem); font-weight: 950; line-height: 1.05; overflow-wrap: anywhere; }
+  .seq-target { margin-top: 0.45rem; color: var(--rest); font-size: 1rem; font-weight: 850; }
+  .seq-coach { margin-top: 0.75rem; display: grid; gap: 0.28rem; }
+  .seq-coach span { color: #aaa; font-size: 0.74rem; line-height: 1.35; }
+  .seq-checklist { width: min(100%, 700px); display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.35rem; }
+  .seq-item { min-height: 44px; padding: 0.45rem 0.55rem; border: 1px solid #343434; border-radius: 0.55rem; color: #777; font-size: 0.67rem; line-height: 1.25; display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+  .seq-item span { overflow-wrap: anywhere; }
+  .seq-item.done { color: #8e8e8e; text-decoration: line-through; }
+  .seq-item.current { border-color: var(--accent); color: var(--text); background: rgba(255,107,53,0.09); }
+  .seq-controls { width: min(100%, 700px); display: grid; grid-template-columns: 52px minmax(0,1fr) minmax(0,1.4fr); gap: 0.55rem; }
+  .seq-controls button { min-height: 52px; border: 1px solid #444; border-radius: 0.85rem; background: var(--surface); color: var(--text); font: inherit; font-weight: 850; cursor: pointer; }
+  #seq-next { border-color: var(--accent); background: var(--accent); }
+  #seq-pause { color: var(--rest); }
 
   /* ──── HISTORY MODAL ──── */
   #history-modal {
@@ -1016,6 +1140,7 @@
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-label,
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-icon { position: static; transform: none; padding: 0; background: none; }
     #history-btn { width: 100%; }
+    .seq-main { grid-template-columns: 112px minmax(0,1fr); gap: 0.8rem; }
   }
   @media (max-width: 600px) {
     .equipment-panel { padding-inline: 0.55rem; }
@@ -1030,6 +1155,11 @@
     .consistency-topline { align-items: flex-start; }
     .consistency-progress { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
     .consistency-footer { align-items: flex-start; }
+    .guided-recipes { grid-template-columns: 1fr; }
+    .seq-main { grid-template-columns: 92px minmax(0,1fr); }
+    .seq-checklist { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .seq-controls { grid-template-columns: 48px minmax(0,0.9fr) minmax(0,1.25fr); gap: 0.35rem; }
+    .seq-controls button { padding-inline: 0.35rem; font-size: 0.72rem; }
   }
 
   @media (forced-colors: active) {
@@ -1202,8 +1332,27 @@
         <div class="mode-name">S&amp;S</div>
         <div class="mode-desc">100 swings + TGU</div>
       </div>
+      <div class="mode-card" data-mode="amrap">
+        <div class="mode-icon">∞</div>
+        <div class="mode-name">AMRAP</div>
+        <div class="mode-desc">Tours libres</div>
+      </div>
     </div>
   </div>
+
+  <details class="guided-disclosure" id="guided-disclosure">
+    <summary id="guided-summary">Séances guidées</summary>
+    <div class="guided-recipes">
+      <button class="guided-recipe" type="button" data-guided="minimal-3">
+        <strong>Minimal 3</strong>
+        <span>Thrusters → rows → swings · 3–4 tours propres</span>
+      </button>
+      <button class="guided-recipe" type="button" data-guided="full-body-density">
+        <strong>Full-body Density</strong>
+        <span>AMRAP full-body · 6 mouvements · rythme libre</span>
+      </button>
+    </div>
+  </details>
 
   <div class="option-group equipment-panel" id="equipment-group">
     <label id="equipment-label">Mes kettlebells</label>
@@ -1224,6 +1373,16 @@
     <div class="option-row">
       <button class="diff-btn active" data-level="beginner">Débutant</button>
       <button class="diff-btn" data-level="inter">Intermédiaire</button>
+    </div>
+  </div>
+
+  <div class="option-group rest-options" id="round-rest-group">
+    <label id="round-rest-label">Repos entre les tours</label>
+    <div class="option-row" id="round-rest-row">
+      <button class="rest-btn" data-rest="60">60s</button>
+      <button class="rest-btn active" data-rest="90">90s</button>
+      <button class="rest-btn" data-rest="120">120s</button>
+      <button class="rest-btn" data-rest="180">180s</button>
     </div>
   </div>
 
@@ -1299,7 +1458,41 @@
 <div id="done">
   <h2>💪 Terminé !</h2>
   <div class="done-stats" id="done-stats"></div>
-  <button id="again-btn">Encore un ?</button>
+  <div class="finisher-offer" id="finisher-offer">
+    <h3 id="finisher-title">J’ai encore 5 minutes</h3>
+    <p id="finisher-desc">Bras &amp; épaules · curls, triceps et halos · optionnel</p>
+    <div class="finisher-rounds" id="finisher-rounds">
+      <button class="active" type="button" data-rounds="2">2 tours</button>
+      <button type="button" data-rounds="3">3 tours</button>
+    </div>
+    <button id="finisher-start" type="button">Lancer le finisher</button>
+    <button id="finisher-skip" type="button">Non merci, terminer</button>
+  </div>
+  <div class="done-actions"><button id="again-btn">Encore un ?</button></div>
+</div>
+
+<!-- ──── MANUAL SEQUENCE RUNNER ──── -->
+<div id="sequence-runner">
+  <div class="seq-top">
+    <div class="seq-badge" id="seq-badge">AMRAP</div>
+    <div class="seq-clock" id="seq-clock">12:00</div>
+    <div class="seq-round" id="seq-round">TOUR 1 · 0 TERMINÉ</div>
+  </div>
+  <div class="seq-main">
+    <div class="seq-visual" id="seq-visual"></div>
+    <div class="seq-copy">
+      <div class="seq-name" id="seq-name"></div>
+      <div class="seq-target" id="seq-target"></div>
+      <div class="seq-coach" id="seq-coach"></div>
+    </div>
+  </div>
+  <div class="seq-checklist" id="seq-checklist"></div>
+  <div class="seq-controls">
+    <button id="seq-stop" type="button" aria-label="Stop">✕</button>
+    <button id="seq-pause" type="button">⏸ Pause</button>
+    <button id="seq-next" type="button">Exercice suivant →</button>
+  </div>
+  <button id="seq-rest" class="rest-btn" type="button">Repos libre</button>
 </div>
 
 <!-- ──── CIRCUIT PREVIEW ──── -->
@@ -1347,6 +1540,11 @@ const STRINGS = {
     otherModes: 'Autres formats',
     emomDesc: 'Chaque minute',
     complexDesc: 'Séquence ABC',
+    amrapDesc: 'Tours libres',
+    guidedSessions: 'Séances guidées',
+    minimal3Desc: 'Thrusters → rows → swings · 3–4 tours propres',
+    densityDesc: 'AMRAP full-body · 6 mouvements · rythme libre',
+    roundRest: 'Repos entre les tours',
     duration: 'Durée',
     level: 'Niveau',
     beginner: 'Débutant',
@@ -1420,6 +1618,23 @@ const STRINGS = {
     beginnerLabel: 'Débutant',
     intermediateLabel: 'Intermédiaire',
     goAgain: 'Encore un ?',
+    finisherTitle: 'J’ai encore 5 minutes',
+    finisherDesc: 'Bras & épaules · curls, triceps et halos · optionnel',
+    finisherStart: 'Lancer le finisher',
+    finisherSkip: 'Non merci, terminer',
+    finisherDone: 'Finisher ajouté à cette séance',
+    amrapPreview: (min) => `${min} min · 6 mouvements fixes · avance manuellement · repos libre`,
+    guidedPreview: (min, rest) => `${min} min max · 3 mouvements fixes · 3–4 tours propres · ${rest}s de repos entre les tours`,
+    amrapName: 'AMRAP Full-body Density',
+    minimal3Name: 'Minimal 3 guidé',
+    armsFinisherName: 'Finisher bras & épaules',
+    roundsCompleted: (count) => `${count} tour${count > 1 ? 's' : ''} terminé${count > 1 ? 's' : ''}`,
+    freeRest: 'Repos libre',
+    resumeExercise: 'Reprendre',
+    nextExerciseButton: 'Exercice suivant →',
+    finishFinisher: 'Terminer',
+    pause: '⏸ Pause',
+    resume: '▶ Reprendre',
     // History
     historyTitle: '📋 Historique',
     noSessions: 'Aucune session enregistrée',
@@ -1427,7 +1642,7 @@ const STRINGS = {
     close: 'Fermer',
     // Preview info
     exercises: 'exercices',
-    rounds: 'rounds',
+    rounds: 'tours',
     work: 'travail',
     restWord: 'repos',
     // EMOM preview
@@ -1481,6 +1696,11 @@ const STRINGS = {
     otherModes: 'Other formats',
     emomDesc: 'Every minute',
     complexDesc: 'ABC Sequence',
+    amrapDesc: 'Free rounds',
+    guidedSessions: 'Guided workouts',
+    minimal3Desc: 'Thrusters → rows → swings · 3–4 quality rounds',
+    densityDesc: 'Full-body AMRAP · 6 movements · self-paced',
+    roundRest: 'Rest between rounds',
     duration: 'Duration',
     level: 'Level',
     beginner: 'Beginner',
@@ -1547,6 +1767,23 @@ const STRINGS = {
     beginnerLabel: 'Beginner',
     intermediateLabel: 'Intermediate',
     goAgain: 'Go again?',
+    finisherTitle: 'I still have 5 minutes',
+    finisherDesc: 'Arms & shoulders · curls, triceps and halos · optional',
+    finisherStart: 'Start the finisher',
+    finisherSkip: 'No thanks, finish',
+    finisherDone: 'Finisher added to this workout',
+    amrapPreview: (min) => `${min} min · 6 fixed movements · advance manually · free rest`,
+    guidedPreview: (min, rest) => `${min} min max · 3 fixed movements · 3–4 quality rounds · ${rest}s rest between rounds`,
+    amrapName: 'Full-body Density AMRAP',
+    minimal3Name: 'Guided Minimal 3',
+    armsFinisherName: 'Arms & shoulders finisher',
+    roundsCompleted: (count) => `${count} round${count !== 1 ? 's' : ''} completed`,
+    freeRest: 'Free rest',
+    resumeExercise: 'Resume',
+    nextExerciseButton: 'Next exercise →',
+    finishFinisher: 'Finish',
+    pause: '⏸ Pause',
+    resume: '▶ Resume',
     historyTitle: '📋 History',
     noSessions: 'No sessions recorded',
     readError: 'Read error',
@@ -1610,6 +1847,7 @@ const EX_NAME_EN = {
   'Single Swing (D)': 'Single Swing (R)',
   'Thruster (G)': 'Thruster (L)',
   'Thruster (D)': 'Thruster (R)',
+  'Thruster par côté': 'Thruster per side',
   'High Pull (G)': 'High Pull (L)',
   'High Pull (D)': 'High Pull (R)',
   'Push Press (G)': 'Push Press (L)',
@@ -1629,6 +1867,12 @@ const EX_NAME_EN = {
   'Kettlebell Pullover': 'Light Kettlebell Pullover',
   'Suitcase Row': 'Suitcase Row',
   'Seated Strict Press': 'Seated Strict Press',
+  'Dead Clean (G)': 'Dead Clean (L)',
+  'Dead Clean (D)': 'Dead Clean (R)',
+  'Goblet Curl': 'Two-Hand Goblet Curl',
+  'Extension triceps au-dessus de la tête': 'Two-Hand Overhead Triceps Extension',
+  'Toe Taps': 'Toe Taps Around the Bell',
+  'Clean + Thruster par côté': 'Clean + Thruster per side',
 };
 
 // Exercise steps in English (keyed by French exercise name)
@@ -1661,6 +1905,7 @@ const EX_STEPS_EN = {
   'Single Swing (D)': ['One arm, KB between legs', 'Explosive hip hinge', 'Arm straight, KB rises to shoulders', 'Free hand for balance, control descent'],
   'Thruster (G)': ['KB in rack, deep squat', 'Explode up', 'Use momentum to press KB', 'Lock out at top, lower to rack'],
   'Thruster (D)': ['KB in rack, deep squat', 'Explode up', 'Use momentum to press KB', 'Lock out at top, lower to rack'],
+  'Thruster par côté': ['KB in rack, deep squat', 'Drive through the floor', 'Use the leg drive to press overhead', 'Do the target reps, then switch sides'],
   'Renegade Row': ['Plank position, one KB in each hand', 'Body braced, no hip rotation', 'Pull one KB toward hip', 'Set down and alternate sides'],
   'High Pull (G)': ['Like a swing, explosive hips', 'At top, pull elbow up high', 'KB rises to chin height', 'Lower with control back to swing'],
   'High Pull (D)': ['Like a swing, explosive hips', 'At top, pull elbow up high', 'KB rises to chin height', 'Lower with control back to swing'],
@@ -1697,6 +1942,12 @@ const EX_STEPS_EN = {
   'Kettlebell Pullover': ['Lie down with knees bent and hold a light bell by the horns', 'Keep ribs down and elbows softly bent', 'Lower the bell behind the head only as far as you control', 'Exhale and pull it back over the chest'],
   'Suitcase Row': ['Stagger the feet and hinge with a long spine', 'Hold the bell in the hand opposite the front foot', 'Row toward the hip without rotating the chest', 'Lower with control and switch sides at midpoint'],
   'Seated Strict Press': ['Sit tall with legs comfortable and the bell racked', 'Brace the trunk without leaning back', 'Press vertically with a neutral wrist', 'Lower slowly and switch sides at midpoint'],
+  'Dead Clean (G)': ['Place the bell beside the left foot and hinge down', 'Grip without a backswing or pre-swing', 'Drive through the floor and guide the bell close to the rack', 'Stand tall, then return it to the floor under control'],
+  'Dead Clean (D)': ['Place the bell beside the right foot and hinge down', 'Grip without a backswing or pre-swing', 'Drive through the floor and guide the bell close to the rack', 'Stand tall, then return it to the floor under control'],
+  'Goblet Curl': ['Stand tall and hold the horns with both hands', 'Keep elbows close and shoulders down', 'Curl the bell toward the chest without leaning back', 'Lower slowly to full control'],
+  'Extension triceps au-dessus de la tête': ['Use a light bell and hold the horns securely with both hands', 'Brace the trunk and point elbows forward', 'Lower the bell behind the head without flaring the ribs', 'Extend the elbows and stop before the grip becomes unstable'],
+  'Toe Taps': ['Use the kettlebell only as a floor marker', 'Stay light on the feet with a soft knee bend', 'Alternate tapping beside or on the safe base of the bell', 'Slow down before accuracy or posture breaks'],
+  'Clean + Thruster par côté': ['Clean the bell smoothly into the rack', 'Sink into a stable front squat', 'Drive through the floor into an overhead press', 'Return to rack with control and switch sides at midpoint'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -1737,6 +1988,11 @@ function exDetail(frDetail) {
   // "X reps puis repos" -> "X reps then rest"
   if (frDetail.includes('reps puis repos')) return frDetail.replace('reps puis repos', 'reps then rest');
   return frDetail;
+}
+
+function exerciseTarget(exercise) {
+  if (currentLang === 'en' && exercise.targetEn) return exercise.targetEn;
+  return exercise.target || exDetail(exercise.detail);
 }
 
 function groupLabel(g) {
@@ -1867,6 +2123,11 @@ function applyLangToUI() {
   document.querySelector('.other-modes-label').textContent = t('otherModes');
   document.querySelector('[data-mode="emom"] .mode-desc').textContent = t('emomDesc');
   document.querySelector('[data-mode="complex"] .mode-desc').textContent = t('complexDesc');
+  document.querySelector('[data-mode="amrap"] .mode-desc').textContent = t('amrapDesc');
+  document.getElementById('guided-summary').textContent = t('guidedSessions');
+  document.querySelector('[data-guided="minimal-3"] span').textContent = t('minimal3Desc');
+  document.querySelector('[data-guided="full-body-density"] span').textContent = t('densityDesc');
+  document.getElementById('round-rest-label').textContent = t('roundRest');
   document.getElementById('equipment-label').textContent = t('equipment');
   renderEquipmentSelector();
   document.querySelector('#duration-group > label').textContent = t('duration');
@@ -1888,6 +2149,16 @@ function applyLangToUI() {
   // Done screen
   document.querySelector('#done h2').textContent = t('done');
   document.getElementById('again-btn').textContent = t('goAgain');
+  document.getElementById('finisher-title').textContent = t('finisherTitle');
+  document.getElementById('finisher-desc').textContent = t('finisherDesc');
+  document.getElementById('finisher-start').textContent = t('finisherStart');
+  document.getElementById('finisher-skip').textContent = t('finisherSkip');
+  document.querySelectorAll('#finisher-rounds [data-rounds]').forEach(button => {
+    button.textContent = `${button.dataset.rounds} ${t('rounds')}`;
+  });
+  document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
+  document.getElementById('seq-next').textContent = runnerKind === 'finisher' ? t('finishFinisher') : t('nextExerciseButton');
+  document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
 
   // History modal
   document.querySelector('.history-box h3').textContent = t('historyTitle');
@@ -2065,6 +2336,10 @@ EX_DATA['Row par côté'] = {
   svg: EX_DATA['Row (gauche)'].svg,
   steps: ['Charnière de hanche, dos long','Main libre en appui sur la cuisse','Tire la KB vers la hanche','Change de côté au signal de mi-temps']
 };
+EX_DATA['Thruster par côté'] = {
+  svg: EX_DATA['Thruster (G)'].svg,
+  steps: ['KB en rack, squat profond','Pousse fort dans le sol','Utilise les jambes pour presser au-dessus de la tête','Fais les reps prévues puis change de côté']
+};
 
 // Exercise demo metadata is deliberately separate from the SVG artwork.
 // Legacy `videoId` values are retained as metadata, but the UI deliberately
@@ -2099,6 +2374,7 @@ const YOUTUBE_DEMOS = {
   'Single Swing (D)': { videoId: 'BXrXhyudA80', query: 'one arm kettlebell swing proper form tutorial' },
   'Thruster (G)': { videoId: 'Mr-l0Kvowi4', query: 'single arm kettlebell thruster tutorial' },
   'Thruster (D)': { videoId: 'Mr-l0Kvowi4', query: 'single arm kettlebell thruster tutorial' },
+  'Thruster par côté': { query: 'single arm kettlebell thruster proper form tutorial' },
   'Renegade Row': { videoId: 'KG_JGuhjBeY', query: 'kettlebell renegade row proper form tutorial' },
   'High Pull (G)': { videoId: 'OkLpueSAKrY', query: 'single arm kettlebell high pull tutorial' },
   'High Pull (D)': { videoId: 'OkLpueSAKrY', query: 'single arm kettlebell high pull tutorial' },
@@ -2278,6 +2554,45 @@ const MODERN_EXERCISES = [
     steps: ['Assieds-toi grand, jambes confortables, KB en rack','Gaine le tronc sans te pencher en arrière','Presse verticalement, poignet neutre','Redescends lentement et change à mi-temps'],
     demo: { query: 'seated single arm kettlebell strict press tutorial' },
   },
+  {
+    name: 'Dead Clean (G)', level: 'inter', group: 'full', family: 'dead-clean', pattern: 'hinge', laterality: 'single-side', loadBias: 'standard',
+    detail: '5 reps', reps: 5, equipment: '1 kettlebell', visualFrom: 'Clean (G)',
+    steps: ['Pose la KB à côté du pied gauche et descends en charnière','Saisis-la sans backswing ni élan préalable','Pousse le sol et guide la KB près du corps jusqu’au rack','Grandis-toi puis repose-la au sol avec contrôle'],
+    demo: { query: 'single arm kettlebell dead clean from floor no backswing tutorial' },
+  },
+  {
+    name: 'Dead Clean (D)', level: 'inter', group: 'full', family: 'dead-clean', pattern: 'hinge', laterality: 'single-side', loadBias: 'standard',
+    detail: '5 reps', reps: 5, equipment: '1 kettlebell', visualFrom: 'Clean (D)',
+    steps: ['Pose la KB à côté du pied droit et descends en charnière','Saisis-la sans backswing ni élan préalable','Pousse le sol et guide la KB près du corps jusqu’au rack','Grandis-toi puis repose-la au sol avec contrôle'],
+    demo: { query: 'single arm kettlebell dead clean from floor no backswing tutorial' },
+  },
+  {
+    name: 'Goblet Curl', level: 'beginner', group: 'upper', family: 'curl', pattern: 'elbow-flexion', laterality: 'bilateral', loadBias: 'light',
+    detail: '10 reps · léger', reps: 10, equipment: '1 kettlebell légère', visualFrom: 'Goblet Squat',
+    steps: ['Debout, tiens les cornes à deux mains','Garde les coudes près du corps et les épaules basses','Fléchis les coudes sans te pencher en arrière','Redescends lentement jusqu’au contrôle complet'],
+    demo: { query: 'two hand goblet kettlebell biceps curl safe grip tutorial' },
+  },
+  {
+    name: 'Extension triceps au-dessus de la tête', level: 'beginner', group: 'upper', family: 'triceps-extension', pattern: 'elbow-extension', laterality: 'bilateral', loadBias: 'light',
+    detail: '10 reps · léger', reps: 10, equipment: '1 kettlebell légère', visualFrom: 'Press par côté',
+    warning: 'Charge légère, prise stable à deux mains sur les cornes. Arrête si la prise ou les épaules deviennent instables.',
+    warningEn: 'Use a light load and a stable two-hand grip on the horns. Stop if the grip or shoulders become unstable.',
+    steps: ['Prends une KB légère par les cornes à deux mains','Gaine le tronc et pointe les coudes vers l’avant','Descends derrière la tête sans ouvrir les côtes','Tends les coudes et arrête avant de perdre la prise'],
+    demo: { query: 'two hand overhead kettlebell triceps extension safe grip tutorial' },
+  },
+  {
+    name: 'Toe Taps', level: 'beginner', group: 'full', family: 'toe-taps', pattern: 'locomotion', laterality: 'alternating', loadBias: 'none',
+    detail: '20 alternés', reps: 20, equipment: 'Sans kettlebell',
+    svg: `<svg viewBox="0 0 120 90" role="img"><rect x="51" y="64" width="18" height="14" rx="5" fill="none" stroke="${K}" stroke-width="3"/><path d="M55 64 Q60 55 65 64" fill="none" stroke="${K}" stroke-width="3"/><g style="animation:carry-walk 1s ease-in-out infinite"><circle cx="42" cy="16" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="42" y1="24" x2="49" y2="52" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="49" y1="52" x2="31" y2="73" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="49" y1="52" x2="59" y2="65" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="59" y1="65" x2="68" y2="65" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Utilise la kettlebell uniquement comme repère au sol','Reste léger sur les appuis, genoux souples','Alterne les touches près de la cloche ou sur sa base stable','Ralentis avant de perdre précision ou posture'],
+    demo: { query: 'kettlebell toe taps cardio exercise tutorial' },
+  },
+  {
+    name: 'Clean + Thruster par côté', level: 'inter', group: 'full', family: 'clean-thruster', pattern: 'full-body', laterality: 'per-side', loadBias: 'overhead',
+    detail: '4 par côté', reps: 4, equipment: '1 kettlebell', visualFrom: 'Thruster (G)',
+    steps: ['Clean fluide jusque dans le rack','Descends dans un front squat stable','Pousse le sol et enchaîne une presse au-dessus de la tête','Reviens en rack avec contrôle puis change à mi-parcours'],
+    demo: { query: 'single arm kettlebell clean to thruster proper form tutorial' },
+  },
 ];
 
 for (const exercise of MODERN_EXERCISES) {
@@ -2288,6 +2603,10 @@ for (const exercise of MODERN_EXERCISES) {
       equipment: exercise.equipment,
       difficulty: exercise.level,
       source: exercise.source,
+      family: exercise.family || null,
+      pattern: exercise.pattern || null,
+      laterality: exercise.laterality || null,
+      loadBias: exercise.loadBias || null,
       warning: exercise.warning || null,
       warningEn: exercise.warningEn || null,
     },
@@ -2479,6 +2798,8 @@ const EXERCISE_MOVEMENT_META = new Map(
   MODERN_EXERCISES.map(exercise => [exercise.name, {
     family: exercise.family,
     pattern: exercise.pattern,
+    laterality: exercise.laterality,
+    loadBias: exercise.loadBias,
   }])
 );
 
@@ -2547,6 +2868,7 @@ const HEAVY_LOAD_EXERCISES = new Set([
 ]);
 const PER_SIDE_EXERCISES = new Set([
   'Press par côté', 'Row par côté', 'Suitcase March', 'Front Rack March',
+  'Thruster par côté',
   'Half-Kneeling Press', 'Goblet Reverse Lunge', 'Goblet Cossack Squat',
   'Bottoms-Up Clean', 'Kettlebell Arm Bar', 'Rotational Swing',
   'Pompe décalée sur kettlebell', 'Floor Press par côté',
@@ -2558,18 +2880,19 @@ const ALTERNATING_EXERCISES = new Set([
 
 function exerciseMeta(name) {
   const bellCount = BODYWEIGHT_EXERCISES.has(name) ? 0 : DOUBLE_BELL_EXERCISES.has(name) ? 2 : 1;
-  const laterality = PER_SIDE_EXERCISES.has(name)
+  const explicitMeta = EXERCISE_MOVEMENT_META.get(name) || {};
+  const laterality = explicitMeta.laterality || (PER_SIDE_EXERCISES.has(name)
     ? 'per-side'
-    : ALTERNATING_EXERCISES.has(name) ? 'alternating' : 'bilateral';
+    : ALTERNATING_EXERCISES.has(name) ? 'alternating' : 'bilateral');
   const style = bellCount === 2
     ? 'two-bell-simultaneous'
     : laterality === 'per-side' ? 'per-side'
       : laterality === 'alternating' ? 'alternating'
         : ['Goblet Squat', 'Kettlebell Swing', 'KB Deadlift', 'KB Romanian Deadlift', 'Sumo Squat', 'Halo', 'Slingshot', 'Clean à deux mains'].includes(name)
           ? 'two-hands-one-bell' : 'single-bell';
-  const loadBias = LIGHT_LOAD_EXERCISES.has(name) ? 'light'
+  const loadBias = explicitMeta.loadBias || (LIGHT_LOAD_EXERCISES.has(name) ? 'light'
     : OVERHEAD_EXERCISES.has(name) ? 'overhead'
-      : HEAVY_LOAD_EXERCISES.has(name) ? 'heavy' : 'standard';
+      : HEAVY_LOAD_EXERCISES.has(name) ? 'heavy' : 'standard');
   return {
     bellCount,
     sameWeight: bellCount === 2,
@@ -2635,13 +2958,56 @@ const CURATED_RECIPES = {
   },
 };
 
+const GUIDED_RECIPES = {
+  minimal3: {
+    id: 'minimal-3',
+    nameKey: 'minimal3Name',
+    kind: 'guided',
+    recommendedRounds: '3–4',
+    exercises: [
+      { name: 'Thruster par côté', detail: '5 par côté', target: '10 total · 5/côté', targetEn: '10 total · 5/side', reps: 5, group: 'full', laterality: 'per-side' },
+      { name: 'Row par côté', detail: '6 par côté', target: '12 total · 6/côté', targetEn: '12 total · 6/side', reps: 6, group: 'upper', laterality: 'per-side' },
+      { name: 'Kettlebell Swing', detail: '15 reps', target: '15 swings', targetEn: '15 swings', reps: 15, group: 'full' },
+    ],
+  },
+};
+
+const AMRAP_PRESETS = {
+  fullBodyDensity: {
+    id: 'full-body-density',
+    nameKey: 'amrapName',
+    kind: 'amrap',
+    exercises: [
+      { name: 'Row par côté', detail: '5 par côté', target: '10 total · 5/côté', targetEn: '10 total · 5/side', reps: 5, group: 'upper', laterality: 'per-side' },
+      { name: 'Kettlebell Swing', detail: '15 reps', target: '15 reps', targetEn: '15 reps', reps: 15, group: 'full' },
+      { name: 'Clean + Thruster par côté', detail: '4 par côté', target: '8 total · 4/côté', targetEn: '8 total · 4/side', reps: 4, group: 'full', laterality: 'per-side' },
+      { name: 'Goblet Reverse Lunge', detail: '10 alternées', target: '10 alternées', targetEn: '10 alternating', reps: 10, group: 'lower', laterality: 'alternating' },
+      { name: 'Toe Taps', detail: '20 alternés', target: '20 alternés', targetEn: '20 alternating', reps: 20, group: 'full', laterality: 'alternating' },
+      { name: 'Pompes au sol', detail: '10 reps', target: '10 reps', targetEn: '10 reps', reps: 10, group: 'upper' },
+    ],
+  },
+};
+
+const ARMS_FINISHER = {
+  id: 'arms-shoulders-finisher',
+  nameKey: 'armsFinisherName',
+  kind: 'finisher',
+  duration: 5,
+  roundRest: 60,
+  exercises: [
+    { name: 'Goblet Curl', detail: '10 reps', target: '10 reps', targetEn: '10 reps', reps: 10, group: 'upper' },
+    { name: 'Extension triceps au-dessus de la tête', detail: '10 reps', target: '10 reps', targetEn: '10 reps', reps: 10, group: 'upper' },
+    { name: 'Halo', detail: '6 par sens', target: '6 par sens', targetEn: '6 each direction', reps: 6, group: 'core' },
+  ],
+};
+
 // ══════════════════════════════════════════════
 //  MODE CONFIGURATIONS
 // ══════════════════════════════════════════════
 const MODE_NAMES = {
   circuit: 'Circuit', emom: 'EMOM', tabata: 'Tabata',
   complex: 'Complex', ladder: 'Ladder', ss: 'Simple & Sinister',
-  fatloss: 'Objectif perte de graisse'
+  fatloss: 'Objectif perte de graisse', amrap: 'AMRAP', guided: 'Minimal 3 guidé'
 };
 
 const MODE_DURATIONS = {
@@ -2651,6 +3017,8 @@ const MODE_DURATIONS = {
   tabata: [4, 8, 12],
   complex: [10, 15, 20],
   ladder: [10, 15, 20],
+  amrap: [10, 12, 15, 20],
+  guided: [10, 15, 20],
   ss: [null] // fixed duration
 };
 
@@ -2704,6 +3072,8 @@ function laneLabel(lane) {
 
 function modeName(mode) {
   if (mode === 'fatloss') return t('fatlossName');
+  if (mode === 'amrap') return t('amrapName');
+  if (mode === 'guided') return t('minimal3Name');
   return MODE_NAMES[mode] || mode;
 }
 
@@ -2722,6 +3092,24 @@ let fatlossGenerationNonce = 0;
 let selectedRecipe = null;
 let circuitPreviewFresh = true;
 let lighterWeights = false;
+let selectedGuidedRecipe = null;
+let selectedRoundRest = 90;
+let runnerKind = null;
+let runnerRecipe = null;
+let runnerExercises = [];
+let runnerIndex = 0;
+let runnerRound = 1;
+let runnerRoundsCompleted = 0;
+let runnerSecondsLeft = 0;
+let runnerPaused = false;
+let runnerFreeRest = false;
+let runnerRoundRestLeft = 0;
+let runnerMaxRounds = null;
+let activeSessionId = null;
+let sessionSaved = false;
+let finisherRounds = 2;
+let finisherWasOffered = false;
+let finisherCompleted = false;
 
 function loadEquipmentInventory() {
   const fallback = Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => [weight, weight === 12 ? 1 : 0]));
@@ -3236,10 +3624,12 @@ function renderConsistency(now = new Date()) {
   `;
 }
 
-function saveSession(mode, duration, exercises) {
+function saveSession(mode, duration, exercises, metadata = {}) {
   try {
     const hist = readHistory();
+    const sessionId = `kb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     hist.unshift({
+      id: sessionId,
       date: new Date().toISOString(),
       mode: modeName(mode),
       modeId: mode,
@@ -3248,7 +3638,28 @@ function saveSession(mode, duration, exercises) {
       exercises: [...new Set(exercises)],
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
       recipeId: selectedRecipe?.id || null,
+      ...metadata,
     });
+    localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, HISTORY_LIMIT)));
+    renderConsistency();
+    return sessionId;
+  } catch { return null; }
+}
+
+function attachFinisherToSession(sessionId, completed) {
+  if (!sessionId) return;
+  try {
+    const hist = readHistory();
+    const session = hist.find(item => item.id === sessionId);
+    if (!session) return;
+    session.finisher = {
+      id: ARMS_FINISHER.id,
+      roundsPlanned: finisherRounds,
+      roundsCompleted: runnerRoundsCompleted,
+      completed,
+      exercises: ARMS_FINISHER.exercises.map(exercise => exercise.name),
+    };
+    session.exercises = [...new Set([...(session.exercises || []), ...ARMS_FINISHER.exercises.map(exercise => exercise.name)])];
     localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, HISTORY_LIMIT)));
     renderConsistency();
   } catch {}
@@ -3273,11 +3684,14 @@ function showHistory() {
         const equipmentDisplay = s.equipment
           ? Object.entries(s.equipment).map(([weight, count]) => `${weight} kg ×${count}`).join(' · ')
           : '';
-        const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe') : '';
+        const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe')
+          : s.recipeId === GUIDED_RECIPES.minimal3.id ? t('minimal3Name')
+            : s.recipeId === AMRAP_PRESETS.fullBodyDensity.id ? t('amrapName') : '';
+        const finisherDisplay = s.finisher ? `${t('armsFinisherName')} · ${s.finisher.roundsCompleted}/${s.finisher.roundsPlanned} ${t('rounds')}` : '';
         return `<div class="history-item">
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
-          <div class="history-detail">${[recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
+          <div class="history-detail">${[recipeDisplay, finisherDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
         </div>`;
       }).join('');
     }
@@ -3705,6 +4119,10 @@ function buildSS() {
 }
 
 function buildWorkout() {
+  sessionSaved = false;
+  activeSessionId = null;
+  finisherWasOffered = false;
+  finisherCompleted = false;
   switch (selectedMode) {
     case 'circuit': buildCircuit(); break;
     case 'fatloss': buildFatloss(); break;
@@ -3764,11 +4182,154 @@ function releaseWake() {
 //  SCREEN MANAGEMENT
 // ══════════════════════════════════════════════
 function showOnly(id) {
-  ['setup', 'preview-screen', 'workout', 'done', 'circuit-preview'].forEach(s => {
+  ['setup', 'preview-screen', 'workout', 'done', 'circuit-preview', 'sequence-runner'].forEach(s => {
     document.getElementById(s).style.display = 'none';
   });
   document.getElementById(id).style.display = 'flex';
 }
+
+function formatClock(seconds) {
+  const safe = Math.max(0, Math.floor(seconds));
+  return `${String(Math.floor(safe / 60)).padStart(2, '0')}:${String(safe % 60).padStart(2, '0')}`;
+}
+
+function startSequenceRunner(kind, recipe) {
+  clearInterval(timerInterval);
+  runnerKind = kind;
+  runnerRecipe = recipe || (kind === 'amrap' ? AMRAP_PRESETS.fullBodyDensity : kind === 'guided' ? GUIDED_RECIPES.minimal3 : ARMS_FINISHER);
+  runnerExercises = runnerRecipe.exercises.map(enrichExercise);
+  runnerIndex = 0;
+  runnerRound = 1;
+  runnerRoundsCompleted = 0;
+  runnerSecondsLeft = (kind === 'finisher' ? ARMS_FINISHER.duration : selectedMin) * 60;
+  runnerPaused = false;
+  runnerFreeRest = false;
+  runnerRoundRestLeft = 0;
+  runnerMaxRounds = kind === 'finisher' ? finisherRounds : null;
+  if (kind !== 'finisher') {
+    activeWeeklyLane = weeklyLaneForHistory();
+    sessionSaved = false;
+    activeSessionId = null;
+    finisherWasOffered = false;
+    finisherCompleted = false;
+    sessionExercises = runnerExercises.map(exercise => exercise.name);
+  }
+  document.getElementById('seq-rest').hidden = kind !== 'amrap';
+  requestWake();
+  showOnly('sequence-runner');
+  renderSequenceRunner();
+  timerInterval = setInterval(() => {
+    if (runnerPaused) return;
+    runnerSecondsLeft--;
+    if (runnerRoundRestLeft > 0) runnerRoundRestLeft--;
+    if (runnerSecondsLeft <= 0) {
+      completeSequenceRunner();
+      return;
+    }
+    renderSequenceRunner();
+  }, 1000);
+}
+
+function sequenceRoundRestDuration() {
+  if (runnerKind === 'guided') return selectedRoundRest;
+  if (runnerKind === 'finisher') return ARMS_FINISHER.roundRest;
+  return 0;
+}
+
+function advanceSequence() {
+  if (runnerRoundRestLeft > 0) {
+    runnerRoundRestLeft = 0;
+    renderSequenceRunner();
+    return;
+  }
+  runnerFreeRest = false;
+  if (runnerIndex < runnerExercises.length - 1) {
+    runnerIndex++;
+  } else {
+    runnerRoundsCompleted++;
+    if (runnerMaxRounds && runnerRoundsCompleted >= runnerMaxRounds) {
+      completeSequenceRunner();
+      return;
+    }
+    runnerRound = runnerRoundsCompleted + 1;
+    runnerIndex = 0;
+    runnerRoundRestLeft = sequenceRoundRestDuration();
+  }
+  beepStart();
+  renderSequenceRunner();
+}
+
+function renderSequenceRunner() {
+  const resting = runnerRoundRestLeft > 0 || runnerFreeRest;
+  const current = runnerExercises[runnerIndex] || runnerExercises[0];
+  document.getElementById('seq-badge').textContent = runnerKind === 'finisher' ? t('armsFinisherName') : t(runnerRecipe.nameKey);
+  document.getElementById('seq-clock').textContent = formatClock(runnerSecondsLeft);
+  document.getElementById('seq-round').textContent = `${currentLang === 'fr' ? 'TOUR' : 'ROUND'} ${runnerRound} · ${t('roundsCompleted')(runnerRoundsCompleted)}`;
+  document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
+  document.getElementById('seq-next').textContent = runnerKind === 'finisher' && runnerIndex === runnerExercises.length - 1 && runnerRound === runnerMaxRounds
+    ? t('finishFinisher') : t('nextExerciseButton');
+  document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
+
+  if (resting) {
+    document.getElementById('seq-visual').innerHTML = getVisual('_rest').svg;
+    document.getElementById('seq-name').textContent = runnerFreeRest ? t('freeRest') : t('restCalm');
+    document.getElementById('seq-target').textContent = runnerRoundRestLeft > 0 ? formatClock(runnerRoundRestLeft) : t('resumeExercise');
+    document.getElementById('seq-coach').innerHTML = displaySteps('_rest').map(step => `<span>${step}</span>`).join('');
+  } else {
+    document.getElementById('seq-visual').innerHTML = getVisual(current.name).svg;
+    document.getElementById('seq-name').textContent = exName(current.name);
+    document.getElementById('seq-target').textContent = exerciseTarget(current);
+    document.getElementById('seq-coach').innerHTML = displaySteps(current.name).map(step => `<span>${step}</span>`).join('');
+  }
+
+  document.getElementById('seq-checklist').innerHTML = runnerExercises.map((exercise, index) => {
+    const state = runnerRoundRestLeft > 0 || index < runnerIndex ? 'done' : index === runnerIndex && !runnerFreeRest ? 'current' : '';
+    return `<div class="seq-item ${state}"><b>${index + 1}</b><span>${exName(exercise.name)} · ${exerciseTarget(exercise)}</span></div>`;
+  }).join('');
+}
+
+function completeSequenceRunner() {
+  clearInterval(timerInterval);
+  releaseWake();
+  if (runnerKind === 'finisher') {
+    attachFinisherToSession(activeSessionId, true);
+    finisherCompleted = true;
+    document.getElementById('finisher-offer').classList.remove('visible');
+    const stats = document.getElementById('done-stats');
+    if (!stats.textContent.includes(t('finisherDone'))) stats.innerHTML += `<br>${t('finisherDone')}`;
+    showOnly('done');
+    return;
+  }
+  const recipeId = runnerRecipe.id;
+  const metadata = { recipeId, roundsCompleted: runnerRoundsCompleted, runner: 'manual-sequence' };
+  completeMainSession({
+    workSteps: runnerExercises,
+    workSeconds: Math.max(0, selectedMin * 60 - runnerSecondsLeft),
+    metadata,
+  });
+}
+
+document.getElementById('seq-pause').addEventListener('click', () => {
+  runnerPaused = !runnerPaused;
+  renderSequenceRunner();
+});
+document.getElementById('seq-next').addEventListener('click', advanceSequence);
+document.getElementById('seq-rest').addEventListener('click', () => {
+  runnerFreeRest = !runnerFreeRest;
+  renderSequenceRunner();
+});
+document.getElementById('seq-stop').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  releaseWake();
+  if (runnerKind === 'finisher') {
+    attachFinisherToSession(activeSessionId, false);
+    finisherWasOffered = true;
+    document.getElementById('finisher-offer').classList.remove('visible');
+    showOnly('done');
+  } else {
+    showOnly('setup');
+  }
+});
 
 // ══════════════════════════════════════════════
 //  SETUP UI
@@ -3776,18 +4337,49 @@ function showOnly(id) {
 // Mode selection (featured + other cards)
 function selectMode(mode) {
   selectedMode = mode;
+  selectedGuidedRecipe = mode === 'amrap' ? AMRAP_PRESETS.fullBodyDensity : null;
   fatlossPlan = null;
   selectedRecipe = null;
   circuitPreviewFresh = true;
   lighterWeights = false;
   document.querySelectorAll('.mode-card, .featured-card').forEach(c => c.classList.remove('active'));
-  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  document.querySelectorAll('.guided-recipe').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`)?.classList.add('active');
+  document.getElementById('round-rest-group').classList.remove('visible');
   updateDurationOptions();
   updatePreview();
 }
 
 document.querySelectorAll('.mode-card, .featured-card').forEach(card => {
   card.addEventListener('click', () => selectMode(card.dataset.mode));
+});
+
+document.querySelectorAll('.guided-recipe').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.guided-recipe').forEach(candidate => candidate.classList.remove('active'));
+    button.classList.add('active');
+    if (button.dataset.guided === 'minimal-3') {
+      selectedMode = 'guided';
+      selectedGuidedRecipe = GUIDED_RECIPES.minimal3;
+      document.getElementById('round-rest-group').classList.add('visible');
+    } else {
+      selectedMode = 'amrap';
+      selectedGuidedRecipe = AMRAP_PRESETS.fullBodyDensity;
+      document.getElementById('round-rest-group').classList.remove('visible');
+    }
+    document.querySelectorAll('.mode-card, .featured-card').forEach(candidate => candidate.classList.remove('active'));
+    updateDurationOptions();
+    updatePreview();
+  });
+});
+
+document.querySelectorAll('.rest-btn[data-rest]').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.rest-btn[data-rest]').forEach(candidate => candidate.classList.remove('active'));
+    button.classList.add('active');
+    selectedRoundRest = Number(button.dataset.rest);
+    updatePreview();
+  });
 });
 
 function updateDurationOptions() {
@@ -3799,11 +4391,11 @@ function updateDurationOptions() {
   if (durations[0] === null) {
     // S&S: fixed duration, hide duration picker
     durGroup.style.display = 'none';
-    diffGroup.style.display = '';
+    diffGroup.style.display = selectedMode === 'amrap' || selectedMode === 'guided' ? 'none' : '';
     selectedMin = 0;
   } else {
     durGroup.style.display = '';
-    diffGroup.style.display = '';
+    diffGroup.style.display = selectedMode === 'amrap' || selectedMode === 'guided' ? 'none' : '';
     row.innerHTML = durations.map(d =>
       `<button class="dur-btn${d === durations[Math.floor(durations.length / 2)] ? ' active' : ''}" data-min="${d}">${d} min</button>`
     ).join('');
@@ -3848,7 +4440,7 @@ function updatePreview() {
     el.textContent = t('inventoryEmpty');
     goButton.textContent =
       selectedMode === 'circuit' ? t('viewCircuit') :
-      selectedMode === 'fatloss' ? t('viewPlan') :
+      ['fatloss', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
       t('letsGo');
     return;
   }
@@ -3886,11 +4478,19 @@ function updatePreview() {
       el.textContent = t('ssPreview');
       break;
     }
+    case 'amrap': {
+      el.textContent = t('amrapPreview')(selectedMin);
+      break;
+    }
+    case 'guided': {
+      el.textContent = t('guidedPreview')(selectedMin, selectedRoundRest);
+      break;
+    }
   }
   // Adapt go button label
   document.getElementById('go-btn').textContent =
     selectedMode === 'circuit' ? t('viewCircuit') :
-    selectedMode === 'fatloss' ? t('viewPlan') :
+    ['fatloss', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
     t('letsGo');
 }
 
@@ -4019,6 +4619,8 @@ document.getElementById('go-btn').addEventListener('click', () => {
     showCircuitPreview();
   } else if (selectedMode === 'fatloss') {
     showFatlossPreview();
+  } else if (selectedMode === 'amrap' || selectedMode === 'guided') {
+    renderSequencePreview();
   } else {
     buildWorkout();
     requestWake();
@@ -4059,7 +4661,36 @@ function regenerateFatloss(animate) {
 
 function renderPlanPreview() {
   if (selectedMode === 'fatloss') renderFatlossPreview();
+  else if (selectedMode === 'amrap' || selectedMode === 'guided') renderSequencePreview();
   else renderCircuitPreview();
+}
+
+function renderSequencePreview() {
+  const recipe = selectedGuidedRecipe || (selectedMode === 'amrap' ? AMRAP_PRESETS.fullBodyDensity : GUIDED_RECIPES.minimal3);
+  const exercises = recipe.exercises.map(enrichExercise);
+  document.querySelector('.cp-title').textContent = t(recipe.nameKey);
+  document.getElementById('cp-subtitle').textContent = selectedMode === 'amrap'
+    ? t('amrapPreview')(selectedMin)
+    : t('guidedPreview')(selectedMin, selectedRoundRest);
+  document.getElementById('cp-lane-badge').hidden = true;
+  document.getElementById('cp-science-note').hidden = true;
+  document.getElementById('cp-coverage').innerHTML = `<span class="cp-recipe-badge">✦ ${t('recipeLabel')}</span>`;
+  document.getElementById('cp-list').innerHTML = exercises.map((exercise, index) => {
+    const demo = getYouTubeDemo(exercise.name);
+    return `<div class="cp-item">
+      <div class="cp-item-num">${index + 1}</div>
+      <div class="cp-item-info">
+        <div class="cp-item-name">${exName(exercise.name)}</div>
+        <div class="cp-item-detail">${exerciseTarget(exercise)}${equipmentLoadText(exercise) ? ` · <span class="cp-load">🏋️ ${equipmentLoadText(exercise)}</span>` : ''}</div>
+      </div>
+      <a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(exercise.name))}">${t('demoShort')}</a>
+      <span class="cp-item-tag ${exercise.group}">${groupLabel(exercise.group)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cp-regenerate').style.display = 'none';
+  document.getElementById('cp-lighten').style.display = 'none';
+  document.getElementById('cp-go').disabled = !exercises.every(exercise => hasCompatibleEquipment(exercise.name));
+  showOnly('circuit-preview');
 }
 
 function regenerateCircuit(animate) {
@@ -4107,6 +4738,7 @@ function renderCircuitPreview() {
   document.getElementById('cp-science-note').hidden = true;
   document.getElementById('cp-lane-badge').hidden = true;
   document.getElementById('cp-regenerate').textContent = t('regenerate');
+  document.getElementById('cp-regenerate').style.display = '';
 
   document.getElementById('cp-subtitle').textContent = selectedRecipe
     ? t('recipeSubtitle')(selectedRecipe.rounds, selectedRecipe.approximateMinutes)
@@ -4181,6 +4813,7 @@ function renderFatlossPreview() {
   laneBadge.hidden = false;
   laneBadge.textContent = laneLabel(lane);
   document.getElementById('cp-regenerate').textContent = t('varySession');
+  document.getElementById('cp-regenerate').style.display = '';
   const minWork = Math.min(cfg.work, cfg.strengthWork, cfg.coreWork);
   const maxWork = Math.max(cfg.work, cfg.strengthWork, cfg.coreWork);
   document.getElementById('cp-subtitle').textContent = t('fatlossSubtitle')(selectedMin, `${minWork}–${maxWork}`, `${cfg.rest}–${cfg.strengthRest}`);
@@ -4221,12 +4854,17 @@ document.getElementById('cp-back').addEventListener('click', () => {
 
 document.getElementById('cp-regenerate').addEventListener('click', () => {
   if (selectedMode === 'fatloss') regenerateFatloss(true);
+  else if (selectedMode === 'amrap' || selectedMode === 'guided') return;
   else regenerateCircuit(true);
 });
 
 document.getElementById('cp-lighten').addEventListener('click', toggleLighterWeights);
 
 document.getElementById('cp-go').addEventListener('click', () => {
+  if (selectedMode === 'amrap' || selectedMode === 'guided') {
+    startSequenceRunner(selectedMode, selectedGuidedRecipe);
+    return;
+  }
   buildWorkout();
   requestWake();
   showPreview();
@@ -4263,26 +4901,55 @@ document.addEventListener('keydown', (event) => {
 });
 
 function finish() {
+  const workSteps = circuit.filter(s => s.type === 'work');
+  const totalWork = workSteps.reduce((a, s) => a + s.duration, 0);
+  completeMainSession({ workSteps, workSeconds: totalWork });
+}
+
+function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
+  if (sessionSaved) return;
+  sessionSaved = true;
   beepDone();
   releaseWake();
   showOnly('done');
-  const workSteps = circuit.filter(s => s.type === 'work');
-  const totalWork = workSteps.reduce((a, s) => a + s.duration, 0);
   const completedModeName = modeName(selectedMode);
   const durStr = selectedMin ? `${selectedMin} min` : '~25 min';
+  const completionLine = Number.isFinite(metadata.roundsCompleted)
+    ? t('roundsCompleted')(metadata.roundsCompleted)
+    : `${workSteps.length} ${t('setsCompleted')}`;
+  const levelLine = ['amrap', 'guided'].includes(selectedMode)
+    ? ''
+    : `<br>${t('levelLabel')} ${selectedLevel === 'beginner' ? t('beginnerLabel') : t('intermediateLabel')}`;
 
   document.getElementById('done-stats').innerHTML =
     `${completedModeName} · ${durStr}<br>` +
-    `${workSteps.length} ${t('setsCompleted')}<br>` +
-    `${Math.floor(totalWork/60)}min ${totalWork%60}s ${t('effectiveWork')}<br>` +
-    `${t('levelLabel')} ${selectedLevel === 'beginner' ? t('beginnerLabel') : t('intermediateLabel')}`;
+    `${completionLine}<br>` +
+    `${Math.floor(workSeconds/60)}min ${workSeconds%60}s ${t('effectiveWork')}` +
+    levelLine;
   document.getElementById('wo-progress-fill').style.width = '100%';
 
-  // Save to history
-  saveSession(selectedMode, selectedMin || 25, sessionExercises);
+  activeSessionId = saveSession(selectedMode, selectedMin || 25, sessionExercises, metadata);
+  document.getElementById('finisher-offer').classList.toggle('visible', !finisherCompleted);
 }
 
-document.getElementById('again-btn').addEventListener('click', () => showOnly('setup'));
+document.getElementById('finisher-rounds').addEventListener('click', event => {
+  const button = event.target.closest('[data-rounds]');
+  if (!button) return;
+  finisherRounds = Number(button.dataset.rounds);
+  document.querySelectorAll('#finisher-rounds [data-rounds]').forEach(candidate => candidate.classList.toggle('active', candidate === button));
+});
+document.getElementById('finisher-start').addEventListener('click', () => {
+  finisherWasOffered = true;
+  startSequenceRunner('finisher', ARMS_FINISHER);
+});
+document.getElementById('finisher-skip').addEventListener('click', () => {
+  finisherWasOffered = true;
+  document.getElementById('finisher-offer').classList.remove('visible');
+});
+document.getElementById('again-btn').addEventListener('click', () => {
+  document.getElementById('finisher-offer').classList.remove('visible');
+  showOnly('setup');
+});
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && document.getElementById('workout').style.display === 'flex') requestWake();
