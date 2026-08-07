@@ -112,7 +112,38 @@ try {
       && document.getElementById('finisher-offer').classList.contains('visible');
     const laneAfterMain = weeklyLaneForHistory().id === 'hinge-power';
 
+    const offerSequence = [...document.querySelectorAll('#finisher-sequence > li')];
+    const finisherOfferClarityWorks = document.getElementById('finisher-title').textContent.includes('1 → 2 → 3')
+      && offerSequence.length === 3
+      && offerSequence.map(item => item.querySelector('.finisher-step-number')?.textContent).join('') === '123'
+      && offerSequence.map(item => item.querySelector('strong')?.textContent).join('|')
+        === ARMS_FINISHER.exercises.map(exercise => finisherExerciseName(exercise.name)).join('|')
+      && document.getElementById('finisher-loop-cue').textContent.includes('2 tours')
+      && document.querySelector('[data-rounds="2"]').getAttribute('aria-pressed') === 'true';
+
     finisherRounds = 2;
+    let victoryCalls = 0;
+    playFinisherVictory = () => { victoryCalls++; };
+    startSequenceRunner('finisher', ARMS_FINISHER);
+    clearInterval(timerInterval);
+    const runnerSequence = document.getElementById('seq-checklist');
+    const finisherRunnerClarityWorks = document.getElementById('sequence-runner').classList.contains('is-finisher')
+      && document.getElementById('seq-round').textContent.includes('Tour 1/2 · étape 1/3')
+      && runnerSequence.tagName === 'OL'
+      && [...runnerSequence.children].every(item => item.tagName === 'LI')
+      && runnerSequence.querySelector('.current .seq-state')?.textContent === 'Maintenant'
+      && runnerSequence.querySelector('.next .seq-state')?.textContent === 'Ensuite'
+      && document.getElementById('seq-next-cue').textContent.includes(finisherExerciseName(ARMS_FINISHER.exercises[1].name));
+    const finisherYouTubeWorks = document.getElementById('seq-demo').href.includes('/results?search_query=')
+      && !document.getElementById('seq-demo').href.includes('watch?v=')
+      && document.getElementById('seq-demo').getAttribute('aria-label').includes(exName(ARMS_FINISHER.exercises[0].name));
+
+    runnerRoundsCompleted = 1;
+    completeSequenceRunner();
+    const incompleteFinisherIsNotVictory = victoryCalls === 0
+      && readHistory()[0].finisher.completed === false
+      && document.getElementById('finisher-recap').hidden;
+
     startSequenceRunner('finisher', ARMS_FINISHER);
     clearInterval(timerInterval);
     runnerRoundsCompleted = 2;
@@ -124,10 +155,24 @@ try {
       && afterFinisher[0].finisher.id === ARMS_FINISHER.id
       && afterFinisher[0].finisher.exercises.length === 3
       && !document.getElementById('finisher-offer').classList.contains('visible');
+    const finisherRecapWorks = victoryCalls === 1
+      && !document.getElementById('finisher-recap').hidden
+      && document.querySelector('.finisher-recap-icon').textContent === '🔥'
+      && document.getElementById('finisher-recap-title').textContent === 'Finisher terminé'
+      && document.getElementById('finisher-recap-detail').textContent.includes('2 tours');
+    showHistory();
+    const finisherHistoryWorks = document.querySelector('.history-finisher:not(.incomplete) .history-finisher-icon')?.textContent === '🔥'
+      && document.querySelector('.history-finisher:not(.incomplete)')?.textContent.includes('Finisher terminé · 2 tours');
+    closeHistory();
 
     const newNames = ['Dead Clean (G)', 'Dead Clean (D)', 'Goblet Curl', 'Extension triceps au-dessus de la tête', 'Toe Taps', 'Clean + Thruster par côté'];
     const translationsWork = newNames.every(name => EX_NAME_EN[name] && EX_STEPS_EN[name]?.length === 4)
-      && (() => { setLang('en'); return t('finisherTitle') === 'I still have 5 minutes' && exName('Dead Clean (G)') === 'Dead Clean (L)'; })();
+      && (() => {
+        setLang('en');
+        return t('finisherTitle') === '1 → 2 → 3, then repeat'
+          && t('historyFinisherDone')(2) === 'Finisher complete · 2 rounds'
+          && exName('Dead Clean (G)') === 'Dead Clean (L)';
+      })();
     const demoQueriesOnly = newNames.every(name => {
       const demo = YOUTUBE_DEMOS[name];
       const resolved = getYouTubeDemo(name)?.url || '';
@@ -148,7 +193,7 @@ try {
       && hasCompatibleEquipment('Pompes au sol')
       && ['Dead Clean (G)', 'Goblet Curl', 'Extension triceps au-dessus de la tête', 'Clean + Thruster par côté'].every(name => !hasCompatibleEquipment(name));
 
-    return { guidedDiscoverable: Boolean(guidedDiscoverable), minimalExact, restOptionsExact, amrapExact, previewExact, manualRoundCounterWorks, pauseWorks, freeRestWorks, mainCompletionWorks, laneAfterMain, finisherInvariantWorks, translationsWork, demoQueriesOnly, metadataWorks, equipmentFilteringWorks };
+    return { guidedDiscoverable: Boolean(guidedDiscoverable), minimalExact, restOptionsExact, amrapExact, previewExact, manualRoundCounterWorks, pauseWorks, freeRestWorks, mainCompletionWorks, laneAfterMain, finisherOfferClarityWorks, finisherRunnerClarityWorks, finisherYouTubeWorks, incompleteFinisherIsNotVictory, finisherInvariantWorks, finisherRecapWorks, finisherHistoryWorks, translationsWork, demoQueriesOnly, metadataWorks, equipmentFilteringWorks };
   })()`);
 
   await call(websocket, 'Emulation.setDeviceMetricsOverride', { width: 320, height: 800, deviceScaleFactor: 1, mobile: true });

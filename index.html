@@ -968,6 +968,22 @@
   }
   #done h2 { font-size: 3rem; font-weight: 900; }
   .done-stats { color: var(--muted); font-size: 1.1rem; line-height: 2; }
+  .finisher-recap {
+    width: min(100%, 420px);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255,107,53,0.45);
+    border-radius: 0.9rem;
+    background: linear-gradient(135deg, rgba(255,107,53,0.16), rgba(244,114,182,0.07));
+    text-align: left;
+  }
+  .finisher-recap[hidden] { display: none; }
+  .finisher-recap-icon { font-size: 1.45rem; filter: drop-shadow(0 0 8px rgba(255,107,53,0.42)); }
+  .finisher-recap-copy { display: grid; gap: 0.08rem; line-height: 1.3; }
+  .finisher-recap-copy strong { color: #ffd4c5; font-size: 0.9rem; }
+  .finisher-recap-copy span { color: #aaa; font-size: 0.72rem; }
   #again-btn {
     padding: 1rem 3rem;
     border-radius: 1.5rem;
@@ -982,15 +998,78 @@
   .finisher-offer {
     display: none;
     width: min(100%, 420px);
-    padding: 1rem;
-    border: 1px solid #3b3b3b;
-    border-left: 4px solid var(--rest);
+    padding: 1.05rem;
+    border: 1px solid rgba(255,107,53,0.38);
     border-radius: 1rem;
-    background: var(--surface);
+    background:
+      linear-gradient(145deg, rgba(255,107,53,0.1), transparent 48%),
+      var(--surface);
+    box-shadow: 0 16px 35px rgba(0,0,0,0.2);
   }
   .finisher-offer.visible { display: block; }
-  .finisher-offer h3 { font-size: 1rem; }
-  .finisher-offer p { margin: 0.4rem 0 0.8rem; color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
+  .finisher-eyebrow { color: var(--accent); font-size: 0.65rem; font-weight: 950; letter-spacing: 1.8px; text-transform: uppercase; }
+  .finisher-offer h3 { margin-top: 0.25rem; font-size: 1.08rem; line-height: 1.2; }
+  .finisher-offer > p { margin: 0.35rem 0 0.85rem; color: #aaa; font-size: 0.76rem; line-height: 1.4; }
+  .finisher-sequence {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 0.42rem;
+    margin: 0 0 0.65rem;
+    padding: 0;
+  }
+  .finisher-sequence li {
+    position: relative;
+    min-width: 0;
+    min-height: 82px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    padding: 0.58rem 0.5rem;
+    border: 1px solid #3a3a3a;
+    border-radius: 0.7rem;
+    background: rgba(8,8,8,0.35);
+    text-align: left;
+  }
+  .finisher-sequence li:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    right: -0.36rem;
+    width: 0.68rem;
+    height: 1.1rem;
+    display: grid;
+    place-items: center;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: #272727;
+    color: var(--accent);
+    font-weight: 950;
+  }
+  .finisher-step-number {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 950;
+  }
+  .finisher-sequence strong { font-size: 0.7rem; line-height: 1.18; overflow-wrap: anywhere; }
+  .finisher-sequence small { color: var(--muted); font-size: 0.62rem; }
+  .finisher-loop-cue {
+    margin-bottom: 0.7rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.55rem;
+    background: rgba(78,205,196,0.1);
+    color: var(--rest);
+    font-size: 0.7rem;
+    font-weight: 850;
+  }
   .finisher-rounds { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.7rem; }
   .finisher-rounds button, #finisher-start, #finisher-skip {
     min-height: 44px;
@@ -1004,7 +1083,8 @@
     font-weight: 800;
     cursor: pointer;
   }
-  .finisher-rounds button.active, #finisher-start { border-color: var(--rest); color: var(--rest); }
+  .finisher-rounds button.active { border-color: var(--rest); color: #092724; background: var(--rest); }
+  #finisher-start { width: 100%; border-color: var(--accent); color: #fff; background: var(--accent); }
   #finisher-skip { border-color: transparent; color: var(--muted); background: transparent; }
 
   /* Manual sequence runner for AMRAP and fixed guided recipes. */
@@ -1018,6 +1098,11 @@
     gap: 1rem;
     padding: 1.2rem max(0.75rem, env(safe-area-inset-right)) max(1.2rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
   }
+  #sequence-runner.is-finisher {
+    background:
+      radial-gradient(circle at 50% -10%, rgba(255,107,53,0.17), transparent 36%),
+      var(--bg);
+  }
   .seq-top { width: min(100%, 700px); text-align: center; }
   .seq-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 0.4rem; background: var(--rest); color: #092724; font-size: 0.68rem; font-weight: 900; letter-spacing: 1.4px; }
   .seq-clock { margin-top: 0.55rem; font-size: clamp(2.4rem, 10vw, 4.8rem); font-weight: 950; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -1028,13 +1113,41 @@
   .seq-copy { min-width: 0; }
   .seq-name { font-size: clamp(1.55rem, 5vw, 2.6rem); font-weight: 950; line-height: 1.05; overflow-wrap: anywhere; }
   .seq-target { margin-top: 0.45rem; color: var(--rest); font-size: 1rem; font-weight: 850; }
+  .seq-next-cue { margin-top: 0.6rem; color: #aaa; font-size: 0.72rem; font-weight: 750; line-height: 1.35; }
+  .seq-next-cue strong { color: #fff; }
   .seq-coach { margin-top: 0.75rem; display: grid; gap: 0.28rem; }
   .seq-coach span { color: #aaa; font-size: 0.74rem; line-height: 1.35; }
-  .seq-checklist { width: min(100%, 700px); display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.35rem; }
+  .seq-demo { margin-top: 0.7rem; }
+  .seq-checklist { list-style: none; margin: 0; padding: 0; width: min(100%, 700px); display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.35rem; }
   .seq-item { min-height: 44px; padding: 0.45rem 0.55rem; border: 1px solid #343434; border-radius: 0.55rem; color: #777; font-size: 0.67rem; line-height: 1.25; display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
   .seq-item span { overflow-wrap: anywhere; }
   .seq-item.done { color: #8e8e8e; text-decoration: line-through; }
   .seq-item.current { border-color: var(--accent); color: var(--text); background: rgba(255,107,53,0.09); }
+  .seq-state { display: none; }
+  .is-finisher .seq-item {
+    position: relative;
+    min-height: 68px;
+    align-items: flex-start;
+    padding: 0.55rem;
+    text-decoration: none;
+  }
+  .is-finisher .seq-item > b {
+    flex: 0 0 auto;
+    width: 1.35rem;
+    height: 1.35rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid #4a4a4a;
+    border-radius: 50%;
+    font-size: 0.64rem;
+  }
+  .is-finisher .seq-item.done { opacity: 0.64; }
+  .is-finisher .seq-item.done > b { border-color: var(--rest); color: var(--rest); }
+  .is-finisher .seq-item.current > b { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .is-finisher .seq-item.next { border-color: #4b4b4b; color: #b8b8b8; }
+  .is-finisher .seq-state { display: block; margin-top: 0.18rem; color: var(--muted); font-size: 0.54rem; font-weight: 950; letter-spacing: 0.8px; text-transform: uppercase; }
+  .is-finisher .seq-item.current .seq-state { color: var(--accent); }
+  .is-finisher .seq-item.next .seq-state { color: var(--rest); }
   .seq-controls { width: min(100%, 700px); display: grid; grid-template-columns: 52px minmax(0,1fr) minmax(0,1.4fr); gap: 0.55rem; }
   .seq-controls button { min-height: 52px; border: 1px solid #444; border-radius: 0.85rem; background: var(--surface); color: var(--text); font: inherit; font-weight: 850; cursor: pointer; }
   #seq-next { border-color: var(--accent); background: var(--accent); }
@@ -1086,6 +1199,23 @@
     color: var(--muted);
     line-height: 1.5;
   }
+  .history-finisher {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.45rem 0 0.35rem;
+    padding: 0.38rem 0.58rem;
+    border: 1px solid rgba(255,107,53,0.42);
+    border-radius: 0.58rem;
+    background: rgba(255,107,53,0.12);
+    color: #ffd4c5;
+    font-size: 0.72rem;
+    font-weight: 850;
+    line-height: 1.2;
+  }
+  .history-finisher-icon { font-size: 0.95rem; filter: drop-shadow(0 0 6px rgba(255,107,53,0.45)); }
+  .history-finisher.incomplete { border-color: #3b3b3b; background: #252525; color: var(--muted); }
   .history-empty {
     color: var(--muted);
     text-align: center;
@@ -1141,6 +1271,7 @@
     .wo-center .youtube-demo.has-thumbnail .youtube-demo-icon { position: static; transform: none; padding: 0; background: none; }
     #history-btn { width: 100%; }
     .seq-main { grid-template-columns: 112px minmax(0,1fr); gap: 0.8rem; }
+    .seq-demo { width: fit-content; }
   }
   @media (max-width: 600px) {
     .equipment-panel { padding-inline: 0.55rem; }
@@ -1158,8 +1289,17 @@
     .guided-recipes { grid-template-columns: 1fr; }
     .seq-main { grid-template-columns: 92px minmax(0,1fr); }
     .seq-checklist { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .is-finisher .seq-checklist { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .is-finisher .seq-item { flex-direction: column; gap: 0.25rem; }
+    .is-finisher .seq-state { font-size: 0.48rem; letter-spacing: 0.3px; }
     .seq-controls { grid-template-columns: 48px minmax(0,0.9fr) minmax(0,1.25fr); gap: 0.35rem; }
     .seq-controls button { padding-inline: 0.35rem; font-size: 0.72rem; }
+    .finisher-offer { padding-inline: 0.8rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .finisher-recap-icon { filter: none; }
+    .seq-item, .finisher-offer { transition: none; }
   }
 
   @media (forced-colors: active) {
@@ -1458,12 +1598,22 @@
 <div id="done">
   <h2>💪 Terminé !</h2>
   <div class="done-stats" id="done-stats"></div>
+  <div class="finisher-recap" id="finisher-recap" hidden aria-live="polite">
+    <span class="finisher-recap-icon" aria-hidden="true">🔥</span>
+    <span class="finisher-recap-copy">
+      <strong id="finisher-recap-title">Finisher terminé</strong>
+      <span id="finisher-recap-detail"></span>
+    </span>
+  </div>
   <div class="finisher-offer" id="finisher-offer">
-    <h3 id="finisher-title">J’ai encore 5 minutes</h3>
-    <p id="finisher-desc">Bras &amp; épaules · curls, triceps et halos · optionnel</p>
+    <div class="finisher-eyebrow" id="finisher-eyebrow">🔥 Finisher optionnel</div>
+    <h3 id="finisher-title">1 → 2 → 3, puis on recommence</h3>
+    <p id="finisher-desc">Fais les trois mouvements dans cet ordre. Repose-toi, puis repars au 1.</p>
+    <ol class="finisher-sequence" id="finisher-sequence" aria-label="Ordre du finisher"></ol>
+    <div class="finisher-loop-cue" id="finisher-loop-cue">↻ 2 tours · environ 5 min</div>
     <div class="finisher-rounds" id="finisher-rounds">
-      <button class="active" type="button" data-rounds="2">2 tours</button>
-      <button type="button" data-rounds="3">3 tours</button>
+      <button class="active" type="button" data-rounds="2" aria-pressed="true">2 tours</button>
+      <button type="button" data-rounds="3" aria-pressed="false">3 tours</button>
     </div>
     <button id="finisher-start" type="button">Lancer le finisher</button>
     <button id="finisher-skip" type="button">Non merci, terminer</button>
@@ -1483,10 +1633,16 @@
     <div class="seq-copy">
       <div class="seq-name" id="seq-name"></div>
       <div class="seq-target" id="seq-target"></div>
+      <div class="seq-next-cue" id="seq-next-cue"></div>
       <div class="seq-coach" id="seq-coach"></div>
+      <a class="youtube-demo seq-demo" id="seq-demo" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+        <img class="youtube-demo-thumb" alt="" loading="lazy" decoding="async">
+        <span class="youtube-demo-icon" aria-hidden="true">▶</span>
+        <span class="youtube-demo-label">Démo YouTube</span>
+      </a>
     </div>
   </div>
-  <div class="seq-checklist" id="seq-checklist"></div>
+  <ol class="seq-checklist" id="seq-checklist" aria-label="Séquence des mouvements"></ol>
   <div class="seq-controls">
     <button id="seq-stop" type="button" aria-label="Stop">✕</button>
     <button id="seq-pause" type="button">⏸ Pause</button>
@@ -1618,11 +1774,17 @@ const STRINGS = {
     beginnerLabel: 'Débutant',
     intermediateLabel: 'Intermédiaire',
     goAgain: 'Encore un ?',
-    finisherTitle: 'J’ai encore 5 minutes',
-    finisherDesc: 'Bras & épaules · curls, triceps et halos · optionnel',
+    finisherEyebrow: '🔥 Finisher optionnel',
+    finisherTitle: '1 → 2 → 3, puis on recommence',
+    finisherDesc: 'Fais les trois mouvements dans cet ordre. Repose-toi, puis repars au 1.',
+    finisherSequenceAria: 'Ordre du finisher : trois mouvements à enchaîner',
+    finisherLoopCue: (rounds) => `↻ ${rounds} tours · environ 5 min`,
     finisherStart: 'Lancer le finisher',
     finisherSkip: 'Non merci, terminer',
-    finisherDone: 'Finisher ajouté à cette séance',
+    finisherDone: 'Finisher terminé',
+    finisherRecapDetail: (rounds) => `${rounds} tours · 3 mouvements dans l’ordre`,
+    historyFinisherDone: (rounds) => `Finisher terminé · ${rounds} tours`,
+    historyFinisherIncomplete: 'Finisher interrompu',
     amrapPreview: (min) => `${min} min · 6 mouvements fixes · avance manuellement · repos libre`,
     guidedPreview: (min, rest) => `${min} min max · 3 mouvements fixes · 3–4 tours propres · ${rest}s de repos entre les tours`,
     amrapName: 'AMRAP Full-body Density',
@@ -1633,6 +1795,15 @@ const STRINGS = {
     resumeExercise: 'Reprendre',
     nextExerciseButton: 'Exercice suivant →',
     finishFinisher: 'Terminer',
+    finisherRoundProgress: (round, total, step, stepTotal) => `Tour ${round}/${total} · étape ${step}/${stepTotal}`,
+    sequenceNow: 'Maintenant',
+    sequenceNext: 'Ensuite',
+    sequenceThen: 'Puis',
+    sequenceDone: 'Fait',
+    nextMovement: (name) => `Ensuite : ${name}`,
+    nextRound: (round, seconds) => `Puis repos ${seconds}s · retour au 1 pour le tour ${round}`,
+    lastFinisherMovement: 'Dernier mouvement du finisher',
+    sequenceAria: 'Séquence ordonnée des mouvements',
     pause: '⏸ Pause',
     resume: '▶ Reprendre',
     // History
@@ -1767,11 +1938,17 @@ const STRINGS = {
     beginnerLabel: 'Beginner',
     intermediateLabel: 'Intermediate',
     goAgain: 'Go again?',
-    finisherTitle: 'I still have 5 minutes',
-    finisherDesc: 'Arms & shoulders · curls, triceps and halos · optional',
+    finisherEyebrow: '🔥 Optional finisher',
+    finisherTitle: '1 → 2 → 3, then repeat',
+    finisherDesc: 'Do all three movements in this order. Rest, then start again at 1.',
+    finisherSequenceAria: 'Finisher order: three movements in sequence',
+    finisherLoopCue: (rounds) => `↻ ${rounds} rounds · about 5 min`,
     finisherStart: 'Start the finisher',
     finisherSkip: 'No thanks, finish',
-    finisherDone: 'Finisher added to this workout',
+    finisherDone: 'Finisher complete',
+    finisherRecapDetail: (rounds) => `${rounds} rounds · 3 movements in order`,
+    historyFinisherDone: (rounds) => `Finisher complete · ${rounds} rounds`,
+    historyFinisherIncomplete: 'Finisher stopped',
     amrapPreview: (min) => `${min} min · 6 fixed movements · advance manually · free rest`,
     guidedPreview: (min, rest) => `${min} min max · 3 fixed movements · 3–4 quality rounds · ${rest}s rest between rounds`,
     amrapName: 'Full-body Density AMRAP',
@@ -1782,6 +1959,15 @@ const STRINGS = {
     resumeExercise: 'Resume',
     nextExerciseButton: 'Next exercise →',
     finishFinisher: 'Finish',
+    finisherRoundProgress: (round, total, step, stepTotal) => `Round ${round}/${total} · step ${step}/${stepTotal}`,
+    sequenceNow: 'Now',
+    sequenceNext: 'Next',
+    sequenceThen: 'Then',
+    sequenceDone: 'Done',
+    nextMovement: (name) => `Next: ${name}`,
+    nextRound: (round, seconds) => `Then rest ${seconds}s · back to 1 for round ${round}`,
+    lastFinisherMovement: 'Final movement of the finisher',
+    sequenceAria: 'Ordered movement sequence',
     pause: '⏸ Pause',
     resume: '▶ Resume',
     historyTitle: '📋 History',
@@ -2110,6 +2296,27 @@ function setLang(lang) {
   applyLangToUI();
 }
 
+function finisherExerciseName(name) {
+  if (name === 'Extension triceps au-dessus de la tête') {
+    return currentLang === 'fr' ? 'Extension triceps' : 'Overhead triceps';
+  }
+  return exName(name);
+}
+
+function renderFinisherOffer() {
+  const sequence = document.getElementById('finisher-sequence');
+  if (!sequence) return;
+  sequence.setAttribute('aria-label', t('finisherSequenceAria'));
+  sequence.innerHTML = ARMS_FINISHER.exercises.map((exercise, index) => `
+    <li>
+      <span class="finisher-step-number" aria-hidden="true">${index + 1}</span>
+      <strong>${finisherExerciseName(exercise.name)}</strong>
+      <small>${exerciseTarget(exercise)}</small>
+    </li>
+  `).join('');
+  document.getElementById('finisher-loop-cue').textContent = t('finisherLoopCue')(finisherRounds);
+}
+
 function applyLangToUI() {
   // Update toggle button
   const toggle = document.getElementById('lang-toggle');
@@ -2149,13 +2356,19 @@ function applyLangToUI() {
   // Done screen
   document.querySelector('#done h2').textContent = t('done');
   document.getElementById('again-btn').textContent = t('goAgain');
+  document.getElementById('finisher-eyebrow').textContent = t('finisherEyebrow');
   document.getElementById('finisher-title').textContent = t('finisherTitle');
   document.getElementById('finisher-desc').textContent = t('finisherDesc');
   document.getElementById('finisher-start').textContent = t('finisherStart');
   document.getElementById('finisher-skip').textContent = t('finisherSkip');
+  document.getElementById('finisher-recap-title').textContent = t('finisherDone');
+  if (finisherCompleted) document.getElementById('finisher-recap-detail').textContent = t('finisherRecapDetail')(finisherRounds);
   document.querySelectorAll('#finisher-rounds [data-rounds]').forEach(button => {
     button.textContent = `${button.dataset.rounds} ${t('rounds')}`;
   });
+  renderFinisherOffer();
+  document.getElementById('seq-checklist').setAttribute('aria-label', t('sequenceAria'));
+  document.querySelector('#seq-demo .youtube-demo-label').textContent = t('workoutDemo');
   document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
   document.getElementById('seq-next').textContent = runnerKind === 'finisher' ? t('finishFinisher') : t('nextExerciseButton');
   document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
@@ -3687,11 +3900,22 @@ function showHistory() {
         const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe')
           : s.recipeId === GUIDED_RECIPES.minimal3.id ? t('minimal3Name')
             : s.recipeId === AMRAP_PRESETS.fullBodyDensity.id ? t('amrapName') : '';
-        const finisherDisplay = s.finisher ? `${t('armsFinisherName')} · ${s.finisher.roundsCompleted}/${s.finisher.roundsPlanned} ${t('rounds')}` : '';
+        const finisherFinished = s.finisher
+          && s.finisher.completed !== false
+          && Number(s.finisher.roundsCompleted) >= Number(s.finisher.roundsPlanned);
+        const finisherDisplay = s.finisher
+          ? `<div class="history-finisher${finisherFinished ? '' : ' incomplete'}">
+              <span class="history-finisher-icon" aria-hidden="true">${finisherFinished ? '🔥' : '◌'}</span>
+              <span>${finisherFinished
+                ? t('historyFinisherDone')(s.finisher.roundsCompleted)
+                : `${t('historyFinisherIncomplete')} · ${s.finisher.roundsCompleted}/${s.finisher.roundsPlanned} ${t('rounds')}`}</span>
+            </div>`
+          : '';
         return `<div class="history-item">
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
-          <div class="history-detail">${[recipeDisplay, finisherDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
+          ${finisherDisplay}
+          <div class="history-detail">${[recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
         </div>`;
       }).join('');
     }
@@ -4152,6 +4376,49 @@ function beepWarn() { beep(440, 0.08); }
 function beepDone() { beep(660, 0.2); setTimeout(() => beep(880, 0.2), 250); setTimeout(() => beep(1100, 0.3), 500); }
 function beepSwitch() { beep(620, 0.11); setTimeout(() => beep(920, 0.16), 150); }
 
+function scheduleVictoryTone(startAt, frequency, duration, volume = 0.1) {
+  const tone = audioCtx.createOscillator();
+  const shimmer = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  tone.type = 'sine';
+  shimmer.type = 'triangle';
+  tone.frequency.setValueAtTime(frequency, startAt);
+  shimmer.frequency.setValueAtTime(frequency * 2, startAt);
+  tone.connect(gain);
+  shimmer.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.001, startAt);
+  gain.gain.linearRampToValueAtTime(volume, startAt + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.001, startAt + duration);
+  tone.start(startAt);
+  shimmer.start(startAt);
+  tone.stop(startAt + duration + 0.02);
+  shimmer.stop(startAt + duration + 0.02);
+}
+
+function playFinisherVictory() {
+  const play = () => {
+    const startAt = audioCtx.currentTime + 0.025;
+    // A compact C-major lift: more celebratory than the regular completion beeps,
+    // with a soft bell-like harmonic and no long tail.
+    [
+      [392.00, 0.00, 0.22, 0.075],
+      [523.25, 0.13, 0.24, 0.085],
+      [659.25, 0.27, 0.26, 0.09],
+      [783.99, 0.43, 0.38, 0.105],
+    ].forEach(([frequency, offset, duration, volume]) => {
+      scheduleVictoryTone(startAt + offset, frequency, duration, volume);
+    });
+    scheduleVictoryTone(startAt + 0.48, 523.25, 0.34, 0.035);
+    scheduleVictoryTone(startAt + 0.48, 659.25, 0.34, 0.03);
+  };
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(play).catch(() => {});
+  } else {
+    play();
+  }
+}
+
 function shouldTriggerMidpointCue(step, remaining) {
   return step.type === 'work'
     && (step.laterality || exerciseMeta(step.name).laterality) === 'per-side'
@@ -4214,6 +4481,7 @@ function startSequenceRunner(kind, recipe) {
     finisherCompleted = false;
     sessionExercises = runnerExercises.map(exercise => exercise.name);
   }
+  document.getElementById('sequence-runner').classList.toggle('is-finisher', kind === 'finisher');
   document.getElementById('seq-rest').hidden = kind !== 'amrap';
   requestWake();
   showOnly('sequence-runner');
@@ -4264,7 +4532,9 @@ function renderSequenceRunner() {
   const current = runnerExercises[runnerIndex] || runnerExercises[0];
   document.getElementById('seq-badge').textContent = runnerKind === 'finisher' ? t('armsFinisherName') : t(runnerRecipe.nameKey);
   document.getElementById('seq-clock').textContent = formatClock(runnerSecondsLeft);
-  document.getElementById('seq-round').textContent = `${currentLang === 'fr' ? 'TOUR' : 'ROUND'} ${runnerRound} · ${t('roundsCompleted')(runnerRoundsCompleted)}`;
+  document.getElementById('seq-round').textContent = runnerKind === 'finisher'
+    ? t('finisherRoundProgress')(runnerRound, runnerMaxRounds, runnerIndex + 1, runnerExercises.length)
+    : `${currentLang === 'fr' ? 'TOUR' : 'ROUND'} ${runnerRound} · ${t('roundsCompleted')(runnerRoundsCompleted)}`;
   document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
   document.getElementById('seq-next').textContent = runnerKind === 'finisher' && runnerIndex === runnerExercises.length - 1 && runnerRound === runnerMaxRounds
     ? t('finishFinisher') : t('nextExerciseButton');
@@ -4275,16 +4545,45 @@ function renderSequenceRunner() {
     document.getElementById('seq-name').textContent = runnerFreeRest ? t('freeRest') : t('restCalm');
     document.getElementById('seq-target').textContent = runnerRoundRestLeft > 0 ? formatClock(runnerRoundRestLeft) : t('resumeExercise');
     document.getElementById('seq-coach').innerHTML = displaySteps('_rest').map(step => `<span>${step}</span>`).join('');
+    document.getElementById('seq-next-cue').innerHTML = runnerKind === 'finisher'
+      ? `<strong>${t('nextMovement')(finisherExerciseName(runnerExercises[0].name))}</strong>`
+      : '';
+    updateDemoLink('seq-demo', null);
   } else {
     document.getElementById('seq-visual').innerHTML = getVisual(current.name).svg;
     document.getElementById('seq-name').textContent = exName(current.name);
     document.getElementById('seq-target').textContent = exerciseTarget(current);
     document.getElementById('seq-coach').innerHTML = displaySteps(current.name).map(step => `<span>${step}</span>`).join('');
+    if (runnerKind === 'finisher') {
+      const isLastStep = runnerIndex === runnerExercises.length - 1;
+      const cue = !isLastStep
+        ? t('nextMovement')(finisherExerciseName(runnerExercises[runnerIndex + 1].name))
+        : runnerRound < runnerMaxRounds
+          ? t('nextRound')(runnerRound + 1, sequenceRoundRestDuration())
+          : t('lastFinisherMovement');
+      document.getElementById('seq-next-cue').innerHTML = `<strong>${cue}</strong>`;
+      updateDemoLink('seq-demo', current.name);
+    } else {
+      document.getElementById('seq-next-cue').textContent = '';
+      updateDemoLink('seq-demo', null);
+    }
   }
 
   document.getElementById('seq-checklist').innerHTML = runnerExercises.map((exercise, index) => {
-    const state = runnerRoundRestLeft > 0 || index < runnerIndex ? 'done' : index === runnerIndex && !runnerFreeRest ? 'current' : '';
-    return `<div class="seq-item ${state}"><b>${index + 1}</b><span>${exName(exercise.name)} · ${exerciseTarget(exercise)}</span></div>`;
+    const state = runnerRoundRestLeft > 0 || index < runnerIndex
+      ? 'done'
+      : index === runnerIndex && !runnerFreeRest
+        ? 'current'
+        : index === runnerIndex + 1 && !runnerFreeRest
+          ? 'next'
+          : '';
+    const stateLabel = state === 'done' ? t('sequenceDone')
+      : state === 'current' ? t('sequenceNow')
+        : state === 'next' ? t('sequenceNext') : t('sequenceThen');
+    return `<li class="seq-item ${state}"${state === 'current' ? ' aria-current="step"' : ''}>
+      <b>${state === 'done' ? '✓' : index + 1}</b>
+      <span><span>${runnerKind === 'finisher' ? finisherExerciseName(exercise.name) : exName(exercise.name)} · ${exerciseTarget(exercise)}</span><span class="seq-state">${stateLabel}</span></span>
+    </li>`;
   }).join('');
 }
 
@@ -4292,11 +4591,17 @@ function completeSequenceRunner() {
   clearInterval(timerInterval);
   releaseWake();
   if (runnerKind === 'finisher') {
-    attachFinisherToSession(activeSessionId, true);
-    finisherCompleted = true;
+    const entireFinisherCompleted = runnerMaxRounds > 0 && runnerRoundsCompleted >= runnerMaxRounds;
+    attachFinisherToSession(activeSessionId, entireFinisherCompleted);
+    finisherCompleted = entireFinisherCompleted;
     document.getElementById('finisher-offer').classList.remove('visible');
-    const stats = document.getElementById('done-stats');
-    if (!stats.textContent.includes(t('finisherDone'))) stats.innerHTML += `<br>${t('finisherDone')}`;
+    const recap = document.getElementById('finisher-recap');
+    recap.hidden = !entireFinisherCompleted;
+    if (entireFinisherCompleted) {
+      document.getElementById('finisher-recap-title').textContent = t('finisherDone');
+      document.getElementById('finisher-recap-detail').textContent = t('finisherRecapDetail')(runnerRoundsCompleted);
+      playFinisherVictory();
+    }
     showOnly('done');
     return;
   }
@@ -4926,6 +5231,7 @@ function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
     `${completionLine}<br>` +
     `${Math.floor(workSeconds/60)}min ${workSeconds%60}s ${t('effectiveWork')}` +
     levelLine;
+  document.getElementById('finisher-recap').hidden = true;
   document.getElementById('wo-progress-fill').style.width = '100%';
 
   activeSessionId = saveSession(selectedMode, selectedMin || 25, sessionExercises, metadata);
@@ -4936,7 +5242,12 @@ document.getElementById('finisher-rounds').addEventListener('click', event => {
   const button = event.target.closest('[data-rounds]');
   if (!button) return;
   finisherRounds = Number(button.dataset.rounds);
-  document.querySelectorAll('#finisher-rounds [data-rounds]').forEach(candidate => candidate.classList.toggle('active', candidate === button));
+  document.querySelectorAll('#finisher-rounds [data-rounds]').forEach(candidate => {
+    const selected = candidate === button;
+    candidate.classList.toggle('active', selected);
+    candidate.setAttribute('aria-pressed', String(selected));
+  });
+  renderFinisherOffer();
 });
 document.getElementById('finisher-start').addEventListener('click', () => {
   finisherWasOffered = true;
