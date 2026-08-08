@@ -58,17 +58,26 @@ const client = {
     };
   },
 };
-const manager = Sync.createHistorySync({ storage, client, isOnline: () => online, onState: state => states.push(state.status) });
+const manager = Sync.createHistorySync({ storage, client, isOnline: () => online, onState: state => states.push(state) });
 manager.notifyLocalSave(session);
 assert.deepEqual(manager.getQueue(), [session.id]);
 await manager.setUser({ id: ids[3], email: 'test@example.com' });
-assert.equal(states.at(-1), 'offline');
+assert.equal(states.at(-1).status, 'offline');
+assert.equal(states.at(-1).lastSyncedAt, null);
+assert.equal(storage.getItem(`${Sync.LAST_SYNC_KEY_PREFIX}${ids[3]}`), null);
 assert.deepEqual(JSON.parse(storage.getItem(Sync.HISTORY_KEY)), [session]);
 online = true;
 await manager.retry();
 assert.equal(remote.size, 1);
 assert.deepEqual(manager.getQueue(), []);
-assert.equal(states.at(-1), 'synced');
+assert.equal(states.at(-1).status, 'synced');
+assert.match(states.at(-1).lastSyncedAt, /^\d{4}-\d{2}-\d{2}T/);
+assert.equal(storage.getItem(`${Sync.LAST_SYNC_KEY_PREFIX}${ids[3]}`), states.at(-1).lastSyncedAt);
+const restoredStates = [];
+online = false;
+const restoredManager = Sync.createHistorySync({ storage, client, isOnline: () => online, onState: state => restoredStates.push(state) });
+await restoredManager.setUser({ id: ids[3], email: 'test@example.com' });
+assert.equal(restoredStates.at(-1).lastSyncedAt, states.at(-1).lastSyncedAt);
 const beforeLogout = storage.getItem(Sync.HISTORY_KEY);
 await manager.setUser(null);
 assert.equal(storage.getItem(Sync.HISTORY_KEY), beforeLogout);
@@ -88,6 +97,7 @@ console.log(JSON.stringify({
     deterministicMergeNoDuplicates: true,
     richerAndLatestPayloadPreserved: true,
     offlineQueueAndRetry: true,
+    honestLastSyncPersistence: true,
     logoutPreservesLocalHistory: true,
     schemaAndRlsPolicies: true,
   },

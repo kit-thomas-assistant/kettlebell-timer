@@ -84,7 +84,14 @@ Regeneration compares movement-family signatures with the displayed plan and the
 
 The checked-in migration at `supabase/migrations/20260808065000_create_workout_sessions.sql` creates the `workout_sessions` table, its user/date index, strict owner-only RLS policies and the `updated_at` trigger.
 
-Email OTP requires the Supabase **Magic Link** email template to contain `{{ .Token }}` instead of relying only on `{{ .ConfirmationURL }}`. In the Supabase dashboard, open **Authentication → Email Templates → Magic Link** and include the six-digit token, for example:
+In **Authentication → URL Configuration**, set:
+
+- Site URL: `https://kit-thomas-assistant.github.io/kettlebell-timer/`
+- Redirect URLs: add `https://kit-thomas-assistant.github.io/kettlebell-timer/` exactly
+
+The app passes its clean current page as `emailRedirectTo`, so local development URLs must also be added to the redirect allow list before testing email links locally.
+
+The login UI accepts either the confirmation/magic link or a six-digit email code. Supabase's default template already supports the link through `{{ .ConfirmationURL }}`. To also show the code, open **Authentication → Email Templates → Magic Link** and include `{{ .Token }}`, for example:
 
 ```html
 <p>Your Kettlebell Timer code: <strong>{{ .Token }}</strong></p>

@@ -12,17 +12,19 @@ const debugPort = 12000 + Math.floor(Math.random() * 20000);
 const mockSdk = `<script>
 (() => {
   let authListener = () => {};
-  let session = null;
+  let session = location.hash.includes('access_token=')
+    ? { user: { id: '20000000-0000-4000-8000-000000000001', email: 'link@example.com', user_metadata: { full_name: 'Link Athlete' } } }
+    : null;
   const remote = {};
   const unavailable = new URLSearchParams(location.search).has('unavailable');
   const client = {
     auth: {
       getSession: async () => { if (unavailable) throw new Error('network unavailable'); return { data: { session }, error: null }; },
       onAuthStateChange: callback => { authListener = callback; return { data: { subscription: { unsubscribe() {} } } }; },
-      signInWithOtp: async ({ email }) => { window.__otpEmail = email; return { data: { user: null, session: null }, error: null }; },
+      signInWithOtp: async request => { window.__otpRequest = request; window.__otpEmail = request.email; return { data: { user: null, session: null }, error: null }; },
       verifyOtp: async ({ email, token }) => {
         if (email !== window.__otpEmail || token !== '123456') return { data: {}, error: new Error('invalid') };
-        session = { user: { id: '20000000-0000-4000-8000-000000000001', email } };
+        session = { user: { id: '20000000-0000-4000-8000-000000000001', email, user_metadata: { full_name: 'Ada Athlete' } } };
         authListener('SIGNED_IN', session);
         return { data: { session, user: session.user }, error: null };
       },
@@ -111,14 +113,27 @@ try {
 
   const available = await evaluate(ws, `(async () => {
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const accountTrigger = document.getElementById('account-trigger');
+    const headerSignedOut = accountTrigger.textContent.includes('Connexion')
+      && accountTrigger.getAttribute('aria-expanded') === 'false';
+    const historyFocused = !document.getElementById('history-modal').querySelector('#history-auth-signed-out');
     showHistory();
     await sleep(20);
+    closeHistory();
+    accountTrigger.click();
+    await sleep(20);
+    const popoverOpen = accountTrigger.getAttribute('aria-expanded') === 'true'
+      && !document.getElementById('account-popover').hidden
+      && document.activeElement === document.getElementById('history-auth-email');
     const signedOut = !document.getElementById('history-auth-signed-out').hidden
       && document.getElementById('history-auth-account').hidden
       && getComputedStyle(document.getElementById('history-auth-account')).display === 'none';
     document.getElementById('history-auth-email').value = 'athlete@example.com';
     document.getElementById('history-email-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await sleep(30);
+    const redirect = window.__otpRequest?.options?.emailRedirectTo;
+    const explicitCleanRedirect = redirect === location.origin + location.pathname
+      && !redirect.includes('?') && !redirect.includes('#');
     const awaitingCode = !document.getElementById('history-auth-code').hidden
       && document.getElementById('history-auth-signed-out').hidden
       && getComputedStyle(document.getElementById('history-auth-signed-out')).display === 'none';
@@ -128,6 +143,17 @@ try {
     const signedIn = !document.getElementById('history-auth-account').hidden
       && getComputedStyle(document.getElementById('history-auth-account')).display !== 'none'
       && window.KettlebellCloudSync.getState().user?.email === 'athlete@example.com';
+    const nameFromMetadata = document.getElementById('account-trigger-name').textContent === 'Ada Athlete'
+      && document.getElementById('history-account-name').textContent === 'Ada Athlete';
+    const lastSyncedAt = window.KettlebellCloudSync.getState().lastSyncedAt;
+    const lastSyncPersisted = Boolean(lastSyncedAt)
+      && localStorage.getItem('kb_last_sync_v1:20000000-0000-4000-8000-000000000001') === lastSyncedAt
+      && document.getElementById('account-last-sync').textContent.includes('Dernière sync');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await sleep(10);
+    const escapeCloses = document.getElementById('account-popover').hidden
+      && document.activeElement === accountTrigger;
+    accountTrigger.click();
     const originalNotify = window.KettlebellCloudSync.notifyLocalSave;
     let localFirst = false;
     window.KettlebellCloudSync.notifyLocalSave = saved => {
@@ -141,15 +167,25 @@ try {
     await sleep(50);
     const logoutPreserved = beforeLogout === localStorage.getItem('kb_history')
       && !document.getElementById('history-auth-signed-out').hidden;
+    const emailFallback = window.KettlebellCloudSync.getDisplayName({ email: 'fallback.user@example.com', user_metadata: {} }) === 'fallback.user';
     setLang('en');
-    const english = document.getElementById('history-email-submit').textContent === 'Send code';
-    return { signedOut, awaitingCode, signedIn, localFirst, validUuid, logoutPreserved, english };
+    const english = document.getElementById('history-email-submit').textContent === 'Continue'
+      && document.getElementById('account-trigger-name').textContent === 'Login';
+    return { headerSignedOut, historyFocused, popoverOpen, signedOut, explicitCleanRedirect, awaitingCode, signedIn, nameFromMetadata, lastSyncPersisted, escapeCloses, emailFallback, localFirst, validUuid, logoutPreserved, english };
   })()`);
+
+  await evaluate(ws, `(() => {
+    setLang('fr');
+    if (!document.getElementById('account-popover').hidden) document.getElementById('account-trigger').click();
+  })()`);
+  await capture(ws, 'account-signed-out-desktop-1440.png', 1440, 900);
+  await capture(ws, 'account-signed-out-mobile-390.png', 390, 844);
+  await capture(ws, 'account-signed-out-mobile-320.png', 320, 800);
 
   await evaluate(ws, `(async () => {
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     setLang('fr');
-    showHistory();
+    if (document.getElementById('account-popover').hidden) document.getElementById('account-trigger').click();
     document.getElementById('history-auth-email').value = 'athlete@example.com';
     document.getElementById('history-email-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await sleep(20);
@@ -157,9 +193,21 @@ try {
     document.getElementById('history-code-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await sleep(80);
   })()`);
-  await capture(ws, 'history-sync-desktop-1440.png', 1440, 900);
-  await capture(ws, 'history-sync-mobile-390.png', 390, 844);
-  await capture(ws, 'history-sync-mobile-320.png', 320, 800);
+  await capture(ws, 'account-sync-desktop-1440.png', 1440, 900);
+  await capture(ws, 'account-sync-mobile-390.png', 390, 844);
+  await capture(ws, 'account-sync-mobile-320.png', 320, 800);
+  const mobileUi = await evaluate(ws, `(() => {
+    const popover = document.getElementById('account-popover').getBoundingClientRect();
+    const trigger = document.getElementById('account-trigger').getBoundingClientRect();
+    const language = document.getElementById('lang-toggle').getBoundingClientRect();
+    const header = document.querySelector('.header-actions').getBoundingClientRect();
+    const title = document.querySelector('#setup h1').getBoundingClientRect();
+    return {
+      mobilePopoverContained: popover.left >= 0 && popover.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth,
+      touchTargets44: trigger.height >= 44 && language.height >= 44,
+      headerDoesNotCollideWithTitle: header.bottom <= title.top
+    };
+  })()`);
   await evaluate(ws, `(() => {
     closeHistory();
     selectedMode = 'circuit';
@@ -172,6 +220,14 @@ try {
   await capture(ws, 'timer-mobile-390.png', 390, 844);
   await capture(ws, 'timer-mobile-320.png', 320, 800);
 
+  await cdp(ws, 'Page.navigate', { url: `${pageUrl}?callback-test=1#access_token=mock-token&refresh_token=mock-refresh&type=magiclink` });
+  await wait(500);
+  const callback = await evaluate(ws, `({
+    callbackSessionDetected: window.KettlebellCloudSync.getState().user?.email === 'link@example.com',
+    callbackUrlCleaned: location.hash === '' && !location.search.includes('code='),
+    callbackNameRendered: document.getElementById('account-trigger-name').textContent === 'Link Athlete'
+  })`);
+
   await cdp(ws, 'Page.navigate', { url: `${pageUrl}?unavailable=1` });
   await wait(500);
   const unavailable = await evaluate(ws, `({
@@ -179,11 +235,12 @@ try {
     setupVisible: getComputedStyle(document.getElementById('setup')).display !== 'none',
     historyPreserved: JSON.parse(localStorage.getItem('kb_history') || '[]').length > 0,
     messageVisible: document.getElementById('history-sync-message').textContent.length > 0,
+    authControlsDisabled: document.getElementById('history-auth-email').disabled && document.getElementById('history-email-submit').disabled,
     signedInControlsHidden: getComputedStyle(document.getElementById('history-auth-account')).display === 'none'
   })`);
-  await evaluate(ws, `showHistory()`);
-  await capture(ws, 'history-sync-unavailable-390.png', 390, 844);
-  const checks = { ...available, unavailableFallback: unavailable.state === 'unavailable' && unavailable.setupVisible && unavailable.historyPreserved && unavailable.messageVisible && unavailable.signedInControlsHidden, noConsoleErrors: consoleErrors.length === 0 };
+  await evaluate(ws, `document.getElementById('account-trigger').click()`);
+  await capture(ws, 'account-sync-unavailable-390.png', 390, 844);
+  const checks = { ...available, ...mobileUi, ...callback, unavailableFallback: unavailable.state === 'unavailable' && unavailable.setupVisible && unavailable.historyPreserved && unavailable.messageVisible && unavailable.authControlsDisabled && unavailable.signedInControlsHidden, noConsoleErrors: consoleErrors.length === 0 };
   const failures = Object.entries(checks).filter(([, value]) => !value).map(([key]) => key);
   console.log(JSON.stringify({ ok: failures.length === 0, checks, consoleErrors }, null, 2));
   if (failures.length) throw new Error(`Auth UI diagnostics failed: ${failures.join(', ')}`);

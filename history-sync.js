@@ -7,6 +7,7 @@
 
   const HISTORY_KEY = 'kb_history';
   const QUEUE_KEY = 'kb_sync_queue_v1';
+  const LAST_SYNC_KEY_PREFIX = 'kb_last_sync_v1:';
   const HISTORY_LIMIT = 200;
 
   function generateStableId(cryptoApi = globalThis.crypto) {
@@ -111,9 +112,24 @@
     const isOnline = options.isOnline || (() => typeof navigator === 'undefined' || navigator.onLine !== false);
     let currentUser = null;
     let syncing = null;
+    let lastSyncedAt = null;
 
     function state(status, detail = {}) {
-      onState({ status, user: currentUser, ...detail });
+      onState({ status, user: currentUser, lastSyncedAt, ...detail });
+    }
+
+    function lastSyncKey(user = currentUser) { return user?.id ? `${LAST_SYNC_KEY_PREFIX}${user.id}` : null; }
+    function readLastSync(user = currentUser) {
+      const key = lastSyncKey(user);
+      if (!key) return null;
+      const value = storage.getItem(key);
+      return parseTime(value) ? value : null;
+    }
+    function writeLastSync(value) {
+      const key = lastSyncKey();
+      if (key) storage.setItem(key, value);
+      lastSyncedAt = value;
+      return value;
     }
 
     function readLocal() { return readArray(storage, HISTORY_KEY); }
@@ -200,6 +216,7 @@
         await upsertSessions(merged);
         const uploadedIds = new Set(merged.map(session => session.id));
         writeQueue(readQueue().filter(id => !uploadedIds.has(id)));
+        writeLastSync(new Date().toISOString());
         state('synced', { count: merged.length });
         return merged;
       } catch (error) {
@@ -216,6 +233,7 @@
 
     function setUser(user) {
       currentUser = user || null;
+      lastSyncedAt = readLastSync(currentUser);
       if (!currentUser) {
         state('signed-out');
         return Promise.resolve(readLocal());
@@ -241,13 +259,15 @@
 
     function getQueue() { return readQueue(); }
     function getUser() { return currentUser; }
+    function getLastSyncedAt() { return lastSyncedAt; }
 
-    return { migrateLocal, notifyLocalSave, retry, setUser, syncNow, getQueue, getUser, readLocal, writeLocal };
+    return { migrateLocal, notifyLocalSave, retry, setUser, syncNow, getQueue, getUser, getLastSyncedAt, readLocal, writeLocal };
   }
 
   return {
     HISTORY_KEY,
     QUEUE_KEY,
+    LAST_SYNC_KEY_PREFIX,
     HISTORY_LIMIT,
     generateStableId,
     isUuid,
