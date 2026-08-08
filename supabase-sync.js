@@ -10,12 +10,12 @@
       login: 'Connexion', account: 'Compte', titleOut: 'Synchroniser tes séances', titleIn: 'Ton compte',
       local: 'Local uniquement', loading: 'Connexion…', awaiting: 'Email envoyé', syncing: 'Synchronisation…',
       synced: 'À jour', offline: 'Hors ligne', error: 'À réessayer', unavailable: 'Cloud indisponible',
-      pitch: 'Retrouve ton historique sur tous tes appareils.', emailPlaceholder: 'Email', send: 'Continuer',
-      codeCopy: 'Clique sur le lien reçu ou entre le code à 6 chiffres.', codePlaceholder: '000000', verify: 'Se connecter', change: 'Changer d’email',
-      sync: 'Synchroniser', signOut: 'Déconnexion', sent: email => `Email envoyé à ${email}.`, signedIn: 'Connexion réussie.',
+      pitch: 'Retrouve ton historique sur tous tes appareils.', emailPlaceholder: 'Email', send: 'Envoyer le lien',
+      linkCopy: 'Ouvre le lien reçu par email sur cet appareil pour te connecter.', change: 'Changer d’email',
+      sync: 'Synchroniser', stats: 'Mes stats', signOut: 'Déconnexion', sent: email => `Lien de connexion envoyé à ${email}.`, signedIn: 'Connexion réussie.',
       syncCount: count => `${count} séance${count > 1 ? 's' : ''} synchronisée${count > 1 ? 's' : ''}.`,
       queued: count => `${count} modification${count > 1 ? 's' : ''} en attente. Reprise automatique au retour du réseau.`,
-      genericError: 'La synchronisation a échoué. Ton historique reste sauvegardé sur cet appareil.', invalidCode: 'Code invalide ou expiré.',
+      genericError: 'La synchronisation a échoué. Ton historique reste sauvegardé sur cet appareil.',
       sdkError: 'Le cloud ne répond pas. Le timer et l’historique local restent disponibles.', neverSynced: 'Aucune synchronisation réussie',
       syncedNow: 'Dernière sync à l’instant', syncedMinutes: value => `Dernière sync il y a ${value} min`,
       syncedHours: value => `Dernière sync il y a ${value} h`, syncedAt: value => `Dernière sync ${value}`,
@@ -25,12 +25,12 @@
       login: 'Login', account: 'Account', titleOut: 'Sync your workouts', titleIn: 'Your account',
       local: 'Local only', loading: 'Connecting…', awaiting: 'Email sent', syncing: 'Syncing…',
       synced: 'Up to date', offline: 'Offline', error: 'Retry needed', unavailable: 'Cloud unavailable',
-      pitch: 'Keep your history in sync across your devices.', emailPlaceholder: 'Email', send: 'Continue',
-      codeCopy: 'Use the link in your email or enter the 6-digit code.', codePlaceholder: '000000', verify: 'Log in', change: 'Change email',
-      sync: 'Sync now', signOut: 'Sign out', sent: email => `Email sent to ${email}.`, signedIn: 'You are logged in.',
+      pitch: 'Keep your history in sync across your devices.', emailPlaceholder: 'Email', send: 'Email me a sign-in link',
+      linkCopy: 'Open the link in your email on this device to sign in.', change: 'Change email',
+      sync: 'Sync now', stats: 'My stats', signOut: 'Sign out', sent: email => `Sign-in link sent to ${email}.`, signedIn: 'You are logged in.',
       syncCount: count => `${count} session${count === 1 ? '' : 's'} synced.`,
       queued: count => `${count} change${count === 1 ? '' : 's'} queued. Sync will resume when the network returns.`,
-      genericError: 'Sync failed. Your history is still saved on this device.', invalidCode: 'Invalid or expired code.',
+      genericError: 'Sync failed. Your history is still saved on this device.',
       sdkError: 'Cloud is not responding. The timer and local history remain available.', neverSynced: 'No successful sync yet',
       syncedNow: 'Last synced just now', syncedMinutes: value => `Last synced ${value} min ago`,
       syncedHours: value => `Last synced ${value} hr ago`, syncedAt: value => `Last synced ${value}`,
@@ -103,7 +103,7 @@
     trigger.setAttribute('aria-expanded', String(open));
     if (open && focus) {
       window.setTimeout(() => {
-        const target = ui.user ? $('history-sync-now') : ui.pendingEmail ? $('history-auth-token') : $('history-auth-email');
+        const target = ui.user ? $('account-stats-open') : ui.pendingEmail ? $('history-change-email') : $('history-auth-email');
         target?.focus();
       }, 0);
     }
@@ -116,11 +116,11 @@
     setText('history-sync-state', status.label);
     setText('account-sync-status', status.label);
     setText('history-sync-copy', tr('pitch'));
-    setText('history-code-copy', tr('codeCopy'));
+    setText('history-link-copy', tr('linkCopy'));
     setText('history-email-submit', tr('send'));
-    setText('history-code-submit', tr('verify'));
     setText('history-change-email', tr('change'));
     setText('history-sync-now', tr('sync'));
+    setText('account-stats-label', tr('stats'));
     setText('history-sign-out', tr('signOut'));
     setText('account-trigger-name', ui.user ? name : tr('login'));
     setText('history-account-name', name);
@@ -132,23 +132,21 @@
     if (triggerIcon) triggerIcon.textContent = ui.user ? name.charAt(0).toLocaleUpperCase() : '◉';
 
     const emailInput = $('history-auth-email');
-    const codeInput = $('history-auth-token');
     if (emailInput) emailInput.placeholder = tr('emailPlaceholder');
-    if (codeInput) codeInput.placeholder = tr('codePlaceholder');
     const dot = $('history-sync-dot');
     if (dot) dot.className = `history-sync-dot ${status.className}`.trim();
     const signedOut = $('history-auth-signed-out');
-    const code = $('history-auth-code');
+    const sent = $('history-auth-sent');
     const account = $('history-auth-account');
     if (signedOut) signedOut.hidden = Boolean(ui.user || ui.pendingEmail);
-    if (code) code.hidden = Boolean(ui.user || !ui.pendingEmail);
+    if (sent) sent.hidden = Boolean(ui.user || !ui.pendingEmail);
     if (account) account.hidden = !ui.user;
 
     const message = ui.message || (ui.status === 'offline' && ui.queued ? tr('queued')(ui.queued) : '');
     setText('history-sync-message', message);
     const messageElement = $('history-sync-message');
     if (messageElement) messageElement.classList.toggle('is-error', ui.messageError || ui.status === 'error' || ui.status === 'unavailable');
-    document.querySelectorAll('.history-sync-button, #history-auth-email, #history-auth-token').forEach(control => {
+    document.querySelectorAll('.history-sync-button, #history-auth-email').forEach(control => {
       control.disabled = !client || ui.status === 'syncing' || ui.status === 'loading' || ui.status === 'unavailable' || (!ui.user && ui.status === 'offline');
     });
   }
@@ -254,23 +252,8 @@
       ui.status = 'error'; ui.message = error.message || tr('genericError'); ui.messageError = true;
     } else {
       ui.status = 'signed-out'; ui.pendingEmail = email; ui.message = tr('sent')(email); ui.messageError = false;
-      window.setTimeout(() => $('history-auth-token')?.focus(), 0);
+      window.setTimeout(() => $('history-change-email')?.focus(), 0);
     }
-    renderState();
-  });
-
-  $('history-code-form')?.addEventListener('submit', async event => {
-    event.preventDefault();
-    if (!client || !ui.pendingEmail) return;
-    const token = $('history-auth-token').value.replace(/\D/g, '').slice(0, 6);
-    if (token.length !== 6) return;
-    ui.status = 'syncing'; ui.message = ''; ui.messageError = false; renderState();
-    const { data, error } = await client.auth.verifyOtp({ email: ui.pendingEmail, token, type: 'email' });
-    if (error || !data.session?.user) {
-      ui.status = 'error'; ui.message = tr('invalidCode'); ui.messageError = true; renderState(); return;
-    }
-    ui.user = data.session.user; ui.pendingEmail = ''; ui.message = tr('signedIn'); ui.messageError = false;
-    await manager.setUser(ui.user).catch(() => {});
     renderState();
   });
 

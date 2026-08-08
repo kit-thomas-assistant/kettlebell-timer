@@ -21,19 +21,17 @@ const mockSdk = `<script>
     auth: {
       getSession: async () => { if (unavailable) throw new Error('network unavailable'); return { data: { session }, error: null }; },
       onAuthStateChange: callback => { authListener = callback; return { data: { subscription: { unsubscribe() {} } } }; },
-      signInWithOtp: async request => { window.__otpRequest = request; window.__otpEmail = request.email; return { data: { user: null, session: null }, error: null }; },
-      verifyOtp: async ({ email, token }) => {
-        if (email !== window.__otpEmail || token !== '123456') return { data: {}, error: new Error('invalid') };
-        session = { user: { id: '20000000-0000-4000-8000-000000000001', email, user_metadata: { full_name: 'Ada Athlete' } } };
-        authListener('SIGNED_IN', session);
-        return { data: { session, user: session.user }, error: null };
-      },
+      signInWithOtp: async request => { window.__magicLinkRequest = request; return { data: { user: null, session: null }, error: null }; },
       signOut: async () => { session = null; authListener('SIGNED_OUT', null); return { error: null }; },
     },
     from: () => ({
       upsert: async rows => { rows.forEach(row => { remote[row.id] = { ...row, updated_at: row.payload.updatedAt }; }); return { error: null }; },
       select: () => ({ order: async () => ({ data: Object.values(remote), error: null }) }),
     }),
+  };
+  window.__completeMagicLink = email => {
+    session = { user: { id: '20000000-0000-4000-8000-000000000001', email, user_metadata: { full_name: 'Ada Athlete' } } };
+    authListener('SIGNED_IN', session);
   };
   window.supabase = { createClient: () => client };
 })();
@@ -42,7 +40,7 @@ const mockSdk = `<script>
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost');
   const pathname = url.pathname;
-  if (pathname === '/history-sync.js' || pathname === '/supabase-sync.js') {
+  if (pathname === '/history-sync.js' || pathname === '/workout-stats.js' || pathname === '/supabase-sync.js') {
     response.setHeader('Content-Type', 'text/javascript; charset=utf-8');
     response.end(await readFile(resolve(pathname.slice(1))));
     return;
@@ -113,6 +111,7 @@ try {
 
   const available = await evaluate(ws, `(async () => {
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    setLang('fr');
     const accountTrigger = document.getElementById('account-trigger');
     const headerSignedOut = accountTrigger.textContent.includes('Connexion')
       && accountTrigger.getAttribute('aria-expanded') === 'false';
@@ -131,14 +130,15 @@ try {
     document.getElementById('history-auth-email').value = 'athlete@example.com';
     document.getElementById('history-email-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await sleep(30);
-    const redirect = window.__otpRequest?.options?.emailRedirectTo;
+    const redirect = window.__magicLinkRequest?.options?.emailRedirectTo;
     const explicitCleanRedirect = redirect === location.origin + location.pathname
       && !redirect.includes('?') && !redirect.includes('#');
-    const awaitingCode = !document.getElementById('history-auth-code').hidden
+    const awaitingMagicLink = !document.getElementById('history-auth-sent').hidden
       && document.getElementById('history-auth-signed-out').hidden
-      && getComputedStyle(document.getElementById('history-auth-signed-out')).display === 'none';
-    document.getElementById('history-auth-token').value = '123456';
-    document.getElementById('history-code-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      && getComputedStyle(document.getElementById('history-auth-signed-out')).display === 'none'
+      && !document.getElementById('history-auth-token')
+      && document.getElementById('history-link-copy').textContent.includes('email');
+    window.__completeMagicLink('athlete@example.com');
     await sleep(80);
     const signedIn = !document.getElementById('history-auth-account').hidden
       && getComputedStyle(document.getElementById('history-auth-account')).display !== 'none'
@@ -149,6 +149,33 @@ try {
     const lastSyncPersisted = Boolean(lastSyncedAt)
       && localStorage.getItem('kb_last_sync_v1:20000000-0000-4000-8000-000000000001') === lastSyncedAt
       && document.getElementById('account-last-sync').textContent.includes('Dernière sync');
+    localStorage.setItem('kb_history', JSON.stringify([
+      {
+        id: '30000000-0000-4000-8000-000000000001', date: '2026-08-08T08:00:00.000Z', updatedAt: '2026-08-08T08:00:00.000Z',
+        mode: 'Circuit', modeId: 'circuit', duration: 20,
+        exercises: ['Kettlebell Swing', 'Goblet Squat', 'Press (gauche)', 'Press (droite)'],
+        exerciseStats: [
+          { key: 'kettlebell swing', name: 'Kettlebell Swing', occurrences: 3, estimatedReps: 45, weightKg: 12, bellCount: 1, workSeconds: 105, volumeKg: 540 },
+          { key: 'goblet squat', name: 'Goblet Squat', occurrences: 3, estimatedReps: 30, weightKg: 12, bellCount: 1, workSeconds: 105, volumeKg: 360 }
+        ]
+      },
+      {
+        id: '30000000-0000-4000-8000-000000000002', date: '2026-08-01T08:00:00.000Z', updatedAt: '2026-08-01T08:00:00.000Z',
+        mode: 'EMOM', modeId: 'emom', duration: 10, exercises: ['Kettlebell Swing', 'Halo']
+      }
+    ]));
+    document.getElementById('account-stats-open').click();
+    await sleep(30);
+    const statsVisible = document.getElementById('stats-modal').style.display === 'flex';
+    const statsInitialFocus = document.activeElement === document.getElementById('stats-close');
+    const statsHasVolume = document.getElementById('stats-content').textContent.includes('900 kg');
+    const statsHasCoverage = document.getElementById('stats-content').textContent.includes('1/2 séance');
+    const statsOpen = statsVisible && statsInitialFocus && statsHasVolume && statsHasCoverage;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await sleep(10);
+    const statsEscapeReturnsFocus = document.getElementById('stats-modal').style.display === 'none'
+      && document.activeElement === accountTrigger;
+    accountTrigger.click();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await sleep(10);
     const escapeCloses = document.getElementById('account-popover').hidden
@@ -169,9 +196,9 @@ try {
       && !document.getElementById('history-auth-signed-out').hidden;
     const emailFallback = window.KettlebellCloudSync.getDisplayName({ email: 'fallback.user@example.com', user_metadata: {} }) === 'fallback.user';
     setLang('en');
-    const english = document.getElementById('history-email-submit').textContent === 'Continue'
+    const english = document.getElementById('history-email-submit').textContent === 'Email me a sign-in link'
       && document.getElementById('account-trigger-name').textContent === 'Login';
-    return { headerSignedOut, historyFocused, popoverOpen, signedOut, explicitCleanRedirect, awaitingCode, signedIn, nameFromMetadata, lastSyncPersisted, escapeCloses, emailFallback, localFirst, validUuid, logoutPreserved, english };
+    return { headerSignedOut, historyFocused, popoverOpen, signedOut, explicitCleanRedirect, awaitingMagicLink, signedIn, nameFromMetadata, lastSyncPersisted, statsOpen, statsVisible, statsInitialFocus, statsHasVolume, statsHasCoverage, statsEscapeReturnsFocus, escapeCloses, emailFallback, localFirst, validUuid, logoutPreserved, english };
   })()`);
 
   await evaluate(ws, `(() => {
@@ -189,26 +216,43 @@ try {
     document.getElementById('history-auth-email').value = 'athlete@example.com';
     document.getElementById('history-email-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await sleep(20);
-    document.getElementById('history-auth-token').value = '123456';
-    document.getElementById('history-code-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    window.__completeMagicLink('athlete@example.com');
     await sleep(80);
+    localStorage.setItem('kb_history', JSON.stringify([
+      {
+        id: '30000000-0000-4000-8000-000000000001', date: '2026-08-08T08:00:00.000Z', updatedAt: '2026-08-08T08:00:00.000Z',
+        mode: 'Circuit', modeId: 'circuit', duration: 20,
+        exercises: ['Kettlebell Swing', 'Goblet Squat', 'Row par côté', 'Halo'],
+        exerciseStats: [
+          { key: 'kettlebell swing', name: 'Kettlebell Swing', occurrences: 3, estimatedReps: 45, weightKg: 12, bellCount: 1, workSeconds: 105, volumeKg: 540 },
+          { key: 'goblet squat', name: 'Goblet Squat', occurrences: 3, estimatedReps: 30, weightKg: 12, bellCount: 1, workSeconds: 105, volumeKg: 360 },
+          { key: 'row par cote', name: 'Row par côté', occurrences: 3, estimatedReps: 36, weightKg: 12, bellCount: 1, workSeconds: 120, volumeKg: 432 }
+        ]
+      },
+      { id: '30000000-0000-4000-8000-000000000002', date: '2026-08-04T08:00:00.000Z', updatedAt: '2026-08-04T08:00:00.000Z', mode: 'EMOM', modeId: 'emom', duration: 12, exercises: ['Kettlebell Swing', 'Clean (G)', 'Clean (D)'] },
+      { id: '30000000-0000-4000-8000-000000000003', date: '2026-07-29T08:00:00.000Z', updatedAt: '2026-07-29T08:00:00.000Z', mode: 'Circuit', modeId: 'circuit', duration: 15, exercises: ['Goblet Squat', 'Halo', 'KB Deadlift'] }
+    ]));
+    document.getElementById('account-stats-open').click();
+    await sleep(30);
   })()`);
-  await capture(ws, 'account-sync-desktop-1440.png', 1440, 900);
-  await capture(ws, 'account-sync-mobile-390.png', 390, 844);
-  await capture(ws, 'account-sync-mobile-320.png', 320, 800);
+  await capture(ws, 'stats-desktop-1440.png', 1440, 900);
+  await capture(ws, 'stats-mobile-390.png', 390, 844);
+  await capture(ws, 'stats-mobile-320.png', 320, 800);
   const mobileUi = await evaluate(ws, `(() => {
-    const popover = document.getElementById('account-popover').getBoundingClientRect();
+    const statsBox = document.querySelector('.stats-box').getBoundingClientRect();
     const trigger = document.getElementById('account-trigger').getBoundingClientRect();
     const language = document.getElementById('lang-toggle').getBoundingClientRect();
     const header = document.querySelector('.header-actions').getBoundingClientRect();
     const title = document.querySelector('#setup h1').getBoundingClientRect();
     return {
-      mobilePopoverContained: popover.left >= 0 && popover.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth,
+      mobileStatsContained: statsBox.left >= 0 && statsBox.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth,
+      statsCloseTouchTarget44: document.getElementById('stats-close').getBoundingClientRect().height >= 44,
       touchTargets44: trigger.height >= 44 && language.height >= 44,
       headerDoesNotCollideWithTitle: header.bottom <= title.top
     };
   })()`);
   await evaluate(ws, `(() => {
+    closeStats();
     closeHistory();
     selectedMode = 'circuit';
     showCircuitPreview();
