@@ -23,6 +23,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Screen wake lock** : keeps the display on during your workout
 - **Offline workout core** : the timer, SVG demos and workout history work without a network; YouTube demos require a connection
 - **Weekly consistency** : a 12-week activity heatmap, three-session weekly target and non-punitive weekly streak appear below the primary start action
+- **Optional cloud history** : passwordless email OTP sync through Supabase, with local-first saves, offline retry and deterministic cross-device merging. Workouts never require an account or network
 
 ## Exercises
 
@@ -76,7 +77,20 @@ Regeneration compares movement-family signatures with the displayed plan and the
 - SVG animations (CSS keyframes)
 - Web Audio API for beeps
 - Screen Wake Lock API
-- localStorage for equipment selection and automatic workout history
+- localStorage for equipment selection and the offline-first workout history cache
+- Supabase Auth + Postgres for optional cross-device history sync (history only, no equipment/preferences)
+
+### Supabase setup
+
+The checked-in migration at `supabase/migrations/20260808065000_create_workout_sessions.sql` creates the `workout_sessions` table, its user/date index, strict owner-only RLS policies and the `updated_at` trigger.
+
+Email OTP requires the Supabase **Magic Link** email template to contain `{{ .Token }}` instead of relying only on `{{ .ConfirmationURL }}`. In the Supabase dashboard, open **Authentication → Email Templates → Magic Link** and include the six-digit token, for example:
+
+```html
+<p>Your Kettlebell Timer code: <strong>{{ .Token }}</strong></p>
+```
+
+The static client contains only the project URL and publishable key. Never add a `service_role` or secret key to this repository.
 
 For Circuit 20 min, the first preview surfaces the curated David Nateli recipe deterministically. “Regenerate” then switches to the standard generated Circuit plan, so the recipe is easy to find without becoming a separate home mode.
 
@@ -123,6 +137,13 @@ node tests/guided-amrap-finisher-diagnostic.mjs
 ```
 
 The guided/AMRAP/finisher diagnostic checks the exact fixed recipes and rep targets, duration and rest choices, manual round advancement, pause and free-rest states, single-save completion, finisher history attachment and weekly-lane invariants, FR/EN copy, query-only demos, new exercise metadata/equipment filtering and 320px containment.
+
+```bash
+node tests/supabase-sync-diagnostic.mjs
+node tests/auth-ui-diagnostic.mjs
+```
+
+The Supabase diagnostics cover legacy UUID migration, deterministic merge/no duplicates, richer/latest payload preservation, offline queue/retry, logout preservation, local-first saves, OTP UI states, bilingual copy, graceful cloud failure and schema/RLS assertions.
 
 ## License
 

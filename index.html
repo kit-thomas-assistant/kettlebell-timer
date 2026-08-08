@@ -19,6 +19,17 @@
     --kb-color: #4ecdc4;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
@@ -1178,6 +1189,93 @@
     font-weight: 800;
     margin-bottom: 1.2rem;
   }
+  .history-sync-panel {
+    margin: -0.25rem 0 1rem;
+    padding: 0.9rem;
+    border: 1px solid #383838;
+    border-radius: 0.9rem;
+    background: #202020;
+  }
+  .history-sync-panel [hidden] { display: none !important; }
+  .history-sync-head,
+  .history-sync-account {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .history-sync-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 850;
+    letter-spacing: 0.02em;
+  }
+  .history-sync-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #666;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.03);
+  }
+  .history-sync-dot.is-ok { background: var(--green); }
+  .history-sync-dot.is-busy { background: var(--rest); animation: sync-pulse 1.2s ease-in-out infinite; }
+  .history-sync-dot.is-warn { background: #e7a243; }
+  .history-sync-dot.is-error { background: var(--accent); }
+  .history-sync-state { color: var(--muted); font-size: 0.7rem; text-align: right; }
+  .history-sync-copy { margin: 0.65rem 0; color: #aaa; font-size: 0.75rem; line-height: 1.45; }
+  .history-sync-form { display: flex; gap: 0.45rem; }
+  .history-sync-form input {
+    min-width: 0;
+    min-height: 44px;
+    flex: 1;
+    border: 1px solid #444;
+    border-radius: 0.65rem;
+    background: #181818;
+    color: var(--text);
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+    font-size: 0.82rem;
+  }
+  .history-sync-form input:focus-visible,
+  .history-sync-button:focus-visible {
+    outline: 3px solid var(--rest);
+    outline-offset: 2px;
+  }
+  .history-sync-button {
+    min-height: 44px;
+    border: 1px solid #494949;
+    border-radius: 0.65rem;
+    background: #2b2b2b;
+    color: var(--text);
+    padding: 0.55rem 0.75rem;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .history-sync-button.primary { border-color: var(--rest); color: var(--rest); }
+  .history-sync-button:disabled { cursor: progress; opacity: 0.5; }
+  .history-sync-email { min-width: 0; color: #bbb; font-size: 0.72rem; overflow-wrap: anywhere; }
+  .history-sync-actions { display: flex; flex: 0 0 auto; gap: 0.35rem; }
+  .history-sync-message { min-height: 1em; margin-top: 0.5rem; color: #aaa; font-size: 0.68rem; line-height: 1.35; }
+  .history-sync-message.is-error { color: #ff9a75; }
+  .history-sync-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #929292;
+    font-size: 0.64rem;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+  .history-sync-pill::before { content: ''; width: 0.38rem; height: 0.38rem; border-radius: 50%; background: currentColor; }
+  .history-sync-pill.is-ok { color: var(--green); }
+  .history-sync-pill.is-busy { color: var(--rest); }
+  .history-sync-pill.is-warn { color: #e7a243; }
+  .history-sync-pill.is-error { color: #ff8359; }
+  @keyframes sync-pulse { 50% { opacity: 0.35; transform: scale(0.82); } }
   .history-item {
     border-bottom: 1px solid var(--surface2);
     padding: 0.8rem 0;
@@ -1277,6 +1375,9 @@
     .equipment-panel { padding-inline: 0.55rem; }
     .equipment-row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding: 0.2rem 0.1rem 0.45rem; scrollbar-width: thin; }
     .equipment-btn { flex: 0 0 58px; }
+    .history-sync-account { align-items: flex-start; flex-direction: column; }
+    .history-sync-actions { width: 100%; }
+    .history-sync-actions .history-sync-button { flex: 1; }
   }
   @media (max-width: 380px) {
     #circuit-preview { padding-inline: 0.65rem; }
@@ -1295,6 +1396,9 @@
     .seq-controls { grid-template-columns: 48px minmax(0,0.9fr) minmax(0,1.25fr); gap: 0.35rem; }
     .seq-controls button { padding-inline: 0.35rem; font-size: 0.72rem; }
     .finisher-offer { padding-inline: 0.8rem; }
+    .history-box { padding: 1.2rem; }
+    .history-sync-form { flex-direction: column; }
+    .history-sync-form .history-sync-button { width: 100%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1671,6 +1775,37 @@
 <div id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-title">
   <div class="history-box">
     <h3 id="history-title">📋 Historique</h3>
+    <section class="history-sync-panel" id="history-sync-panel" aria-labelledby="history-sync-title">
+      <div class="history-sync-head">
+        <div class="history-sync-title" id="history-sync-title"><span class="history-sync-dot" id="history-sync-dot"></span><span id="history-sync-heading">Sauvegarde cloud</span></div>
+        <span class="history-sync-state" id="history-sync-state">Local uniquement</span>
+      </div>
+      <div id="history-auth-signed-out">
+        <p class="history-sync-copy" id="history-sync-copy">Optionnel. Reprends ton historique sur tes autres appareils.</p>
+        <form class="history-sync-form" id="history-email-form">
+          <label class="sr-only" for="history-auth-email">Email</label>
+          <input id="history-auth-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="Email">
+          <button class="history-sync-button primary" id="history-email-submit" type="submit">Recevoir le code</button>
+        </form>
+      </div>
+      <div id="history-auth-code" hidden>
+        <p class="history-sync-copy" id="history-code-copy">Entre le code à 6 chiffres reçu par email.</p>
+        <form class="history-sync-form" id="history-code-form">
+          <label class="sr-only" for="history-auth-token">Code à 6 chiffres</label>
+          <input id="history-auth-token" name="token" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000">
+          <button class="history-sync-button primary" id="history-code-submit" type="submit">Synchroniser</button>
+        </form>
+        <button class="history-sync-button" id="history-change-email" type="button">Changer d’email</button>
+      </div>
+      <div class="history-sync-account" id="history-auth-account" hidden>
+        <span class="history-sync-email" id="history-account-email"></span>
+        <span class="history-sync-actions">
+          <button class="history-sync-button" id="history-sync-now" type="button">Synchroniser</button>
+          <button class="history-sync-button" id="history-sign-out" type="button">Déconnexion</button>
+        </span>
+      </div>
+      <div class="history-sync-message" id="history-sync-message" role="status" aria-live="polite"></div>
+    </section>
     <div id="history-list"></div>
     <button id="history-close">Fermer</button>
   </div>
@@ -2294,6 +2429,7 @@ function setLang(lang) {
   localStorage.setItem('kb_lang', lang);
   document.getElementById('html-root').lang = lang;
   applyLangToUI();
+  window.dispatchEvent(new CustomEvent('kb:language'));
 }
 
 function finisherExerciseName(name) {
@@ -3832,18 +3968,24 @@ function renderConsistency(now = new Date()) {
     </span>
     <span class="consistency-footer">
       <span class="consistency-message${streak > 0 ? ' has-streak' : ''}">${message}</span>
-      <span class="consistency-history-label">📋 ${t('consistencyHistory')}</span>
+      <span>
+        <span class="history-sync-pill" id="history-sync-pill" hidden></span>
+        <span class="consistency-history-label">📋 ${t('consistencyHistory')}</span>
+      </span>
     </span>
   `;
+  window.KettlebellCloudSync?.renderState?.();
 }
 
 function saveSession(mode, duration, exercises, metadata = {}) {
   try {
     const hist = readHistory();
-    const sessionId = `kb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    hist.unshift({
+    const sessionId = window.KettlebellHistorySync?.generateStableId?.() || crypto.randomUUID();
+    const now = new Date().toISOString();
+    const session = {
       id: sessionId,
-      date: new Date().toISOString(),
+      date: now,
+      updatedAt: now,
       mode: modeName(mode),
       modeId: mode,
       weeklyLaneId: activeWeeklyLane?.id || weeklyLaneForHistory(hist).id,
@@ -3852,9 +3994,11 @@ function saveSession(mode, duration, exercises, metadata = {}) {
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
       recipeId: selectedRecipe?.id || null,
       ...metadata,
-    });
+    };
+    hist.unshift(session);
     localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, HISTORY_LIMIT)));
     renderConsistency();
+    window.KettlebellCloudSync?.notifyLocalSave?.(session);
     return sessionId;
   } catch { return null; }
 }
@@ -3873,8 +4017,10 @@ function attachFinisherToSession(sessionId, completed) {
       exercises: ARMS_FINISHER.exercises.map(exercise => exercise.name),
     };
     session.exercises = [...new Set([...(session.exercises || []), ...ARMS_FINISHER.exercises.map(exercise => exercise.name)])];
+    session.updatedAt = new Date().toISOString();
     localStorage.setItem('kb_history', JSON.stringify(hist.slice(0, HISTORY_LIMIT)));
     renderConsistency();
+    window.KettlebellCloudSync?.notifyLocalSave?.(session);
   } catch {}
 }
 
@@ -5266,5 +5412,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && document.getElementById('workout').style.display === 'flex') requestWake();
 });
 </script>
+<script src="./history-sync.js"></script>
+<script src="./supabase-sync.js"></script>
 </body>
 </html>

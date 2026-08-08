@@ -9,9 +9,11 @@ import { join, resolve } from 'node:path';
 const chromium = process.env.CHROMIUM_BIN || '/snap/bin/chromium';
 const profile = await mkdtemp(join(tmpdir(), 'kb-guided-test-'));
 const debugPort = 12000 + Math.floor(Math.random() * 20000);
-const server = createServer(async (_request, response) => {
-  response.setHeader('Content-Type', 'text/html; charset=utf-8');
-  response.end(await readFile(resolve('index.html')));
+const server = createServer(async (request, response) => {
+  const pathname = new URL(request.url, 'http://localhost').pathname;
+  const asset = pathname === '/history-sync.js' || pathname === '/supabase-sync.js' ? pathname.slice(1) : 'index.html';
+  response.setHeader('Content-Type', asset.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'text/html; charset=utf-8');
+  response.end(await readFile(resolve(asset)));
 });
 await new Promise(done => server.listen(0, '127.0.0.1', done));
 const url = `http://127.0.0.1:${server.address().port}/index.html`;
