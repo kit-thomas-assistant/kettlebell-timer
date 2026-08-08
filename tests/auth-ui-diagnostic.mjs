@@ -170,7 +170,14 @@ try {
     const statsInitialFocus = document.activeElement === document.getElementById('stats-close');
     const statsHasVolume = document.getElementById('stats-content').textContent.includes('900 kg');
     const statsHasCoverage = document.getElementById('stats-content').textContent.includes('1/2 séance');
-    const statsOpen = statsVisible && statsInitialFocus && statsHasVolume && statsHasCoverage;
+    const barTracks = [...document.querySelectorAll('.stats-bar-track')];
+    const statsBarsVisible = barTracks.length > 0 && barTracks.every(track => {
+      const fill = track.querySelector('.stats-bar-fill');
+      const trackBox = track.getBoundingClientRect();
+      const fillBox = fill?.getBoundingClientRect();
+      return fillBox && fillBox.width >= 3 && fillBox.height === trackBox.height;
+    });
+    const statsOpen = statsVisible && statsInitialFocus && statsHasVolume && statsHasCoverage && statsBarsVisible;
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await sleep(10);
     const statsEscapeReturnsFocus = document.getElementById('stats-modal').style.display === 'none'
@@ -198,7 +205,7 @@ try {
     setLang('en');
     const english = document.getElementById('history-email-submit').textContent === 'Email me a sign-in link'
       && document.getElementById('account-trigger-name').textContent === 'Login';
-    return { headerSignedOut, historyFocused, popoverOpen, signedOut, explicitCleanRedirect, awaitingMagicLink, signedIn, nameFromMetadata, lastSyncPersisted, statsOpen, statsVisible, statsInitialFocus, statsHasVolume, statsHasCoverage, statsEscapeReturnsFocus, escapeCloses, emailFallback, localFirst, validUuid, logoutPreserved, english };
+    return { headerSignedOut, historyFocused, popoverOpen, signedOut, explicitCleanRedirect, awaitingMagicLink, signedIn, nameFromMetadata, lastSyncPersisted, statsOpen, statsVisible, statsInitialFocus, statsHasVolume, statsHasCoverage, statsBarsVisible, statsEscapeReturnsFocus, escapeCloses, emailFallback, localFirst, validUuid, logoutPreserved, english };
   })()`);
 
   await evaluate(ws, `(() => {
