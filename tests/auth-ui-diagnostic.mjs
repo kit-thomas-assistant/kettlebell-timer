@@ -238,8 +238,18 @@ try {
   await capture(ws, 'stats-desktop-1440.png', 1440, 900);
   await capture(ws, 'stats-mobile-390.png', 390, 844);
   await capture(ws, 'stats-mobile-320.png', 320, 800);
+  await capture(ws, 'stats-mobile-short-390.png', 390, 620);
+  await wait(50);
   const mobileUi = await evaluate(ws, `(() => {
+    const modal = document.getElementById('stats-modal');
     const statsBox = document.querySelector('.stats-box').getBoundingClientRect();
+    const statsContent = document.getElementById('stats-content');
+    const closeBeforeScroll = document.getElementById('stats-close').getBoundingClientRect();
+    statsContent.scrollTop = statsContent.scrollHeight;
+    const closeAfterScroll = document.getElementById('stats-close').getBoundingClientRect();
+    const visualTop = window.visualViewport?.offsetTop || 0;
+    const visualHeight = window.visualViewport?.height || innerHeight;
+    const visualBottom = visualTop + visualHeight;
     const trigger = document.getElementById('account-trigger').getBoundingClientRect();
     const language = document.getElementById('lang-toggle').getBoundingClientRect();
     const header = document.querySelector('.header-actions').getBoundingClientRect();
@@ -247,6 +257,11 @@ try {
     return {
       mobileStatsContained: statsBox.left >= 0 && statsBox.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth,
       statsCloseTouchTarget44: document.getElementById('stats-close').getBoundingClientRect().height >= 44,
+      statsFitsShortDynamicViewport: statsBox.top >= visualTop && statsBox.bottom <= visualBottom,
+      statsCloseVisibleInShortViewport: closeAfterScroll.top >= visualTop && closeAfterScroll.bottom <= visualBottom,
+      statsClosePinnedWhileScrolling: statsContent.scrollTop > 0 && Math.abs(closeBeforeScroll.top - closeAfterScroll.top) < 1,
+      statsContentOwnsScroll: getComputedStyle(statsContent).overflowY === 'auto' && document.querySelector('.stats-box').scrollTop === 0,
+      statsModalTracksVisualViewport: Math.abs(modal.getBoundingClientRect().top - visualTop) < 1 && Math.abs(modal.getBoundingClientRect().height - visualHeight) < 1,
       touchTargets44: trigger.height >= 44 && language.height >= 44,
       headerDoesNotCollideWithTitle: header.bottom <= title.top
     };

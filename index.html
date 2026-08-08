@@ -2,7 +2,7 @@
 <html lang="fr" id="html-root">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Kettlebell Timer</title>
 <style>
   :root {
@@ -1416,11 +1416,18 @@
   #stats-modal {
     display: none;
     position: fixed;
-    inset: 0;
+    inset: var(--stats-viewport-top, 0px) 0 auto;
+    width: 100%;
+    height: 100vh;
+    height: var(--stats-viewport-height, 100dvh);
     z-index: 120;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding:
+      max(1rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      max(1rem, env(safe-area-inset-bottom))
+      max(1rem, env(safe-area-inset-left));
     background: rgba(5,5,5,0.9);
     backdrop-filter: blur(7px);
   }
@@ -1428,7 +1435,10 @@
     position: relative;
     width: min(760px, 100%);
     max-height: min(88vh, 900px);
-    overflow-y: auto;
+    max-height: min(88dvh, 900px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     padding: 1.35rem;
     border: 1px solid #393939;
     border-radius: 1.4rem;
@@ -1438,7 +1448,23 @@
       #181818;
     box-shadow: 0 28px 90px rgba(0,0,0,0.65);
   }
-  .stats-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .stats-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  #stats-content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
   .stats-kicker { display: block; color: var(--accent); font-size: 0.62rem; font-weight: 950; letter-spacing: 1.8px; text-transform: uppercase; }
   .stats-title { margin-top: 0.2rem; font-size: clamp(1.45rem, 5vw, 2.2rem); font-weight: 950; line-height: 1; }
   .stats-subtitle { margin-top: 0.4rem; color: #a8a8a8; font-size: 0.72rem; line-height: 1.4; }
@@ -1542,8 +1568,15 @@
     #account-trigger, #lang-toggle { padding-inline: 0.58rem; }
     #account-trigger { max-width: 9.5rem; }
     .account-popover { right: -0.75rem; width: min(22rem, calc(100vw - 1rem)); }
-    #stats-modal { padding: 0.45rem; align-items: flex-end; }
-    .stats-box { max-height: 92vh; padding: 1rem; border-radius: 1.2rem 1.2rem 0.75rem 0.75rem; }
+    #stats-modal {
+      align-items: flex-end;
+      padding:
+        max(0.45rem, env(safe-area-inset-top))
+        max(0.45rem, env(safe-area-inset-right))
+        max(0.45rem, env(safe-area-inset-bottom))
+        max(0.45rem, env(safe-area-inset-left));
+    }
+    .stats-box { max-height: 100%; padding: 1rem; border-radius: 1.2rem 1.2rem 0.75rem 0.75rem; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .stats-bar-row { grid-template-columns: minmax(5.8rem,1fr) minmax(4rem,1.4fr) auto; gap: 0.45rem; }
   }
@@ -4320,6 +4353,14 @@ function closeHistory() {
 
 let statsReturnFocus = null;
 
+function syncStatsViewport() {
+  const modal = document.getElementById('stats-modal');
+  if (!modal || modal.style.display !== 'flex') return;
+  const viewport = window.visualViewport;
+  modal.style.setProperty('--stats-viewport-top', `${Math.max(0, viewport?.offsetTop || 0)}px`);
+  modal.style.setProperty('--stats-viewport-height', `${Math.max(1, viewport?.height || window.innerHeight)}px`);
+}
+
 function statsText(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -4401,13 +4442,21 @@ function showStats() {
   document.getElementById('account-trigger').setAttribute('aria-expanded', 'false');
   renderStats();
   modal.style.display = 'flex';
-  requestAnimationFrame(() => document.getElementById('stats-close').focus());
+  syncStatsViewport();
+  requestAnimationFrame(() => {
+    syncStatsViewport();
+    document.getElementById('stats-close').focus();
+  });
 }
 
 function closeStats() {
   document.getElementById('stats-modal').style.display = 'none';
   statsReturnFocus?.focus?.();
 }
+
+window.visualViewport?.addEventListener('resize', syncStatsViewport);
+window.visualViewport?.addEventListener('scroll', syncStatsViewport);
+window.addEventListener('resize', syncStatsViewport);
 
 // ══════════════════════════════════════════════
 //  BUILD WORKOUTS
