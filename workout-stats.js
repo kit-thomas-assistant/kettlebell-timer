@@ -50,7 +50,8 @@
         // A per-side target describes the target for one side. Alternating
         // targets already describe the total and must not be doubled.
         const reps = repsPerSet * (step.laterality === 'per-side' ? 2 : 1);
-        const weightKg = Number.isFinite(Number(step.weightKg)) ? Number(step.weightKg) : null;
+        const hasRecordedWeight = step.weightKg !== null && step.weightKg !== undefined && step.weightKg !== '';
+        const weightKg = hasRecordedWeight && Number.isFinite(Number(step.weightKg)) ? Number(step.weightKg) : null;
         const bellCount = Math.max(0, Math.floor(finite(step.bellCount)));
         const workSeconds = Math.max(0, finite(step.duration));
         const volumeKg = reps > 0 && weightKg !== null && bellCount > 0
@@ -102,7 +103,10 @@
       current.estimatedReps += Math.max(0, finite(detail.estimatedReps));
       current.workSeconds += Math.max(0, finite(detail.workSeconds));
       current.volumeKg += Math.max(0, finite(detail.volumeKg));
-      if (current.weightKg === null && Number.isFinite(Number(detail.weightKg))) current.weightKg = Number(detail.weightKg);
+      const hasRecordedWeight = detail.weightKg !== null && detail.weightKg !== undefined && detail.weightKg !== '';
+      if (current.weightKg === null && hasRecordedWeight && Number.isFinite(Number(detail.weightKg))) {
+        current.weightKg = Number(detail.weightKg);
+      }
       current.bellCount = Math.max(current.bellCount, Math.max(0, finite(detail.bellCount)));
       grouped.set(key, current);
     }
@@ -156,7 +160,8 @@
       exerciseExposures += sessionNames.size;
       for (const [key, name] of sessionNames) {
         const item = exercises.get(key) || {
-          key, name, sessions: 0, occurrences: 0, estimatedReps: 0, volumeKg: 0,
+          key, name, sessions: 0, occurrences: 0, estimatedReps: 0,
+          weightKg: null, bellCount: 0, volumeKg: 0,
         };
         item.sessions += 1;
         exercises.set(key, item);
@@ -170,12 +175,18 @@
           const key = exerciseKey(name || detail.key);
           if (!key) continue;
           const item = exercises.get(key) || {
-            key, name, sessions: 0, occurrences: 0, estimatedReps: 0, volumeKg: 0,
+            key, name, sessions: 0, occurrences: 0, estimatedReps: 0,
+            weightKg: null, bellCount: 0, volumeKg: 0,
           };
           const detailReps = Math.max(0, finite(detail.estimatedReps));
           const detailVolume = Math.max(0, finite(detail.volumeKg));
           item.occurrences += Math.max(0, finite(detail.occurrences ?? detail.sets));
           item.estimatedReps += detailReps;
+          const hasRecordedWeight = detail.weightKg !== null && detail.weightKg !== undefined && detail.weightKg !== '';
+          if (item.weightKg === null && hasRecordedWeight && Number.isFinite(Number(detail.weightKg))) {
+            item.weightKg = Number(detail.weightKg);
+          }
+          item.bellCount = Math.max(item.bellCount, Math.max(0, finite(detail.bellCount)));
           item.volumeKg += detailVolume;
           exercises.set(key, item);
           estimatedReps += detailReps;

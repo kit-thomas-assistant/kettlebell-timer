@@ -93,6 +93,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: inherit;
+    font: inherit;
   }
   .featured-card:hover { background: rgba(255,107,53,0.15); border-color: var(--accent); }
   .featured-card.active {
@@ -115,9 +117,28 @@
       linear-gradient(135deg, rgba(255,107,53,0.16), rgba(255,107,53,0.035)),
       var(--surface);
   }
+  .featured-card[data-mode="bodyweight"] {
+    grid-column: 1 / -1;
+    min-height: 112px;
+    background:
+      linear-gradient(135deg, rgba(78,205,196,0.14), rgba(78,205,196,0.025)),
+      var(--surface);
+    border-color: #31504e;
+  }
+  .featured-card[data-mode="bodyweight"] .mode-name { color: var(--rest); }
+  .featured-card[data-mode="bodyweight"] .mode-desc { max-width: 44rem; color: #a8c4c2; }
+  .featured-card[data-mode="bodyweight"]:hover,
+  .featured-card[data-mode="bodyweight"].active {
+    border-color: var(--rest);
+    background:
+      linear-gradient(135deg, rgba(78,205,196,0.2), rgba(78,205,196,0.05)),
+      var(--surface);
+    box-shadow: 0 0 20px rgba(78,205,196,0.12);
+  }
   @media (max-width: 650px) {
     .featured-grid { grid-template-columns: 1fr; }
     .featured-card { min-height: 128px; padding: 1rem; }
+    .featured-card[data-mode="bodyweight"] { grid-column: auto; min-height: 128px; }
   }
 
   .other-modes-label {
@@ -1708,6 +1729,30 @@
     15%, 70% { opacity: 1; transform: scale(1); }
     100% { opacity: 0; transform: scale(1.04); }
   }
+  @keyframes bw-squat {
+    0%, 100% { transform: translateY(0); }
+    45%, 60% { transform: translateY(14px); }
+  }
+  @keyframes bw-lunge {
+    0%, 100% { transform: translate(0, 0); }
+    45%, 60% { transform: translate(-7px, 11px); }
+  }
+  @keyframes bw-pushup {
+    0%, 100% { transform: translateY(-7px); }
+    45%, 60% { transform: translateY(5px); }
+  }
+  @keyframes bw-bridge {
+    0%, 100% { transform: translateY(8px) rotate(4deg); }
+    45%, 60% { transform: translateY(-5px) rotate(-5deg); }
+  }
+  @keyframes bw-bird-dog {
+    0%, 100% { transform: rotate(0deg); }
+    45%, 60% { transform: rotate(-7deg); }
+  }
+  @keyframes bw-snow-angel {
+    0%, 100% { transform: rotate(18deg); }
+    45%, 60% { transform: rotate(-35deg); }
+  }
 
 </style>
 </head>
@@ -1776,6 +1821,11 @@
         <div class="mode-desc">Intervalles kettlebell · force full-body · core</div>
         <div class="mode-note">La graisse abdominale ne se cible pas localement. Ce plan agit sur la dépense globale, la force et le tour de taille.</div>
       </div>
+      <button class="featured-card" data-mode="bodyweight" type="button" aria-pressed="false">
+        <div class="mode-icon">🎒</div>
+        <div class="mode-name">Sans kettlebell</div>
+        <div class="mode-desc">Programme voyage full-body · zéro matériel · 3 séances complémentaires</div>
+      </button>
     </div>
   </div>
   <div class="option-group">
@@ -2041,6 +2091,17 @@ const STRINGS = {
     fatlossDesc: 'Intervalles kettlebell · force full-body · core',
     fatlossNote: 'La graisse abdominale ne se cible pas localement. Ce plan agit sur la dépense globale, la force et le tour de taille.',
     fatlossPreview: (min, level) => `${min} min · ${level} · préparation progressive + intervalles + force + core · blocs actifs RPE 7–8`,
+    bodyweightName: 'Sans kettlebell',
+    bodyweightDesc: 'Programme voyage full-body · zéro matériel · 3 séances complémentaires',
+    bodyweightPreview: (min, level) => `${min} min · ${level} · programme voyage full-body · zéro matériel · effort contrôlé RPE 6–8`,
+    bodyweightEquipment: 'Sans kettlebell',
+    yourBodyweightPlan: 'Ton programme voyage',
+    bodyweightScience: 'Travaille proprement à RPE 6–8. Régresse ou arrête en cas de douleur ou de perte de forme. Les W au sol et anges inversés entretiennent les épaules, mais ne remplacent pas des rows chargés.',
+    bodyweightSubtitle: (min, work, rest) => `${min} min environ · ${work}s travail / ${rest}s repos · zéro matériel`,
+    bodyweightLane: (number, name) => `Voyage ${number}/3 · ${name}`,
+    bodyweightLaneBase: 'Base full-body',
+    bodyweightLaneUnilateral: 'Unilatéral & stabilité',
+    bodyweightLaneConditioning: 'Conditioning & tronc',
     viewPlan: 'Voir le plan →',
     otherModes: 'Autres formats',
     emomDesc: 'Chaque minute',
@@ -2234,6 +2295,17 @@ const STRINGS = {
     fatlossDesc: 'Kettlebell intervals · full-body strength · core',
     fatlossNote: 'Abdominal fat cannot be spot-reduced. This plan targets total energy expenditure, strength and waist outcomes.',
     fatlossPreview: (min, level) => `${min} min · ${level} · progressive prep + intervals + strength + core · active blocks RPE 7–8`,
+    bodyweightName: 'No kettlebell',
+    bodyweightDesc: 'Full-body travel program · no equipment · 3 complementary sessions',
+    bodyweightPreview: (min, level) => `${min} min · ${level} · full-body travel program · no equipment · controlled effort at RPE 6–8`,
+    bodyweightEquipment: 'No kettlebell',
+    yourBodyweightPlan: 'Your travel program',
+    bodyweightScience: 'Move with clean form at RPE 6–8. Regress or stop for pain or form loss. Prone W raises and reverse snow angels train shoulder control, but they do not replace loaded rows.',
+    bodyweightSubtitle: (min, work, rest) => `About ${min} min · ${work}s work / ${rest}s rest · no equipment`,
+    bodyweightLane: (number, name) => `Travel ${number}/3 · ${name}`,
+    bodyweightLaneBase: 'Full-body base',
+    bodyweightLaneUnilateral: 'Unilateral & stability',
+    bodyweightLaneConditioning: 'Conditioning & trunk',
     viewPlan: 'View plan →',
     otherModes: 'Other formats',
     emomDesc: 'Every minute',
@@ -2452,6 +2524,15 @@ const EX_NAME_EN = {
   'Extension triceps au-dessus de la tête': 'Two-Hand Overhead Triceps Extension',
   'Toe Taps': 'Toe Taps Around the Bell',
   'Clean + Thruster par côté': 'Clean + Thruster per side',
+  'Squat au poids du corps': 'Air Squat',
+  'Squat tempo': 'Tempo Squat',
+  'Fente arrière alternée': 'Alternating Reverse Lunge',
+  'Pont fessier': 'Glute Bridge',
+  'Pont fessier une jambe': 'Single-Leg Glute Bridge',
+  'Bird Dog': 'Bird Dog',
+  'Planche latérale': 'Side Plank',
+  'W au sol': 'Prone W Raise',
+  'Ange inversé': 'Reverse Snow Angel',
 };
 
 // Exercise steps in English (keyed by French exercise name)
@@ -2527,6 +2608,15 @@ const EX_STEPS_EN = {
   'Extension triceps au-dessus de la tête': ['Use a light bell and hold the horns securely with both hands', 'Brace the trunk and point elbows forward', 'Lower the bell behind the head without flaring the ribs', 'Extend the elbows and stop before the grip becomes unstable'],
   'Toe Taps': ['Use the kettlebell only as a floor marker', 'Stay light on the feet with a soft knee bend', 'Alternate tapping beside or on the safe base of the bell', 'Slow down before accuracy or posture breaks'],
   'Clean + Thruster par côté': ['Clean the bell smoothly into the rack', 'Sink into a stable front squat', 'Drive through the floor into an overhead press', 'Return to rack with control and switch sides at midpoint'],
+  'Squat au poids du corps': ['Feet about shoulder-width, toes slightly out', 'Sit the hips down between the feet', 'Keep knees tracking over toes and the torso long', 'Stand smoothly; stop before form breaks'],
+  'Squat tempo': ['Feet stable and ribs stacked over the pelvis', 'Lower for three controlled seconds', 'Pause briefly at a comfortable depth', 'Stand without bouncing or rushing'],
+  'Fente arrière alternée': ['Stand tall with feet under the hips', 'Step one foot back and lower under control', 'Keep the front knee tracking over the foot', 'Drive through the front foot, return and alternate'],
+  'Pont fessier': ['Lie down with knees bent and feet planted', 'Gently brace the trunk and tuck the pelvis', 'Drive through the feet and squeeze the glutes', 'Lower with control without over-arching the back'],
+  'Pont fessier une jambe': ['Lie down with one foot planted near the hip', 'Keep the other thigh aligned and the pelvis level', 'Drive through the planted foot and squeeze the glute', 'Lower slowly and switch sides at midpoint'],
+  'Bird Dog': ['Start on all fours with hands below shoulders', 'Brace gently without rounding the back', 'Reach the opposite arm and leg long', 'Pause, return with control and alternate'],
+  'Planche latérale': ['Place the elbow directly below the shoulder', 'Use bent knees for support or straighten the legs', 'Lift the hips while keeping the torso aligned', 'Breathe steadily and switch sides at midpoint'],
+  'W au sol': ['Lie face down with elbows bent into a W', 'Keep the forehead low and the neck long', 'Lift the hands and elbows slightly, squeezing the shoulder blades', 'Lower slowly; this is shoulder control, not a loaded row'],
+  'Ange inversé': ['Lie face down with arms near the hips', 'Keep the ribs down and neck relaxed', 'Sweep the arms wide toward overhead without shrugging', 'Return slowly; this does not replace loaded rowing'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -2721,6 +2811,8 @@ function applyLangToUI() {
   document.querySelector('[data-mode="fatloss"] .mode-name').textContent = t('fatlossName');
   document.querySelector('[data-mode="fatloss"] .mode-desc').textContent = t('fatlossDesc');
   document.querySelector('[data-mode="fatloss"] .mode-note').textContent = t('fatlossNote');
+  document.querySelector('[data-mode="bodyweight"] .mode-name').textContent = t('bodyweightName');
+  document.querySelector('[data-mode="bodyweight"] .mode-desc').textContent = t('bodyweightDesc');
   document.querySelector('.other-modes-label').textContent = t('otherModes');
   document.querySelector('[data-mode="emom"] .mode-desc').textContent = t('emomDesc');
   document.querySelector('[data-mode="complex"] .mode-desc').textContent = t('complexDesc');
@@ -3276,6 +3368,87 @@ for (const exercise of BODYWEIGHT_CORE_EXERCISES) {
   YOUTUBE_DEMOS[exercise.name] = exercise.demo;
 }
 
+// A deliberately small travel pool. These movements need only floor space or
+// a stable wall/support for the beginner push-up regression. Shoulder-control
+// drills are labelled honestly and are never presented as a replacement for a
+// loaded horizontal pull.
+const BODYWEIGHT_TRAVEL_EXERCISES = [
+  {
+    name: 'Squat au poids du corps', level: 'beginner', group: 'lower', family: 'air-squat', pattern: 'squat', laterality: 'bilateral',
+    detail: '10–15 reps propres', reps: 12,
+    svg: `<svg viewBox="0 0 120 90" role="img"><g style="animation:bw-squat 2.4s ease-in-out infinite;transform-origin:60px 72px"><circle cx="60" cy="15" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="60" y1="23" x2="60" y2="51" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="32" x2="43" y2="44" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="60" y1="32" x2="77" y2="44" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="60" y1="51" x2="43" y2="77" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="51" x2="77" y2="77" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="36" y1="78" x2="48" y2="78" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="72" y1="78" x2="84" y2="78" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Pieds largeur épaules, pointes légèrement ouvertes','Assieds les hanches entre les pieds','Genoux dans l’axe des orteils, buste long','Remonte sans précipiter; arrête avant de perdre la forme'],
+    demo: { query: 'air squat bodyweight squat proper form tutorial' },
+  },
+  {
+    name: 'Squat tempo', level: 'inter', group: 'lower', family: 'air-squat', pattern: 'squat', laterality: 'bilateral',
+    detail: '3s descente · pause · remonte', reps: 8, visualFrom: 'Squat au poids du corps',
+    steps: ['Pieds stables, côtes au-dessus du bassin','Descends en trois secondes contrôlées','Marque une courte pause à une profondeur confortable','Remonte sans rebond ni précipitation'],
+    demo: { query: 'tempo bodyweight squat proper form tutorial' },
+  },
+  {
+    name: 'Fente arrière alternée', level: 'beginner', group: 'lower', family: 'reverse-lunge', pattern: 'lunge', laterality: 'alternating',
+    detail: '8–12 alternées', reps: 10,
+    svg: `<svg viewBox="0 0 120 90" role="img"><g style="animation:bw-lunge 2.4s ease-in-out infinite;transform-origin:60px 78px"><circle cx="58" cy="14" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="58" y1="22" x2="58" y2="51" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="32" x2="43" y2="45" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="58" y1="32" x2="73" y2="45" stroke="${B}" stroke-width="3" stroke-linecap="round"/><polyline points="58,51 78,61 91,79" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="58,51 43,67 24,78" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><line x1="18" y1="79" x2="30" y2="79" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="87" y1="80" x2="99" y2="80" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Debout, pieds sous les hanches','Recule un pied et descends avec contrôle','Genou avant dans l’axe du pied','Pousse le sol, reviens debout puis alterne'],
+    demo: { query: 'alternating reverse lunge bodyweight proper form tutorial' },
+  },
+  {
+    name: 'Pont fessier', level: 'beginner', group: 'lower', family: 'glute-bridge', pattern: 'hip-extension', laterality: 'bilateral',
+    detail: '10–15 reps contrôlées', reps: 12,
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="12" y1="73" x2="111" y2="73" stroke="${K}" stroke-width="2" opacity=".45"/><g style="animation:bw-bridge 2.2s ease-in-out infinite;transform-origin:74px 66px"><circle cx="25" cy="57" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="33" y1="59" x2="72" y2="52" stroke="${B}" stroke-width="4" stroke-linecap="round"/><polyline points="72,52 91,60 101,72" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><line x1="47" y1="57" x2="38" y2="72" stroke="${B}" stroke-width="3" stroke-linecap="round"/></g></svg>`,
+    steps: ['Allongé, genoux pliés et pieds ancrés','Gaine légèrement et bascule le bassin','Pousse dans les pieds, serre les fessiers','Redescends contrôlé sans creuser le dos'],
+    demo: { query: 'glute bridge proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Pont fessier une jambe', level: 'inter', group: 'lower', family: 'glute-bridge', pattern: 'hip-extension', laterality: 'per-side',
+    detail: '6–10 par côté', reps: 8, visualFrom: 'Pont fessier',
+    steps: ['Allongé, un pied ancré près de la hanche','Garde l’autre cuisse alignée et le bassin horizontal','Pousse dans le pied au sol et serre le fessier','Redescends lentement puis change à mi-temps'],
+    demo: { query: 'single leg glute bridge proper form tutorial' },
+  },
+  {
+    name: 'Bird Dog', level: 'beginner', group: 'core', family: 'bird-dog', pattern: 'stability', laterality: 'alternating',
+    detail: '6–10 alternés', reps: 8,
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="13" y1="74" x2="109" y2="74" stroke="${K}" stroke-width="2" opacity=".45"/><g style="animation:bw-bird-dog 2.5s ease-in-out infinite;transform-origin:62px 51px"><circle cx="37" cy="37" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="45" y1="42" x2="76" y2="51" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="51" y1="44" x2="22" y2="28" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="48" x2="49" y2="73" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="75" y1="51" x2="105" y2="38" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="75" y1="51" x2="82" y2="73" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['À quatre pattes, mains sous les épaules','Gaine sans arrondir le dos','Allonge bras et jambe opposés','Marque une pause, reviens contrôlé puis alterne'],
+    demo: { query: 'bird dog exercise proper form tutorial physical therapist' },
+  },
+  {
+    name: 'Planche latérale', level: 'beginner', group: 'core', family: 'side-plank', pattern: 'stability', laterality: 'per-side',
+    detail: '20–30 secondes par côté', reps: 0,
+    svg: `<svg viewBox="0 0 120 90" role="img"><g style="animation:bw-bridge 2.8s ease-in-out infinite;transform-origin:64px 60px"><circle cx="25" cy="31" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="33" y1="36" x2="78" y2="51" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="78" y1="51" x2="108" y2="61" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="44" y1="40" x2="33" y2="63" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="33" y1="63" x2="17" y2="63" stroke="${K}" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="41" x2="47" y2="17" stroke="${B}" stroke-width="3" stroke-linecap="round"/></g></svg>`,
+    steps: ['Coude directement sous l’épaule','Genoux pliés en régression ou jambes tendues','Monte le bassin en gardant le buste aligné','Respire puis change de côté à mi-temps'],
+    demo: { query: 'side plank regression proper form tutorial' },
+  },
+  {
+    name: 'W au sol', level: 'beginner', group: 'upper', family: 'prone-w', pattern: 'posterior-shoulder', laterality: 'bilateral',
+    detail: '8–12 reps lentes', reps: 10,
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="12" y1="70" x2="109" y2="70" stroke="${K}" stroke-width="2" opacity=".45"/><circle cx="26" cy="55" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="34" y1="56" x2="77" y2="59" stroke="${B}" stroke-width="4" stroke-linecap="round"/><g style="animation:bw-snow-angel 2.4s ease-in-out infinite;transform-origin:51px 58px"><polyline points="50,58 42,43 29,47" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="55,58 64,43 77,47" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><line x1="77" y1="59" x2="103" y2="67" stroke="${B}" stroke-width="4" stroke-linecap="round"/></svg>`,
+    steps: ['Allongé ventre, coudes pliés en W','Front bas, nuque longue','Décolle légèrement mains et coudes en serrant les omoplates','Redescends lentement; ce contrôle ne remplace pas un row chargé'],
+    demo: { query: 'prone W raise exercise proper form tutorial' },
+  },
+  {
+    name: 'Ange inversé', level: 'inter', group: 'upper', family: 'reverse-snow-angel', pattern: 'posterior-shoulder', laterality: 'bilateral',
+    detail: '6–10 reps lentes', reps: 8,
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="11" y1="70" x2="110" y2="70" stroke="${K}" stroke-width="2" opacity=".45"/><circle cx="26" cy="54" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="34" y1="56" x2="78" y2="59" stroke="${B}" stroke-width="4" stroke-linecap="round"/><g style="animation:bw-snow-angel 2.8s ease-in-out infinite;transform-origin:57px 58px"><line x1="52" y1="58" x2="27" y2="42" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="57" y1="58" x2="85" y2="43" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g><line x1="78" y1="59" x2="104" y2="67" stroke="${B}" stroke-width="4" stroke-linecap="round"/></svg>`,
+    steps: ['Allongé ventre, bras près des hanches','Côtes au sol et nuque relâchée','Balaye les bras vers le haut sans hausser les épaules','Reviens lentement; ce mouvement ne remplace pas un row chargé'],
+    demo: { query: 'reverse snow angel exercise proper form tutorial' },
+  },
+];
+
+for (const exercise of BODYWEIGHT_TRAVEL_EXERCISES) {
+  const sourceVisual = exercise.visualFrom && EX_DATA[exercise.visualFrom];
+  EX_DATA[exercise.name] = {
+    svg: exercise.svg || sourceVisual.svg,
+    steps: exercise.steps,
+    meta: {
+      equipment: 'Sans kettlebell', difficulty: exercise.level,
+      family: exercise.family, pattern: exercise.pattern, laterality: exercise.laterality,
+    },
+  };
+  YOUTUBE_DEMOS[exercise.name] = exercise.demo;
+}
+
 function getYouTubeDemo(name) {
   const demo = YOUTUBE_DEMOS[name];
   if (!demo) return null;
@@ -3314,9 +3487,10 @@ function updateExerciseMeta(visual, step) {
     const fallbackText = currentLang === 'en'
       ? rawEquipment.replace('1 kettlebell légère', '1 light kettlebell').replace('2 kettlebells', '2 kettlebells').replace('Sans kettlebell', 'No kettlebell')
       : rawEquipment;
+    const isBodyweightExercise = step?.name && exerciseMeta(step.name).bellCount === 0;
     equipment.textContent = load
       ? `🏋️ ${load} · ${t('loadSuggested')}`
-      : `🏋️ ${fallbackText}`;
+      : `${isBodyweightExercise ? '○' : '🏋️'} ${fallbackText}`;
     container.append(equipment);
   }
   if (visual.meta?.warning) {
@@ -3408,7 +3582,7 @@ for (const exercise of POOL.beginner.filter(exercise => exercise.group === 'uppe
 }
 
 const EXERCISE_MOVEMENT_META = new Map(
-  MODERN_EXERCISES.map(exercise => [exercise.name, {
+  [...MODERN_EXERCISES, ...BODYWEIGHT_TRAVEL_EXERCISES].map(exercise => [exercise.name, {
     family: exercise.family,
     pattern: exercise.pattern,
     laterality: exercise.laterality,
@@ -3458,6 +3632,7 @@ const DOUBLE_BELL_EXERCISES = new Set([
 const BODYWEIGHT_EXERCISES = new Set(
   [
     ...BODYWEIGHT_CORE_EXERCISES.map(exercise => exercise.name),
+    ...BODYWEIGHT_TRAVEL_EXERCISES.map(exercise => exercise.name),
     ...MODERN_EXERCISES.filter(exercise => exercise.equipment === 'Sans kettlebell').map(exercise => exercise.name),
   ]
 );
@@ -3488,7 +3663,8 @@ const PER_SIDE_EXERCISES = new Set([
   'Half Get-Up Press', 'Suitcase Row', 'Seated Strict Press'
 ]);
 const ALTERNATING_EXERCISES = new Set([
-  'Figure 8', 'Tactical Lunge', 'Gorilla Row', 'Renegade Row', 'Push-up + kettlebell drag'
+  'Figure 8', 'Tactical Lunge', 'Gorilla Row', 'Renegade Row', 'Push-up + kettlebell drag',
+  'Mountain Climber', 'Bear Plank Shoulder Tap'
 ]);
 
 function exerciseMeta(name) {
@@ -3620,11 +3796,13 @@ const ARMS_FINISHER = {
 const MODE_NAMES = {
   circuit: 'Circuit', emom: 'EMOM', tabata: 'Tabata',
   complex: 'Complex', ladder: 'Ladder', ss: 'Simple & Sinister',
-  fatloss: 'Objectif perte de graisse', amrap: 'AMRAP', guided: 'Minimal 3 guidé'
+  fatloss: 'Objectif perte de graisse', bodyweight: 'Sans kettlebell',
+  amrap: 'AMRAP', guided: 'Minimal 3 guidé'
 };
 
 const MODE_DURATIONS = {
   circuit: [10, 15, 20],
+  bodyweight: [10, 15, 20],
   fatloss: [15, 20, 25],
   emom: [8, 10, 12, 16],
   tabata: [4, 8, 12],
@@ -3640,6 +3818,39 @@ const CIRCUIT_CFG = {
   15: { beginner: { exCount: 5, rounds: 3, work: 30, rest: 15 }, inter: { exCount: 5, rounds: 3, work: 35, rest: 12 } },
   20: { beginner: { exCount: 5, rounds: 4, work: 30, rest: 15 }, inter: { exCount: 6, rounds: 3, work: 35, rest: 12 } },
 };
+
+const BODYWEIGHT_CFG = {
+  10: {
+    beginner: { rounds: 2, work: 35, rest: 15, rpe: '6–7' },
+    inter: { rounds: 2, work: 38, rest: 12, rpe: '7–8' },
+  },
+  15: {
+    beginner: { rounds: 2, work: 45, rest: 30, rpe: '6–7' },
+    inter: { rounds: 2, work: 45, rest: 28, rpe: '7–8' },
+  },
+  20: {
+    beginner: { rounds: 3, work: 45, rest: 20, rpe: '6–7' },
+    inter: { rounds: 3, work: 45, rest: 18, rpe: '7–8' },
+  },
+};
+
+const BODYWEIGHT_LANES = [
+  {
+    id: 'bodyweight-base', number: 1, nameKey: 'bodyweightLaneBase',
+    beginner: ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'W au sol', 'Dead Bug'],
+    inter: ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Ange inversé', 'Dead Bug'],
+  },
+  {
+    id: 'bodyweight-unilateral', number: 2, nameKey: 'bodyweightLaneUnilateral',
+    beginner: ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'Planche latérale', 'W au sol'],
+    inter: ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Planche latérale', 'Ange inversé'],
+  },
+  {
+    id: 'bodyweight-conditioning', number: 3, nameKey: 'bodyweightLaneConditioning',
+    beginner: ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Mountain Climber', 'Bear Plank Shoulder Tap', 'W au sol'],
+    inter: ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Mountain Climber', 'Bear Plank Shoulder Tap', 'Ange inversé'],
+  },
+];
 
 const FATLOSS_CFG = {
   15: { warmupCount: 3, metabolicCount: 2, metabolicRounds: 3, strengthCount: 2, strengthRounds: 2, coreCount: 2, coreRounds: 2, work: 35, rest: 20, strengthWork: 35, strengthRest: 25, coreWork: 30 },
@@ -3675,8 +3886,30 @@ function isSessionInWeek(session, now = new Date()) {
 }
 
 function weeklyLaneForHistory(history = readHistory(), now = new Date()) {
-  const completedThisWeek = history.filter(session => isSessionInWeek(session, now)).length;
+  const completedThisWeek = history.filter(session => session?.modeId !== 'bodyweight' && isSessionInWeek(session, now)).length;
   return WEEKLY_LANES[completedThisWeek % WEEKLY_LANES.length];
+}
+
+function bodyweightLaneForHistory(history = readHistory()) {
+  const completedBodyweightSessions = history.filter(session => session?.modeId === 'bodyweight').length;
+  return BODYWEIGHT_LANES[completedBodyweightSessions % BODYWEIGHT_LANES.length];
+}
+
+function bodyweightLaneLabel(lane) {
+  return t('bodyweightLane')(lane.number, t(lane.nameKey));
+}
+
+function bodyweightExercise(name) {
+  const source = [...BODYWEIGHT_TRAVEL_EXERCISES, ...BODYWEIGHT_CORE_EXERCISES, ...MODERN_EXERCISES]
+    .find(exercise => exercise.name === name);
+  const isCoreExercise = BODYWEIGHT_CORE_EXERCISES.some(exercise => exercise.name === name);
+  return enrichExercise({
+    name,
+    detail: source?.detail || 'contrôle continu',
+    reps: source?.reps || 0,
+    group: source?.group || (isCoreExercise || exercisePattern(name) === 'stability' ? 'core' : 'full'),
+    laterality: source?.laterality || exerciseMeta(name).laterality,
+  });
 }
 
 function laneLabel(lane) {
@@ -3685,6 +3918,7 @@ function laneLabel(lane) {
 
 function modeName(mode) {
   if (mode === 'fatloss') return t('fatlossName');
+  if (mode === 'bodyweight') return t('bodyweightName');
   if (mode === 'amrap') return t('amrapName');
   if (mode === 'guided') return t('minimal3Name');
   return MODE_NAMES[mode] || mode;
@@ -3701,6 +3935,8 @@ let wakeLock = null;
 let sessionExercises = [];
 let fatlossPlan = null;
 let activeWeeklyLane = null;
+let bodyweightPlan = null;
+let activeBodyweightLane = null;
 let fatlossGenerationNonce = 0;
 let selectedRecipe = null;
 let circuitPreviewFresh = true;
@@ -3762,6 +3998,7 @@ function renderEquipmentSelector() {
 }
 
 function cycleEquipment(weight) {
+  const hadAnyBell = selectedWeights().length > 0;
   equipmentInventory[weight] = ((equipmentInventory[weight] || 0) + 1) % 3;
   saveEquipmentInventory();
   fatlossPlan = null;
@@ -3769,7 +4006,20 @@ function cycleEquipment(weight) {
   circuitPreviewFresh = true;
   lighterWeights = false;
   renderEquipmentSelector();
-  updatePreview();
+  const hasAnyBell = selectedWeights().length > 0;
+  if (!hasAnyBell) {
+    selectMode('bodyweight');
+  } else if (!hadAnyBell || selectedMode === 'bodyweight') {
+    selectMode('circuit');
+  } else {
+    updatePreview();
+  }
+}
+
+function clearEquipmentForBodyweight() {
+  equipmentInventory = Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => [weight, 0]));
+  saveEquipmentInventory();
+  renderEquipmentSelector();
 }
 
 // ══════════════════════════════════════════════
@@ -4248,7 +4498,10 @@ function saveSession(mode, duration, exercises, metadata = {}) {
       updatedAt: now,
       mode: modeName(mode),
       modeId: mode,
-      weeklyLaneId: activeWeeklyLane?.id || weeklyLaneForHistory(hist).id,
+      weeklyLaneId: mode === 'bodyweight' ? null : (activeWeeklyLane?.id || weeklyLaneForHistory(hist).id),
+      bodyweightLaneId: mode === 'bodyweight'
+        ? (activeBodyweightLane || bodyweightLaneForHistory(hist)).id
+        : null,
       duration,
       exercises: [...new Set(exercises)],
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
@@ -4312,9 +4565,15 @@ function showHistory() {
         const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
         const dateStr = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const exDisplay = (s.exercises || []).map(e => exName(e)).join(', ');
-        const equipmentDisplay = s.equipment
+        const equipmentDisplay = s.modeId === 'bodyweight'
+          ? t('bodyweightEquipment')
+          : s.equipment
           ? Object.entries(s.equipment).map(([weight, count]) => `${weight} kg ×${count}`).join(' · ')
           : '';
+        const bodyweightLane = s.bodyweightLaneId
+          ? BODYWEIGHT_LANES.find(lane => lane.id === s.bodyweightLaneId)
+          : null;
+        const bodyweightLaneDisplay = bodyweightLane ? bodyweightLaneLabel(bodyweightLane) : '';
         const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe')
           : s.recipeId === GUIDED_RECIPES.minimal3.id ? t('minimal3Name')
             : s.recipeId === AMRAP_PRESETS.fullBodyDensity.id ? t('amrapName') : '';
@@ -4333,7 +4592,7 @@ function showHistory() {
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
           ${finisherDisplay}
-          <div class="history-detail">${[recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
+          <div class="history-detail">${[bodyweightLaneDisplay, recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
         </div>`;
       }).join('');
     }
@@ -4487,6 +4746,49 @@ function buildCircuit() {
           type: 'rest',
           duration: isRoundEnd ? c.rest * 2 : c.rest,
           round: r + 1, totalRounds: c.rounds
+        });
+      }
+    }
+  }
+  totalSteps = circuit.length;
+  currentStep = 0;
+}
+
+function createBodyweightPlan(lane = activeBodyweightLane || bodyweightLaneForHistory()) {
+  activeBodyweightLane = lane;
+  bodyweightPlan = lane[selectedLevel].map(bodyweightExercise);
+  return bodyweightPlan;
+}
+
+function buildBodyweight() {
+  const cfg = BODYWEIGHT_CFG[selectedMin][selectedLevel];
+  const plan = bodyweightPlan || createBodyweightPlan();
+  circuit = [];
+  sessionExercises = plan.map(exercise => exercise.name);
+  const totalWorkSteps = plan.length * cfg.rounds;
+  let workStep = 0;
+
+  for (let round = 1; round <= cfg.rounds; round++) {
+    for (const exercise of plan) {
+      workStep++;
+      circuit.push({
+        ...exercise,
+        type: 'work',
+        duration: cfg.work,
+        round,
+        totalRounds: cfg.rounds,
+        modeLabel: `${bodyweightLaneLabel(activeBodyweightLane)} · ${round}/${cfg.rounds}`,
+        detail: `${cfg.work}s · RPE ${cfg.rpe}`,
+      });
+      if (workStep < totalWorkSteps) {
+        circuit.push({
+          name: round < cfg.rounds && workStep % plan.length === 0 ? '🧘 Repos long' : '😤 Repos',
+          detail: 'Respire',
+          type: 'rest',
+          duration: cfg.rest,
+          round,
+          totalRounds: cfg.rounds,
+          modeLabel: t('bodyweightName').toUpperCase(),
         });
       }
     }
@@ -4878,6 +5180,7 @@ function buildWorkout() {
   finisherCompleted = false;
   switch (selectedMode) {
     case 'circuit': buildCircuit(); break;
+    case 'bodyweight': buildBodyweight(); break;
     case 'fatloss': buildFatloss(); break;
     case 'emom': buildEMOM(); break;
     case 'tabata': buildTabata(); break;
@@ -5170,15 +5473,24 @@ document.getElementById('seq-stop').addEventListener('click', () => {
 // ══════════════════════════════════════════════
 // Mode selection (featured + other cards)
 function selectMode(mode) {
+  if (mode === 'bodyweight' && selectedWeights().length) clearEquipmentForBodyweight();
   selectedMode = mode;
   selectedGuidedRecipe = mode === 'amrap' ? AMRAP_PRESETS.fullBodyDensity : null;
   fatlossPlan = null;
+  bodyweightPlan = null;
+  if (mode === 'bodyweight') activeWeeklyLane = null;
+  else activeBodyweightLane = null;
   selectedRecipe = null;
   circuitPreviewFresh = true;
   lighterWeights = false;
-  document.querySelectorAll('.mode-card, .featured-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.mode-card, .featured-card').forEach(c => {
+    c.classList.remove('active');
+    if (c.matches('button')) c.setAttribute('aria-pressed', 'false');
+  });
   document.querySelectorAll('.guided-recipe').forEach(c => c.classList.remove('active'));
-  document.querySelector(`[data-mode="${mode}"]`)?.classList.add('active');
+  const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
+  selectedCard?.classList.add('active');
+  if (selectedCard?.matches('button')) selectedCard.setAttribute('aria-pressed', 'true');
   document.getElementById('round-rest-group').classList.remove('visible');
   updateDurationOptions();
   updatePreview();
@@ -5241,6 +5553,7 @@ function updateDurationOptions() {
         btn.classList.add('active');
         selectedMin = +btn.dataset.min;
         fatlossPlan = null;
+        bodyweightPlan = null;
         selectedRecipe = null;
         circuitPreviewFresh = true;
         lighterWeights = false;
@@ -5258,6 +5571,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.classList.add('active');
     selectedLevel = btn.dataset.level;
     fatlossPlan = null;
+    bodyweightPlan = null;
     selectedRecipe = null;
     circuitPreviewFresh = true;
     lighterWeights = false;
@@ -5269,8 +5583,9 @@ function updatePreview() {
   const el = document.getElementById('preview-text');
   const goButton = document.getElementById('go-btn');
   const hasBell = selectedWeights().length > 0;
-  goButton.disabled = !hasBell;
-  if (!hasBell) {
+  const isBodyweight = selectedMode === 'bodyweight';
+  goButton.disabled = !hasBell && !isBodyweight;
+  if (!hasBell && !isBodyweight) {
     el.textContent = t('inventoryEmpty');
     goButton.textContent =
       selectedMode === 'circuit' ? t('viewCircuit') :
@@ -5288,6 +5603,11 @@ function updatePreview() {
     case 'fatloss': {
       const level = selectedLevel === 'beginner' ? t('beginner') : t('intermediate');
       el.textContent = t('fatlossPreview')(selectedMin, level);
+      break;
+    }
+    case 'bodyweight': {
+      const level = selectedLevel === 'beginner' ? t('beginner') : t('intermediate');
+      el.textContent = t('bodyweightPreview')(selectedMin, level);
       break;
     }
     case 'emom': {
@@ -5324,12 +5644,13 @@ function updatePreview() {
   // Adapt go button label
   document.getElementById('go-btn').textContent =
     selectedMode === 'circuit' ? t('viewCircuit') :
-    ['fatloss', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
+    ['fatloss', 'bodyweight', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
     t('letsGo');
 }
 
 // Initialize
-updateDurationOptions();
+if (selectedWeights().length === 0) selectMode('bodyweight');
+else updateDurationOptions();
 applyLangToUI();
 
 // ══════════════════════════════════════════════
@@ -5453,6 +5774,8 @@ document.getElementById('go-btn').addEventListener('click', () => {
     showCircuitPreview();
   } else if (selectedMode === 'fatloss') {
     showFatlossPreview();
+  } else if (selectedMode === 'bodyweight') {
+    showBodyweightPreview();
   } else if (selectedMode === 'amrap' || selectedMode === 'guided') {
     renderSequencePreview();
   } else {
@@ -5483,6 +5806,12 @@ function showFatlossPreview() {
   renderFatlossPreview();
 }
 
+function showBodyweightPreview() {
+  activeBodyweightLane = bodyweightLaneForHistory();
+  createBodyweightPlan(activeBodyweightLane);
+  renderBodyweightPreview();
+}
+
 function regenerateFatloss(animate) {
   generateFatlossPlan();
   renderFatlossPreview();
@@ -5495,8 +5824,43 @@ function regenerateFatloss(animate) {
 
 function renderPlanPreview() {
   if (selectedMode === 'fatloss') renderFatlossPreview();
+  else if (selectedMode === 'bodyweight') renderBodyweightPreview();
   else if (selectedMode === 'amrap' || selectedMode === 'guided') renderSequencePreview();
   else renderCircuitPreview();
+}
+
+function renderBodyweightPreview() {
+  const cfg = BODYWEIGHT_CFG[selectedMin][selectedLevel];
+  const lane = activeBodyweightLane || bodyweightLaneForHistory();
+  const plan = bodyweightPlan || createBodyweightPlan(lane);
+
+  document.querySelector('.cp-title').textContent = t('yourBodyweightPlan');
+  document.getElementById('cp-subtitle').textContent = t('bodyweightSubtitle')(selectedMin, cfg.work, cfg.rest);
+  const laneBadge = document.getElementById('cp-lane-badge');
+  laneBadge.hidden = false;
+  laneBadge.textContent = bodyweightLaneLabel(lane);
+  document.getElementById('cp-science-note').hidden = false;
+  document.getElementById('cp-science-note').textContent = t('bodyweightScience');
+  document.getElementById('cp-coverage').innerHTML = `
+    <span class="cp-tag full check">✓ ${t('full')}</span>
+    <span class="cp-tag core check">✓ ${t('bodyweightEquipment')}</span>`;
+  document.getElementById('cp-list').innerHTML = plan.map((exercise, index) => {
+    const demo = getYouTubeDemo(exercise.name);
+    return `<div class="cp-item">
+      <div class="cp-item-num">${index + 1}</div>
+      <div class="cp-item-info">
+        <div class="cp-item-name">${exName(exercise.name)}</div>
+        <div class="cp-item-detail">${cfg.rounds}× ${cfg.work}s · RPE ${cfg.rpe}</div>
+      </div>
+      <a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(exercise.name))}">${t('demoShort')}</a>
+      <span class="cp-item-tag ${exercise.group}">${groupLabel(exercise.group)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cp-regenerate').style.display = 'none';
+  document.getElementById('cp-regenerate').disabled = false;
+  document.getElementById('cp-lighten').style.display = 'none';
+  document.getElementById('cp-go').disabled = false;
+  showOnly('circuit-preview');
 }
 
 function renderSequencePreview() {
@@ -5688,6 +6052,7 @@ document.getElementById('cp-back').addEventListener('click', () => {
 
 document.getElementById('cp-regenerate').addEventListener('click', () => {
   if (selectedMode === 'fatloss') regenerateFatloss(true);
+  else if (selectedMode === 'bodyweight') return;
   else if (selectedMode === 'amrap' || selectedMode === 'guided') return;
   else regenerateCircuit(true);
 });
@@ -5803,7 +6168,7 @@ function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
     sessionMetadata.statsEstimated = true;
   }
   activeSessionId = saveSession(selectedMode, selectedMin || 25, sessionExercises, sessionMetadata);
-  document.getElementById('finisher-offer').classList.toggle('visible', !finisherCompleted);
+  document.getElementById('finisher-offer').classList.toggle('visible', selectedMode !== 'bodyweight' && !finisherCompleted);
 }
 
 document.getElementById('finisher-rounds').addEventListener('click', event => {

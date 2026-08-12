@@ -11,6 +11,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Configurable workouts** : 10 / 15 / 20 min, beginner or intermediate
 - **Auto-generated circuits** : randomized from a pool of 50+ kettlebell and bodyweight exercises, with movement-family diversity
 - **Equipment-aware plans** : tap 8–24 kg buttons to record zero, one or two matching bells; incompatible two-bell exercises are excluded automatically
+- **No-kettlebell travel mode** : an explicit zero-equipment entry keeps the 10 / 15 / 20-minute and beginner / intermediate controls, then rotates through three deterministic full-body travel sessions based only on completed bodyweight workouts
 - **Conservative load suggestions** : lighter available bells for overhead/technical work, heavier available bells for hinges, squats, rows and carries, with one optional “Use lighter weights” action
 - **Guided 20-minute recipe** : the David Nateli full-body sequence runs inside Circuit mode with automatic transitions, four ordered passes, rep targets as guidance and midpoint side-switch cues
 - **Guided sessions layer** : progressive disclosure keeps fixed recipes separate from random generation. Minimal 3 runs 10 total thrusters (5/side), 12 total rows (6/side), then 15 swings in that exact order, with a 60 / 90 / 120 / 180s round-rest choice and a 3–4 quality-round cue
@@ -37,6 +38,20 @@ The offset push-up is only offered with one hand centred on a kettlebell that ha
 
 ### Bodyweight core
 Forearm Plank · Side Plank (L/R) · Dead Bug · Mountain Climber · Bear Plank Shoulder Tap
+
+### No-kettlebell travel program
+
+The dedicated travel mode is curated rather than randomly assembled. Completed bodyweight sessions rotate through:
+
+1. **Full-body base** : squat, horizontal push, hip extension, trunk control and prone shoulder control;
+2. **Unilateral & stability** : alternating reverse lunge, push-up, glute bridge variation, Bird Dog, Side Plank and prone shoulder control;
+3. **Conditioning & trunk** : squat, push-up, glute bridge variation, Mountain Climber, Bear Plank Shoulder Tap and prone shoulder control.
+
+Beginner plans use incline push-ups on a stable wall or support and bilateral bridges. Intermediate plans use floor push-ups, tempo squats and single-leg bridges. Work stays around RPE 6–8, with explicit prompts to regress or stop for pain or form loss. No jumps, improvised door/towel rows, unstable furniture drills, forced failure or gimmicky burpees are programmed.
+
+The no-equipment limitation is explicit: prone W raises and reverse snow angels can train scapular and posterior-shoulder control, but they do **not** replace loaded rows. Add real horizontal pulling when safe equipment is available.
+
+This product framing follows [ACSM's 2026 resistance-training guidance](https://acsm.org/resistance-training-guidelines-update-2026/), which emphasizes consistency, training all major muscle groups at least twice weekly and the meaningful benefits of bodyweight/home routines, plus the [WHO physical activity fact sheet](https://www.who.int/news-room/fact-sheets/detail/physical-activity), which emphasizes that any activity is better than none and that all movement counts.
 
 ## Fat-loss mode and scientific framing
 
@@ -151,6 +166,12 @@ node tests/auth-ui-diagnostic.mjs
 ```
 
 The Supabase diagnostics cover legacy UUID migration, deterministic merge/no duplicates, richer/latest payload preservation, offline queue/retry, logout preservation, local-first saves, OTP UI states, bilingual copy, graceful cloud failure and schema/RLS assertions.
+
+```bash
+node tests/bodyweight-mode-diagnostic.mjs
+```
+
+The bodyweight diagnostic checks bilingual setup and preview copy, zero-inventory mode transitions, enabled CTA semantics, all durations and levels, deterministic bodyweight-only lane rotation, zero-equipment exercise metadata/SVG/steps/search demos, history and exercise stats without tonnage, accessible touch targets and 320px containment.
 
 ## License
 

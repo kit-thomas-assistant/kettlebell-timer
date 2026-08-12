@@ -30,6 +30,10 @@ assert.equal(doubled[0].volumeKg, 540);
 
 const merged = Stats.mergeExerciseStats(details, doubled);
 assert.equal(merged.find(item => item.name === 'Kettlebell Swing').estimatedReps, 60);
+const mergedBodyweight = merged.find(item => item.name === 'Pompes au sol');
+assert.equal(mergedBodyweight.weightKg, null);
+assert.equal(mergedBodyweight.bellCount, 0);
+assert.equal(mergedBodyweight.volumeKg, 0);
 
 const legacy = {
   date: '2026-08-01T10:00:00.000Z', duration: 15, mode: 'Circuit', modeId: 'circuit',
@@ -50,6 +54,10 @@ assert.equal(summary.estimatedReps, 43);
 assert.equal(summary.totalVolumeKg, 420);
 assert.equal(summary.modeStats.length, 2);
 assert.equal(summary.exerciseStats.find(item => item.name === 'Press').sessions, 1);
+const summarizedBodyweight = summary.exerciseStats.find(item => item.name === 'Pompes au sol');
+assert.equal(summarizedBodyweight.weightKg, null);
+assert.equal(summarizedBodyweight.bellCount, 0);
+assert.equal(summarizedBodyweight.volumeKg, 0);
 
 const legacyOnly = Stats.summarize([legacy]);
 assert.equal(legacyOnly.estimatedReps, null);
