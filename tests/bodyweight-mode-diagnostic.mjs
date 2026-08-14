@@ -148,8 +148,18 @@ try {
     selectBodyweightFocus('balanced');
 
     const allTravelNames = [...new Set([
-      ...BODYWEIGHT_LANES.flatMap(lane => [...lane.beginner, ...lane.inter]),
-      ...BODYWEIGHT_FOCUSES.flatMap(focus => [...(focus.beginner || []), ...(focus.inter || [])]),
+      ...BODYWEIGHT_LANES.flatMap(lane => [
+        ...lane.beginner,
+        ...lane.inter,
+        ...(lane.alternatives?.beginner || []).flat(),
+        ...(lane.alternatives?.inter || []).flat(),
+      ]),
+      ...BODYWEIGHT_FOCUSES.flatMap(focus => [
+        ...(focus.beginner || []),
+        ...(focus.inter || []),
+        ...(focus.alternatives?.beginner || []).flat(),
+        ...(focus.alternatives?.inter || []).flat(),
+      ]),
     ])];
     const zeroEquipmentOnly = allTravelNames.every(name => BODYWEIGHT_EXERCISES.has(name)
       && exerciseMeta(name).bellCount === 0
@@ -167,6 +177,7 @@ try {
     const hardConditioning = new Set(['Mountain Climber', 'Bear Plank Shoulder Tap']);
     let programsAreSensible = true;
     let focusPlansRespectIntent = true;
+    let allFocusRegenerationsChangeExercises = true;
     for (const focus of BODYWEIGHT_FOCUSES) {
       selectBodyweightFocus(focus.id, false);
       for (const minutes of [10, 15, 20]) {
@@ -197,6 +208,22 @@ try {
           if (focus.id === 'core-posture') {
             focusPlansRespectIntent &&= names.every(name => !hardConditioning.has(name))
               && work.every(step => step.detail.includes('RPE 4–6'));
+          }
+
+          const regeneratedNames = createBodyweightPlan(activeBodyweightLane, { avoidPlan: bodyweightPlan })
+            .map(exercise => exercise.name);
+          allFocusRegenerationsChangeExercises &&= regeneratedNames.length === 6
+            && names.some(name => !regeneratedNames.includes(name))
+            && regeneratedNames.some(name => !names.includes(name));
+          if (focus.id === 'upper-core') {
+            focusPlansRespectIntent &&= regeneratedNames.every(name => !upperLegLoading.has(name));
+          }
+          if (focus.id === 'lower-core') {
+            focusPlansRespectIntent &&= regeneratedNames.some(name => bodyweightExercise(name).group === 'lower')
+              && regeneratedNames.every(name => bodyweightExercise(name).group !== 'upper');
+          }
+          if (focus.id === 'core-posture') {
+            focusPlansRespectIntent &&= regeneratedNames.every(name => !hardConditioning.has(name));
           }
         }
       }
@@ -267,10 +294,50 @@ try {
       && document.querySelector('.cp-title').textContent === 'Ton programme voyage'
       && document.getElementById('cp-lane-badge').textContent.includes('Focus · Haut + tronc')
       && document.getElementById('cp-science-note').textContent.includes('sans remplacer un row chargé');
+
+    // Exercise regeneration must run through the actual setup -> preview ->
+    // button flow. It must swap at least one exercise, not merely reorder the
+    // same names, while preserving every setup preference and history.
+    showOnly('setup');
+    selectedMode = 'bodyweight';
+    selectedMin = 15;
+    selectedLevel = 'beginner';
+    selectBodyweightFocus('upper-core');
+    const historyBeforeRegeneration = localStorage.getItem('kb_history');
+    document.getElementById('go-btn').click();
+    const planBeforeRegeneration = bodyweightPlan.map(exercise => exercise.name);
+    const regenerateButton = document.getElementById('cp-regenerate');
+    const bodyweightRegenerateIsAvailable = getComputedStyle(regenerateButton).display !== 'none'
+      && !regenerateButton.disabled
+      && regenerateButton.textContent.includes('Régénérer');
+    regenerateButton.click();
+    const planAfterRegeneration = bodyweightPlan.map(exercise => exercise.name);
+    const changedExerciseNames = planBeforeRegeneration.some(name => !planAfterRegeneration.includes(name))
+      && planAfterRegeneration.some(name => !planBeforeRegeneration.includes(name));
+    const bodyweightPreferencesSurviveRegeneration = selectedMode === 'bodyweight'
+      && selectedMin === 15
+      && selectedLevel === 'beginner'
+      && selectedBodyweightFocusId === 'upper-core'
+      && localStorage.getItem(BODYWEIGHT_FOCUS_STORAGE_KEY) === 'upper-core'
+      && document.getElementById('cp-lane-badge').textContent.includes('Focus · Haut + tronc')
+      && localStorage.getItem('kb_history') === historyBeforeRegeneration;
+    const regeneratedUpperCoreRespectsIntent = planAfterRegeneration.length === 6
+      && planAfterRegeneration.every(name => !upperLegLoading.has(name));
+    buildWorkout();
+    const regeneratedPlanFeedsRunner = JSON.stringify(sessionExercises) === JSON.stringify(planAfterRegeneration)
+      && circuit.filter(step => step.type === 'work').every(step => planAfterRegeneration.includes(step.name))
+      && circuit.filter(step => step.type === 'work').every(step => step.modeLabel.includes('Haut + tronc'));
+    saveSession('bodyweight', selectedMin, sessionExercises);
+    const regeneratedHistoryKeepsFocus = readHistory()[0]?.bodyweightFocusId === 'upper-core'
+      && readHistory()[0]?.bodyweightLaneId === null
+      && JSON.stringify(readHistory()[0]?.exercises) === JSON.stringify(planAfterRegeneration);
+    localStorage.setItem('kb_history', historyBeforeRegeneration);
+
     setLang('en');
     const englishCopyWorks = card.textContent.includes('No kettlebell')
       && document.getElementById('preview-text').textContent.includes('Upper + core')
-      && document.querySelector('[data-bodyweight-focus="upper-core"]').textContent.includes('Recommended after cycling');
+      && document.querySelector('[data-bodyweight-focus="upper-core"]').textContent.includes('Recommended after cycling')
+      && document.getElementById('cp-regenerate').textContent.includes('Regenerate');
     renderBodyweightPreview();
     const englishPreviewWorks = document.querySelector('.cp-title').textContent === 'Your travel program'
       && document.getElementById('cp-lane-badge').textContent.includes('Focus · Upper + core')
@@ -287,9 +354,12 @@ try {
       frenchEntryWorks, explicitSelectionWorks, lastBellZeroEntersMode, selectingBellExitsCleanly,
       durationAndLevelOptionsWork, focusSelectorWorks, focusOnlyInBodyweight, focusPersistenceWorks,
       zeroEquipmentOnly, completeExerciseUx, programsAreSensible, focusPlansRespectIntent,
+      allFocusRegenerationsChangeExercises,
       laneRotationUsesBodyweightOnly, focusScopedHistoryWorks, weightedLaneIgnoresBodyweight,
       bodyweightHistoryAndStatsWork, historyFocusWorks, legacyHistoryDisplaysBalanced,
-      frenchPreviewWorks, englishCopyWorks,
+      frenchPreviewWorks, bodyweightRegenerateIsAvailable, changedExerciseNames,
+      bodyweightPreferencesSurviveRegeneration, regeneratedUpperCoreRespectsIntent,
+      regeneratedPlanFeedsRunner, regeneratedHistoryKeepsFocus, englishCopyWorks,
       englishPreviewWorks, touchTargetsWork,
     };
   })()`);

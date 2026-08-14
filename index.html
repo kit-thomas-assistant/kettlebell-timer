@@ -2101,11 +2101,11 @@
   <div class="cp-lane-badge" id="cp-lane-badge" hidden></div>
   <div class="cp-coverage" id="cp-coverage"></div>
   <div class="cp-science-note" id="cp-science-note" hidden></div>
-  <div class="cp-list" id="cp-list"></div>
+  <div class="cp-list" id="cp-list" aria-live="polite"></div>
   <div class="cp-buttons">
-    <button id="cp-lighten">↘ Tout alléger</button>
-    <button id="cp-regenerate">🔄 Régénérer</button>
-    <button id="cp-go">C'EST PARTI 🔥</button>
+    <button id="cp-lighten" type="button">↘ Tout alléger</button>
+    <button id="cp-regenerate" type="button">🔄 Régénérer</button>
+    <button id="cp-go" type="button">C'EST PARTI 🔥</button>
   </div>
 </div>
 
@@ -3920,16 +3920,40 @@ const BODYWEIGHT_LANES = [
     id: 'bodyweight-base', number: 1, nameKey: 'bodyweightLaneBase',
     beginner: ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'W au sol', 'Dead Bug'],
     inter: ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Ange inversé', 'Dead Bug'],
+    alternatives: {
+      beginner: [
+        ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Planche avant-bras', 'W au sol', 'Dead Bug'],
+      ],
+      inter: [
+        ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Planche avant-bras', 'Ange inversé', 'Dead Bug'],
+      ],
+    },
   },
   {
     id: 'bodyweight-unilateral', number: 2, nameKey: 'bodyweightLaneUnilateral',
     beginner: ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'Planche latérale', 'W au sol'],
     inter: ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Planche latérale', 'Ange inversé'],
+    alternatives: {
+      beginner: [
+        ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'Planche avant-bras', 'W au sol'],
+      ],
+      inter: [
+        ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Planche avant-bras', 'Ange inversé'],
+      ],
+    },
   },
   {
     id: 'bodyweight-conditioning', number: 3, nameKey: 'bodyweightLaneConditioning',
     beginner: ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Mountain Climber', 'Bear Plank Shoulder Tap', 'W au sol'],
     inter: ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Mountain Climber', 'Bear Plank Shoulder Tap', 'Ange inversé'],
+    alternatives: {
+      beginner: [
+        ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Mountain Climber', 'Planche avant-bras', 'W au sol'],
+      ],
+      inter: [
+        ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Mountain Climber', 'Planche avant-bras', 'Ange inversé'],
+      ],
+    },
   },
 ];
 
@@ -3943,17 +3967,43 @@ const BODYWEIGHT_FOCUSES = [
     recommended: true, rpe: '6–7',
     beginner: ['Pompes inclinées', 'W au sol', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
     inter: ['Pompes au sol', 'Ange inversé', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    alternatives: {
+      beginner: [
+        ['Pompes inclinées', 'W au sol', 'Dead Bug', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)'],
+      ],
+      inter: [
+        ['Pompes au sol', 'W au sol', 'Dead Bug', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)'],
+      ],
+    },
   },
   {
     id: 'lower-core', nameKey: 'bodyweightFocusLowerCore', noteKey: 'bodyweightFocusLowerCoreNote',
     beginner: ['Squat au poids du corps', 'Fente arrière alternée', 'Pont fessier', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
     inter: ['Squat tempo', 'Fente arrière alternée', 'Pont fessier une jambe', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    alternatives: {
+      beginner: [
+        ['Squat au poids du corps', 'Fente arrière alternée', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+        ['Squat au poids du corps', 'Pont fessier', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+      ],
+      inter: [
+        ['Squat tempo', 'Fente arrière alternée', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+        ['Squat tempo', 'Pont fessier une jambe', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+      ],
+    },
   },
   {
     id: 'core-posture', nameKey: 'bodyweightFocusCorePosture', noteKey: 'bodyweightFocusCorePostureNote',
     rpe: '4–6',
     beginner: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
     inter: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
+    alternatives: {
+      beginner: [
+        ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'W au sol'],
+      ],
+      inter: [
+        ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Ange inversé'],
+      ],
+    },
   },
 ];
 
@@ -4930,15 +4980,45 @@ function buildCircuit() {
   currentStep = 0;
 }
 
-function createBodyweightPlan(lane = activeBodyweightLane) {
+function bodyweightPlanSignature(plan) {
+  return (plan || [])
+    .map(exercise => typeof exercise === 'string' ? exercise : exercise.name)
+    .slice()
+    .sort()
+    .join('|');
+}
+
+function bodyweightPlanVariants(source, level = selectedLevel) {
+  const primary = source?.[level];
+  if (!Array.isArray(primary)) return [];
+  return [primary, ...(source.alternatives?.[level] || [])];
+}
+
+function nextBodyweightVariant(variants, avoidPlan = null) {
+  if (!variants.length) return [];
+  if (!avoidPlan?.length) return variants[0];
+
+  const avoidedSignature = bodyweightPlanSignature(avoidPlan);
+  const currentIndex = variants.findIndex(variant => bodyweightPlanSignature(variant) === avoidedSignature);
+  for (let offset = 1; offset <= variants.length; offset++) {
+    const candidate = variants[(currentIndex + offset + variants.length) % variants.length];
+    if (bodyweightPlanSignature(candidate) !== avoidedSignature) return candidate;
+  }
+  return variants[0];
+}
+
+function createBodyweightPlan(lane = activeBodyweightLane, { avoidPlan = null } = {}) {
   const focus = bodyweightFocusForId();
+  let source;
   if (focus.id === 'balanced') {
     activeBodyweightLane = lane || bodyweightLaneForHistory(readHistory(), focus.id);
-    bodyweightPlan = activeBodyweightLane[selectedLevel].map(bodyweightExercise);
+    source = activeBodyweightLane;
   } else {
     activeBodyweightLane = null;
-    bodyweightPlan = focus[selectedLevel].map(bodyweightExercise);
+    source = focus;
   }
+  const names = nextBodyweightVariant(bodyweightPlanVariants(source), avoidPlan);
+  bodyweightPlan = names.map(bodyweightExercise);
   return bodyweightPlan;
 }
 
@@ -6000,6 +6080,17 @@ function showBodyweightPreview() {
   renderBodyweightPreview();
 }
 
+function regenerateBodyweight(animate) {
+  const previousPlan = bodyweightPlan || createBodyweightPlan(activeBodyweightLane);
+  createBodyweightPlan(activeBodyweightLane, { avoidPlan: previousPlan });
+  renderBodyweightPreview();
+  if (animate) {
+    const list = document.getElementById('cp-list');
+    list.classList.add('fading');
+    requestAnimationFrame(() => list.classList.remove('fading'));
+  }
+}
+
 function regenerateFatloss(animate) {
   generateFatlossPlan();
   renderFatlossPreview();
@@ -6051,7 +6142,8 @@ function renderBodyweightPreview() {
       <span class="cp-item-tag ${exercise.group}">${groupLabel(exercise.group)}</span>
     </div>`;
   }).join('');
-  document.getElementById('cp-regenerate').style.display = 'none';
+  document.getElementById('cp-regenerate').textContent = t('regenerate');
+  document.getElementById('cp-regenerate').style.display = '';
   document.getElementById('cp-regenerate').disabled = false;
   document.getElementById('cp-lighten').style.display = 'none';
   document.getElementById('cp-go').disabled = false;
@@ -6247,7 +6339,7 @@ document.getElementById('cp-back').addEventListener('click', () => {
 
 document.getElementById('cp-regenerate').addEventListener('click', () => {
   if (selectedMode === 'fatloss') regenerateFatloss(true);
-  else if (selectedMode === 'bodyweight') return;
+  else if (selectedMode === 'bodyweight') regenerateBodyweight(true);
   else if (selectedMode === 'amrap' || selectedMode === 'guided') return;
   else regenerateCircuit(true);
 });

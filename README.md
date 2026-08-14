@@ -179,7 +179,7 @@ The Supabase diagnostics cover legacy UUID migration, deterministic merge/no dup
 node tests/bodyweight-mode-diagnostic.mjs
 ```
 
-The bodyweight diagnostic checks bilingual setup and preview copy, focus visibility/accessibility/persistence, all four focus plans at every duration and level, focus-scoped rotation and legacy Balanced history, zero-equipment exercise metadata/SVG/steps/search demos, saved focus payloads and history labels, exercise stats without tonnage, 44px touch targets and 320px containment.
+The bodyweight diagnostic checks bilingual setup and preview copy, focus visibility/accessibility/persistence, all four focus plans at every duration and level, focus-preserving exercise regeneration through the setup-to-preview flow, focus-scoped rotation and legacy Balanced history, zero-equipment exercise metadata/SVG/steps/search demos, saved focus payloads and history labels, exercise stats without tonnage, 44px touch targets and 320px containment. Regeneration cycles curated six-exercise variants while retaining no-kettlebell mode, focus, duration and level; each variant changes at least one exercise and keeps the focus safety constraints.
 
 ## License
 
