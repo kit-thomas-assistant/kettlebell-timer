@@ -128,7 +128,29 @@ try {
       && getComputedStyle(document.getElementById('duration-group')).display !== 'none'
       && getComputedStyle(document.getElementById('diff-group')).display !== 'none';
 
-    const allTravelNames = [...new Set(BODYWEIGHT_LANES.flatMap(lane => [...lane.beginner, ...lane.inter]))];
+    const focusPanel = document.getElementById('bodyweight-focus-group');
+    const focusButtons = [...document.querySelectorAll('.bodyweight-focus-btn')];
+    const focusSelectorWorks = !focusPanel.hidden
+      && focusButtons.length === 4
+      && document.getElementById('bodyweight-focus-grid').getAttribute('role') === 'group'
+      && document.getElementById('bodyweight-focus-grid').getAttribute('aria-labelledby') === 'bodyweight-focus-label'
+      && focusButtons.every(button => button.tagName === 'BUTTON' && button.type === 'button' && button.hasAttribute('aria-pressed'))
+      && selectedBodyweightFocusId === 'balanced'
+      && focusButtons.find(button => button.dataset.bodyweightFocus === 'balanced')?.getAttribute('aria-pressed') === 'true'
+      && focusButtons.find(button => button.dataset.bodyweightFocus === 'upper-core')?.textContent.includes('Recommandé après vélo');
+    selectMode('circuit');
+    const focusOnlyInBodyweight = focusPanel.hidden;
+    selectMode('bodyweight');
+    selectBodyweightFocus('upper-core');
+    const focusPersistenceWorks = selectedBodyweightFocusId === 'upper-core'
+      && localStorage.getItem(BODYWEIGHT_FOCUS_STORAGE_KEY) === 'upper-core'
+      && document.querySelector('[data-bodyweight-focus="upper-core"]').getAttribute('aria-pressed') === 'true';
+    selectBodyweightFocus('balanced');
+
+    const allTravelNames = [...new Set([
+      ...BODYWEIGHT_LANES.flatMap(lane => [...lane.beginner, ...lane.inter]),
+      ...BODYWEIGHT_FOCUSES.flatMap(focus => [...(focus.beginner || []), ...(focus.inter || [])]),
+    ])];
     const zeroEquipmentOnly = allTravelNames.every(name => BODYWEIGHT_EXERCISES.has(name)
       && exerciseMeta(name).bellCount === 0
       && recommendedWeight(name) === null
@@ -141,37 +163,65 @@ try {
       && getYouTubeDemo(name)?.url.startsWith('https://www.youtube.com/results?search_query=')
       && !getYouTubeDemo(name)?.url.includes('watch?v='));
 
+    const upperLegLoading = new Set(['Squat au poids du corps', 'Squat tempo', 'Fente arrière alternée', 'Pont fessier', 'Pont fessier une jambe', 'Mountain Climber', 'Bear Plank Shoulder Tap']);
+    const hardConditioning = new Set(['Mountain Climber', 'Bear Plank Shoulder Tap']);
     let programsAreSensible = true;
-    for (const minutes of [10, 15, 20]) {
-      for (const level of ['beginner', 'inter']) {
-        selectedMin = minutes;
-        selectedLevel = level;
-        activeBodyweightLane = BODYWEIGHT_LANES[0];
-        createBodyweightPlan(activeBodyweightLane);
-        buildBodyweight();
-        const seconds = circuit.reduce((sum, step) => sum + step.duration, 0);
-        programsAreSensible &&= bodyweightPlan.length === 6
-          && seconds >= minutes * 60 * 0.9
-          && seconds <= minutes * 60 * 1.02
-          && circuit.filter(step => step.type === 'work').every(step => step.bellCount === 0 && step.weightKg === null);
+    let focusPlansRespectIntent = true;
+    for (const focus of BODYWEIGHT_FOCUSES) {
+      selectBodyweightFocus(focus.id, false);
+      for (const minutes of [10, 15, 20]) {
+        for (const level of ['beginner', 'inter']) {
+          selectedMin = minutes;
+          selectedLevel = level;
+          activeBodyweightLane = focus.id === 'balanced' ? BODYWEIGHT_LANES[0] : null;
+          createBodyweightPlan(activeBodyweightLane);
+          buildBodyweight();
+          const names = bodyweightPlan.map(exercise => exercise.name);
+          const seconds = circuit.reduce((sum, step) => sum + step.duration, 0);
+          const work = circuit.filter(step => step.type === 'work');
+          programsAreSensible &&= bodyweightPlan.length === 6
+            && seconds >= minutes * 60 * 0.9
+            && seconds <= minutes * 60 * 1.02
+            && work.every(step => step.bellCount === 0 && step.weightKg === null)
+            && work.every(step => focus.id === 'balanced'
+              ? step.modeLabel.includes('Voyage 1/3')
+              : step.modeLabel.includes(t(focus.nameKey)));
+          if (focus.id === 'upper-core') {
+            focusPlansRespectIntent &&= names.every(name => !upperLegLoading.has(name))
+              && work.every(step => step.detail.includes('RPE 6–7'));
+          }
+          if (focus.id === 'lower-core') {
+            focusPlansRespectIntent &&= names.some(name => bodyweightExercise(name).group === 'lower')
+              && names.every(name => bodyweightExercise(name).group !== 'upper');
+          }
+          if (focus.id === 'core-posture') {
+            focusPlansRespectIntent &&= names.every(name => !hardConditioning.has(name))
+              && work.every(step => step.detail.includes('RPE 4–6'));
+          }
+        }
       }
     }
+    selectBodyweightFocus('balanced', false);
 
     const now = new Date();
     const weighted = { date: now.toISOString(), mode: 'Circuit', modeId: 'circuit', duration: 20, exercises: ['Goblet Squat'] };
-    const body = index => ({ date: new Date(now - index * 1000).toISOString(), mode: 'Sans kettlebell', modeId: 'bodyweight', duration: 15, exercises: ['Bird Dog'] });
+    const body = (index, focusId) => ({ date: new Date(now - index * 1000).toISOString(), mode: 'Sans kettlebell', modeId: 'bodyweight', bodyweightFocusId: focusId, duration: 15, exercises: ['Bird Dog'] });
     const laneRotationUsesBodyweightOnly = bodyweightLaneForHistory([]).id === 'bodyweight-base'
       && bodyweightLaneForHistory([weighted]).id === 'bodyweight-base'
       && bodyweightLaneForHistory([weighted, body(1)]).id === 'bodyweight-unilateral'
       && bodyweightLaneForHistory([weighted, body(1), weighted, body(2)]).id === 'bodyweight-conditioning';
+    const focusScopedHistoryWorks = bodyweightLaneForHistory([body(1, 'upper-core')], 'balanced').id === 'bodyweight-base'
+      && bodyweightLaneForHistory([body(1, 'upper-core')], 'upper-core').id === 'bodyweight-unilateral'
+      && sessionBodyweightFocusId(body(2)) === 'balanced';
     const weightedLaneIgnoresBodyweight = weeklyLaneForHistory([body(1)], now).id === 'base-force'
       && weeklyLaneForHistory([body(1), weighted], now).id === 'hinge-power';
 
     localStorage.setItem('kb_history', '[]');
     selectedMode = 'bodyweight';
+    selectedBodyweightFocusId = 'upper-core';
     selectedMin = 10;
     selectedLevel = 'beginner';
-    activeBodyweightLane = bodyweightLaneForHistory();
+    activeBodyweightLane = null;
     createBodyweightPlan(activeBodyweightLane);
     buildBodyweight();
     const workSteps = circuit.filter(step => step.type === 'work');
@@ -186,7 +236,8 @@ try {
     const summarizedBodyweightStats = window.KettlebellWorkoutStats.summarize([saved]);
     const bodyweightHistoryAndStatsWork = saved.modeId === 'bodyweight'
       && saved.mode === 'Sans kettlebell'
-      && saved.bodyweightLaneId === 'bodyweight-base'
+      && saved.bodyweightFocusId === 'upper-core'
+      && saved.bodyweightLaneId === null
       && saved.weeklyLaneId === null
       && Object.keys(saved.equipment).length === 0
       && saved.exerciseStats.length === 6
@@ -196,31 +247,50 @@ try {
       && summarizedBodyweightStats.exerciseStats.every(item => item.bellCount === 0 && item.weightKg === null && item.volumeKg === 0)
       && !document.getElementById('finisher-offer').classList.contains('visible');
 
+    showHistory();
+    const historyFocusWorks = document.getElementById('history-list').textContent.includes('Focus · Haut + tronc');
+    closeHistory();
+    const currentHistory = readHistory();
+    localStorage.setItem('kb_history', JSON.stringify([body(9), ...currentHistory]));
+    showHistory();
+    const legacyHistoryDisplaysBalanced = document.getElementById('history-list').textContent.includes('Focus · Équilibré');
+    closeHistory();
+    localStorage.setItem('kb_history', JSON.stringify(currentHistory));
+
     setLang('fr');
     selectMode('bodyweight');
+    selectBodyweightFocus('upper-core');
     updatePreview();
     showBodyweightPreview();
-    const frenchPreviewWorks = document.getElementById('preview-text').textContent.includes('programme voyage full-body')
+    const frenchPreviewWorks = document.getElementById('preview-text').textContent.includes('Haut + tronc')
+      && document.getElementById('preview-text').textContent.includes('RPE 6–7')
       && document.querySelector('.cp-title').textContent === 'Ton programme voyage'
-      && document.getElementById('cp-science-note').textContent.includes('ne remplacent pas des rows chargés');
+      && document.getElementById('cp-lane-badge').textContent.includes('Focus · Haut + tronc')
+      && document.getElementById('cp-science-note').textContent.includes('sans remplacer un row chargé');
     setLang('en');
     const englishCopyWorks = card.textContent.includes('No kettlebell')
-      && document.getElementById('preview-text').textContent.includes('full-body travel program');
+      && document.getElementById('preview-text').textContent.includes('Upper + core')
+      && document.querySelector('[data-bodyweight-focus="upper-core"]').textContent.includes('Recommended after cycling');
     renderBodyweightPreview();
     const englishPreviewWorks = document.querySelector('.cp-title').textContent === 'Your travel program'
+      && document.getElementById('cp-lane-badge').textContent.includes('Focus · Upper + core')
       && document.getElementById('cp-science-note').textContent.includes('do not replace loaded rows');
 
     showOnly('setup');
     const cardRect = card.getBoundingClientRect();
     const touchTargetsWork = cardRect.height >= 44
       && document.getElementById('go-btn').getBoundingClientRect().height >= 44
-      && [...document.querySelectorAll('.equipment-btn')].every(button => button.getBoundingClientRect().height >= 44);
+      && [...document.querySelectorAll('.equipment-btn')].every(button => button.getBoundingClientRect().height >= 44)
+      && [...document.querySelectorAll('.bodyweight-focus-btn')].every(button => button.getBoundingClientRect().height >= 44);
 
     return {
       frenchEntryWorks, explicitSelectionWorks, lastBellZeroEntersMode, selectingBellExitsCleanly,
-      durationAndLevelOptionsWork, zeroEquipmentOnly, completeExerciseUx, programsAreSensible,
-      laneRotationUsesBodyweightOnly, weightedLaneIgnoresBodyweight, bodyweightHistoryAndStatsWork,
-      frenchPreviewWorks, englishCopyWorks, englishPreviewWorks, touchTargetsWork,
+      durationAndLevelOptionsWork, focusSelectorWorks, focusOnlyInBodyweight, focusPersistenceWorks,
+      zeroEquipmentOnly, completeExerciseUx, programsAreSensible, focusPlansRespectIntent,
+      laneRotationUsesBodyweightOnly, focusScopedHistoryWorks, weightedLaneIgnoresBodyweight,
+      bodyweightHistoryAndStatsWork, historyFocusWorks, legacyHistoryDisplaysBalanced,
+      frenchPreviewWorks, englishCopyWorks,
+      englishPreviewWorks, touchTargetsWork,
     };
   })()`);
 
@@ -231,15 +301,21 @@ try {
     showOnly('setup');
     const setup = document.getElementById('setup');
     const card = document.querySelector('[data-mode="bodyweight"]');
+    const focusButtons = [...document.querySelectorAll('.bodyweight-focus-btn')];
     const setupContained = document.documentElement.scrollWidth <= 320
       && setup.scrollWidth <= setup.clientWidth
       && card.getBoundingClientRect().left >= 0
-      && card.getBoundingClientRect().right <= 320;
-    showBodyweightPreview();
-    const preview = document.getElementById('circuit-preview');
-    const previewContained = document.documentElement.scrollWidth <= 320
-      && preview.scrollWidth <= preview.clientWidth
-      && [...document.querySelectorAll('.cp-item')].every(item => item.getBoundingClientRect().right <= 320);
+      && card.getBoundingClientRect().right <= 320
+      && focusButtons.every(button => button.getBoundingClientRect().left >= 0 && button.getBoundingClientRect().right <= 320);
+    let previewContained = true;
+    for (const focus of BODYWEIGHT_FOCUSES) {
+      selectBodyweightFocus(focus.id, false);
+      showBodyweightPreview();
+      const preview = document.getElementById('circuit-preview');
+      previewContained &&= document.documentElement.scrollWidth <= 320
+        && preview.scrollWidth <= preview.clientWidth
+        && [...document.querySelectorAll('.cp-item')].every(item => item.getBoundingClientRect().right <= 320);
+    }
     return { mobile320ContainmentWorks: setupContained && previewContained };
   })()`);
 
@@ -258,9 +334,10 @@ try {
       await writeFile(join(process.env.BODYWEIGHT_QA_DIR, filename), Buffer.from(screenshot.data, 'base64'));
     };
     const setupExpression = `(() => { localStorage.clear(); equipmentInventory = Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => [weight, weight === 12 ? 1 : 0])); renderEquipmentSelector(); setLang('fr'); selectMode('circuit'); showOnly('setup'); window.scrollTo(0, 0); })()`;
-    const bodyweightSetupExpression = `(() => { localStorage.clear(); setLang('fr'); selectMode('bodyweight'); showOnly('setup'); window.scrollTo(0, 0); })()`;
-    const previewExpression = `(() => { localStorage.clear(); setLang('fr'); selectMode('bodyweight'); selectedMin = 15; selectedLevel = 'beginner'; showBodyweightPreview(); window.scrollTo(0, 0); })()`;
+    const bodyweightSetupExpression = `(() => { localStorage.clear(); setLang('fr'); selectMode('bodyweight'); selectBodyweightFocus('upper-core'); showOnly('setup'); window.scrollTo(0, 0); })()`;
+    const previewExpression = `(() => { localStorage.clear(); setLang('fr'); selectMode('bodyweight'); selectBodyweightFocus('upper-core'); selectedMin = 15; selectedLevel = 'beginner'; showBodyweightPreview(); window.scrollTo(0, 0); })()`;
     await capture('bodyweight-desktop-1280.png', 1280, 1100, setupExpression);
+    await capture('bodyweight-focus-desktop-1280.png', 1280, 1300, bodyweightSetupExpression);
     await capture('bodyweight-mobile-390.png', 390, 1000, bodyweightSetupExpression);
     await capture('bodyweight-preview-320.png', 320, 900, previewExpression);
     console.log(`QA screenshots: ${process.env.BODYWEIGHT_QA_DIR}`);

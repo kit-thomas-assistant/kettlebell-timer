@@ -11,7 +11,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Configurable workouts** : 10 / 15 / 20 min, beginner or intermediate
 - **Auto-generated circuits** : randomized from a pool of 50+ kettlebell and bodyweight exercises, with movement-family diversity
 - **Equipment-aware plans** : tap 8–24 kg buttons to record zero, one or two matching bells; incompatible two-bell exercises are excluded automatically
-- **No-kettlebell travel mode** : an explicit zero-equipment entry keeps the 10 / 15 / 20-minute and beginner / intermediate controls, then rotates through three deterministic full-body travel sessions based only on completed bodyweight workouts
+- **No-kettlebell travel mode** : an explicit zero-equipment entry keeps the 10 / 15 / 20-minute and beginner / intermediate controls, with a persisted Balanced / Upper + core / Lower + core / Core & posture focus selector
 - **Conservative load suggestions** : lighter available bells for overhead/technical work, heavier available bells for hinges, squats, rows and carries, with one optional “Use lighter weights” action
 - **Guided 20-minute recipe** : the David Nateli full-body sequence runs inside Circuit mode with automatic transitions, four ordered passes, rep targets as guidance and midpoint side-switch cues
 - **Guided sessions layer** : progressive disclosure keeps fixed recipes separate from random generation. Minimal 3 runs 10 total thrusters (5/side), 12 total rows (6/side), then 15 swings in that exact order, with a 60 / 90 / 120 / 180s round-rest choice and a 3–4 quality-round cue
@@ -41,7 +41,7 @@ Forearm Plank · Side Plank (L/R) · Dead Bug · Mountain Climber · Bear Plank 
 
 ### No-kettlebell travel program
 
-The dedicated travel mode is curated rather than randomly assembled. Completed bodyweight sessions rotate through:
+The dedicated travel mode is curated rather than randomly assembled. **Balanced** remains the default and preserves the original rotation through:
 
 1. **Full-body base** : squat, horizontal push, hip extension, trunk control and prone shoulder control;
 2. **Unilateral & stability** : alternating reverse lunge, push-up, glute bridge variation, Bird Dog, Side Plank and prone shoulder control;
@@ -49,9 +49,17 @@ The dedicated travel mode is curated rather than randomly assembled. Completed b
 
 Beginner plans use incline push-ups on a stable wall or support and bilateral bridges. Intermediate plans use floor push-ups, tempo squats and single-leg bridges. Work stays around RPE 6–8, with explicit prompts to regress or stop for pain or form loss. No jumps, improvised door/towel rows, unstable furniture drills, forced failure or gimmicky burpees are programmed.
 
+Three targeted focuses cover short-term recovery needs without changing the default program:
+
+- **Upper + core** is visibly recommended when cycling has already loaded the legs. It uses controlled push-ups, trunk work and scapular-control drills at RPE 6–7, with no squats, lunges, bridges, mountain climbers or meaningful lower-body loading.
+- **Lower + core** biases the legs and trunk when the upper body needs rest.
+- **Core & posture** is a lighter RPE 4–6 recovery session built around trunk and scapular control, without hard conditioning.
+
+Cycling is treated here as current training load, not a reason to permanently skip leg strength. The selector is fatigue management for a given session. The saved focus is included in workout history, while older no-kettlebell entries without a focus are interpreted as Balanced.
+
 The no-equipment limitation is explicit: prone W raises and reverse snow angels can train scapular and posterior-shoulder control, but they do **not** replace loaded rows. Add real horizontal pulling when safe equipment is available.
 
-This product framing follows [ACSM's 2026 resistance-training guidance](https://acsm.org/resistance-training-guidelines-update-2026/), which emphasizes consistency, training all major muscle groups at least twice weekly and the meaningful benefits of bodyweight/home routines, plus the [WHO physical activity fact sheet](https://www.who.int/news-room/fact-sheets/detail/physical-activity), which emphasizes that any activity is better than none and that all movement counts.
+This product framing follows [ACSM's 2026 resistance-training guidance](https://acsm.org/resistance-training-guidelines-update-2026/), which emphasizes individualized programming, consistency over unnecessary complexity, meaningful bodyweight/home training and that training to failure is optional. The [WHO physical activity fact sheet](https://www.who.int/news-room/fact-sheets/detail/physical-activity) counts cycling as physical activity while still recommending muscle strengthening for everyone.
 
 ## Fat-loss mode and scientific framing
 
@@ -171,7 +179,7 @@ The Supabase diagnostics cover legacy UUID migration, deterministic merge/no dup
 node tests/bodyweight-mode-diagnostic.mjs
 ```
 
-The bodyweight diagnostic checks bilingual setup and preview copy, zero-inventory mode transitions, enabled CTA semantics, all durations and levels, deterministic bodyweight-only lane rotation, zero-equipment exercise metadata/SVG/steps/search demos, history and exercise stats without tonnage, accessible touch targets and 320px containment.
+The bodyweight diagnostic checks bilingual setup and preview copy, focus visibility/accessibility/persistence, all four focus plans at every duration and level, focus-scoped rotation and legacy Balanced history, zero-equipment exercise metadata/SVG/steps/search demos, saved focus payloads and history labels, exercise stats without tonnage, 44px touch targets and 320px containment.
 
 ## License
 

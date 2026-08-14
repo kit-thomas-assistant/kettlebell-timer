@@ -478,6 +478,56 @@
   .equipment-weight { display: block; font-size: 0.86rem; font-weight: 800; line-height: 1.05; }
   .equipment-count { display: block; margin-top: 0.2rem; font-size: 0.65rem; color: var(--rest); font-weight: 800; }
   .equipment-count.is-zero { color: var(--muted); }
+  .bodyweight-focus-panel {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border: 1px solid #31504e;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(78,205,196,0.1), rgba(78,205,196,0.025));
+  }
+  .bodyweight-focus-panel[hidden] { display: none; }
+  .bodyweight-focus-panel > label { margin-bottom: 0.65rem; color: #b9d6d3; }
+  .bodyweight-focus-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+  .bodyweight-focus-btn {
+    min-height: 58px;
+    padding: 0.68rem 0.75rem;
+    border: 2px solid var(--surface2);
+    border-radius: 0.85rem;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+  .bodyweight-focus-btn:hover { border-color: var(--rest); }
+  .bodyweight-focus-btn:active { transform: scale(0.98); }
+  .bodyweight-focus-btn:focus-visible { outline: 3px solid var(--rest); outline-offset: 3px; }
+  .bodyweight-focus-btn[aria-pressed="true"] {
+    border-color: var(--rest);
+    background: rgba(78,205,196,0.14);
+    box-shadow: inset 0 0 0 1px rgba(78,205,196,0.14);
+  }
+  .bodyweight-focus-name { display: block; font-size: 0.86rem; font-weight: 850; line-height: 1.2; }
+  .bodyweight-focus-recommended {
+    display: inline-block;
+    margin-top: 0.3rem;
+    color: var(--rest);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .bodyweight-focus-note {
+    margin: 0.7rem 0 0;
+    color: #a8c4c2;
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
   .dur-btn, .diff-btn {
     padding: 0.8rem 1.5rem;
     border-radius: 1rem;
@@ -1585,6 +1635,7 @@
     .equipment-panel { padding-inline: 0.55rem; }
     .equipment-row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding: 0.2rem 0.1rem 0.45rem; scrollbar-width: thin; }
     .equipment-btn { flex: 0 0 58px; }
+    .bodyweight-focus-panel { padding-inline: 0.65rem; }
     .header-actions { gap: 0.35rem; }
     #account-trigger, #lang-toggle { padding-inline: 0.58rem; }
     #account-trigger { max-width: 9.5rem; }
@@ -1602,6 +1653,7 @@
     .stats-bar-row { grid-template-columns: minmax(5.8rem,1fr) minmax(4rem,1.4fr) auto; gap: 0.45rem; }
   }
   @media (max-width: 380px) {
+    .bodyweight-focus-grid { grid-template-columns: 1fr; }
     #circuit-preview { padding-inline: 0.65rem; }
     .cp-item { gap: 0.45rem; padding-inline: 0.65rem; }
     .cp-item-tag { display: none; }
@@ -1883,6 +1935,12 @@
     <div class="equipment-row" id="equipment-row"></div>
   </div>
 
+  <div class="option-group bodyweight-focus-panel" id="bodyweight-focus-group" hidden>
+    <label id="bodyweight-focus-label">Focus de séance</label>
+    <div class="bodyweight-focus-grid" id="bodyweight-focus-grid" role="group" aria-labelledby="bodyweight-focus-label" aria-describedby="bodyweight-focus-note"></div>
+    <p class="bodyweight-focus-note" id="bodyweight-focus-note"></p>
+  </div>
+
   <div class="option-group" id="duration-group">
     <label>Durée</label>
     <div class="option-row" id="duration-row">
@@ -2093,15 +2151,26 @@ const STRINGS = {
     fatlossPreview: (min, level) => `${min} min · ${level} · préparation progressive + intervalles + force + core · blocs actifs RPE 7–8`,
     bodyweightName: 'Sans kettlebell',
     bodyweightDesc: 'Programme voyage full-body · zéro matériel · 3 séances complémentaires',
-    bodyweightPreview: (min, level) => `${min} min · ${level} · programme voyage full-body · zéro matériel · effort contrôlé RPE 6–8`,
+    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · zéro matériel · RPE ${rpe}`,
     bodyweightEquipment: 'Sans kettlebell',
     yourBodyweightPlan: 'Ton programme voyage',
-    bodyweightScience: 'Travaille proprement à RPE 6–8. Régresse ou arrête en cas de douleur ou de perte de forme. Les W au sol et anges inversés entretiennent les épaules, mais ne remplacent pas des rows chargés.',
+    bodyweightScience: 'Reste loin de l’échec. Régresse ou arrête si la forme se dégrade ou en cas de douleur. Les W au sol et anges inversés travaillent le contrôle des épaules, sans remplacer un row chargé.',
     bodyweightSubtitle: (min, work, rest) => `${min} min environ · ${work}s travail / ${rest}s repos · zéro matériel`,
     bodyweightLane: (number, name) => `Voyage ${number}/3 · ${name}`,
     bodyweightLaneBase: 'Base full-body',
     bodyweightLaneUnilateral: 'Unilatéral & stabilité',
     bodyweightLaneConditioning: 'Conditioning & tronc',
+    bodyweightFocusLabel: 'Focus de séance',
+    bodyweightFocusBalanced: 'Équilibré',
+    bodyweightFocusUpperCore: 'Haut + tronc',
+    bodyweightFocusLowerCore: 'Bas + tronc',
+    bodyweightFocusCorePosture: 'Tronc & posture',
+    bodyweightFocusRecommended: 'Recommandé après vélo',
+    bodyweightFocusBalancedNote: 'Le programme full-body habituel, avec rotation entre 3 séances complémentaires.',
+    bodyweightFocusUpperCoreNote: 'Pour laisser les jambes récupérer après le vélo : poussée, tronc et contrôle scapulaire à RPE 6–7, sans squat, fente, pont ni conditioning jambes.',
+    bodyweightFocusLowerCoreNote: 'Pour reposer le haut du corps : jambes et tronc, à intensité contrôlée.',
+    bodyweightFocusCorePostureNote: 'Option récupération légère à RPE 4–6 : tronc, respiration et contrôle scapulaire, sans conditioning dur.',
+    bodyweightFocusBadge: focus => `Focus · ${focus}`,
     viewPlan: 'Voir le plan →',
     otherModes: 'Autres formats',
     emomDesc: 'Chaque minute',
@@ -2297,15 +2366,26 @@ const STRINGS = {
     fatlossPreview: (min, level) => `${min} min · ${level} · progressive prep + intervals + strength + core · active blocks RPE 7–8`,
     bodyweightName: 'No kettlebell',
     bodyweightDesc: 'Full-body travel program · no equipment · 3 complementary sessions',
-    bodyweightPreview: (min, level) => `${min} min · ${level} · full-body travel program · no equipment · controlled effort at RPE 6–8`,
+    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · no equipment · RPE ${rpe}`,
     bodyweightEquipment: 'No kettlebell',
     yourBodyweightPlan: 'Your travel program',
-    bodyweightScience: 'Move with clean form at RPE 6–8. Regress or stop for pain or form loss. Prone W raises and reverse snow angels train shoulder control, but they do not replace loaded rows.',
+    bodyweightScience: 'Stay well short of failure. Regress or stop for pain or form loss. Prone W raises and reverse snow angels train shoulder control, but do not replace loaded rows.',
     bodyweightSubtitle: (min, work, rest) => `About ${min} min · ${work}s work / ${rest}s rest · no equipment`,
     bodyweightLane: (number, name) => `Travel ${number}/3 · ${name}`,
     bodyweightLaneBase: 'Full-body base',
     bodyweightLaneUnilateral: 'Unilateral & stability',
     bodyweightLaneConditioning: 'Conditioning & trunk',
+    bodyweightFocusLabel: 'Workout focus',
+    bodyweightFocusBalanced: 'Balanced',
+    bodyweightFocusUpperCore: 'Upper + core',
+    bodyweightFocusLowerCore: 'Lower + core',
+    bodyweightFocusCorePosture: 'Core & posture',
+    bodyweightFocusRecommended: 'Recommended after cycling',
+    bodyweightFocusBalancedNote: 'The usual full-body program, rotating through 3 complementary sessions.',
+    bodyweightFocusUpperCoreNote: 'Let the legs recover after cycling: pushing, trunk and scapular control at RPE 6–7, with no squats, lunges, bridges or leg conditioning.',
+    bodyweightFocusLowerCoreNote: 'Rest the upper body with controlled lower-body and trunk work.',
+    bodyweightFocusCorePostureNote: 'A lighter RPE 4–6 recovery option for trunk, breathing and scapular control, with no hard conditioning.',
+    bodyweightFocusBadge: focus => `Focus · ${focus}`,
     viewPlan: 'View plan →',
     otherModes: 'Other formats',
     emomDesc: 'Every minute',
@@ -2823,6 +2903,7 @@ function applyLangToUI() {
   document.getElementById('round-rest-label').textContent = t('roundRest');
   document.getElementById('equipment-label').textContent = t('equipment');
   renderEquipmentSelector();
+  renderBodyweightFocusSelector();
   document.querySelector('#duration-group > label').textContent = t('duration');
   document.querySelector('#diff-group > label').textContent = t('level');
   document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -3852,6 +3933,51 @@ const BODYWEIGHT_LANES = [
   },
 ];
 
+const BODYWEIGHT_FOCUS_STORAGE_KEY = 'kb_bodyweight_focus_v1';
+const BODYWEIGHT_FOCUSES = [
+  {
+    id: 'balanced', nameKey: 'bodyweightFocusBalanced', noteKey: 'bodyweightFocusBalancedNote',
+  },
+  {
+    id: 'upper-core', nameKey: 'bodyweightFocusUpperCore', noteKey: 'bodyweightFocusUpperCoreNote',
+    recommended: true, rpe: '6–7',
+    beginner: ['Pompes inclinées', 'W au sol', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    inter: ['Pompes au sol', 'Ange inversé', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+  },
+  {
+    id: 'lower-core', nameKey: 'bodyweightFocusLowerCore', noteKey: 'bodyweightFocusLowerCoreNote',
+    beginner: ['Squat au poids du corps', 'Fente arrière alternée', 'Pont fessier', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    inter: ['Squat tempo', 'Fente arrière alternée', 'Pont fessier une jambe', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+  },
+  {
+    id: 'core-posture', nameKey: 'bodyweightFocusCorePosture', noteKey: 'bodyweightFocusCorePostureNote',
+    rpe: '4–6',
+    beginner: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
+    inter: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
+  },
+];
+
+function normalizeBodyweightFocusId(value) {
+  return BODYWEIGHT_FOCUSES.some(focus => focus.id === value) ? value : 'balanced';
+}
+
+function bodyweightFocusForId(value = selectedBodyweightFocusId) {
+  const id = normalizeBodyweightFocusId(value);
+  return BODYWEIGHT_FOCUSES.find(focus => focus.id === id) || BODYWEIGHT_FOCUSES[0];
+}
+
+function sessionBodyweightFocusId(session) {
+  return session?.modeId === 'bodyweight' ? normalizeBodyweightFocusId(session.bodyweightFocusId) : null;
+}
+
+function bodyweightFocusLabel(value = selectedBodyweightFocusId) {
+  return t(bodyweightFocusForId(value).nameKey);
+}
+
+function bodyweightRpe(cfg, focus = bodyweightFocusForId()) {
+  return focus.rpe || cfg.rpe;
+}
+
 const FATLOSS_CFG = {
   15: { warmupCount: 3, metabolicCount: 2, metabolicRounds: 3, strengthCount: 2, strengthRounds: 2, coreCount: 2, coreRounds: 2, work: 35, rest: 20, strengthWork: 35, strengthRest: 25, coreWork: 30 },
   20: { warmupCount: 4, metabolicCount: 3, metabolicRounds: 2, strengthCount: 3, strengthRounds: 2, coreCount: 3, coreRounds: 2, work: 40, rest: 20, strengthWork: 40, strengthRest: 25, coreWork: 35 },
@@ -3890,8 +4016,11 @@ function weeklyLaneForHistory(history = readHistory(), now = new Date()) {
   return WEEKLY_LANES[completedThisWeek % WEEKLY_LANES.length];
 }
 
-function bodyweightLaneForHistory(history = readHistory()) {
-  const completedBodyweightSessions = history.filter(session => session?.modeId === 'bodyweight').length;
+function bodyweightLaneForHistory(history = readHistory(), focusId = 'balanced') {
+  const normalizedFocusId = normalizeBodyweightFocusId(focusId);
+  const completedBodyweightSessions = history.filter(session =>
+    session?.modeId === 'bodyweight' && sessionBodyweightFocusId(session) === normalizedFocusId
+  ).length;
   return BODYWEIGHT_LANES[completedBodyweightSessions % BODYWEIGHT_LANES.length];
 }
 
@@ -3937,6 +4066,10 @@ let fatlossPlan = null;
 let activeWeeklyLane = null;
 let bodyweightPlan = null;
 let activeBodyweightLane = null;
+let selectedBodyweightFocusId = (() => {
+  try { return normalizeBodyweightFocusId(localStorage.getItem(BODYWEIGHT_FOCUS_STORAGE_KEY)); }
+  catch { return 'balanced'; }
+})();
 let fatlossGenerationNonce = 0;
 let selectedRecipe = null;
 let circuitPreviewFresh = true;
@@ -3995,6 +4128,43 @@ function renderEquipmentSelector() {
     button.addEventListener('click', () => cycleEquipment(weight));
     return button;
   }));
+}
+
+function renderBodyweightFocusSelector() {
+  const panel = document.getElementById('bodyweight-focus-group');
+  const grid = document.getElementById('bodyweight-focus-grid');
+  const note = document.getElementById('bodyweight-focus-note');
+  if (!panel || !grid || !note) return;
+  panel.hidden = selectedMode !== 'bodyweight';
+  document.getElementById('bodyweight-focus-label').textContent = t('bodyweightFocusLabel');
+  grid.replaceChildren(...BODYWEIGHT_FOCUSES.map(focus => {
+    const button = document.createElement('button');
+    const selected = focus.id === selectedBodyweightFocusId;
+    button.type = 'button';
+    button.className = 'bodyweight-focus-btn';
+    button.dataset.bodyweightFocus = focus.id;
+    button.setAttribute('aria-pressed', String(selected));
+    button.setAttribute('aria-label', focus.recommended
+      ? `${t(focus.nameKey)}. ${t('bodyweightFocusRecommended')}`
+      : t(focus.nameKey));
+    button.innerHTML = `<span class="bodyweight-focus-name">${t(focus.nameKey)}</span>${focus.recommended
+      ? `<span class="bodyweight-focus-recommended">${t('bodyweightFocusRecommended')}</span>`
+      : ''}`;
+    button.addEventListener('click', () => selectBodyweightFocus(focus.id));
+    return button;
+  }));
+  note.textContent = t(bodyweightFocusForId().noteKey);
+}
+
+function selectBodyweightFocus(value, persist = true) {
+  selectedBodyweightFocusId = normalizeBodyweightFocusId(value);
+  if (persist) {
+    try { localStorage.setItem(BODYWEIGHT_FOCUS_STORAGE_KEY, selectedBodyweightFocusId); } catch {}
+  }
+  activeBodyweightLane = null;
+  bodyweightPlan = null;
+  renderBodyweightFocusSelector();
+  updatePreview();
 }
 
 function cycleEquipment(weight) {
@@ -4500,8 +4670,11 @@ function saveSession(mode, duration, exercises, metadata = {}) {
       modeId: mode,
       weeklyLaneId: mode === 'bodyweight' ? null : (activeWeeklyLane?.id || weeklyLaneForHistory(hist).id),
       bodyweightLaneId: mode === 'bodyweight'
-        ? (activeBodyweightLane || bodyweightLaneForHistory(hist)).id
+        ? (selectedBodyweightFocusId === 'balanced'
+          ? (activeBodyweightLane || bodyweightLaneForHistory(hist, selectedBodyweightFocusId)).id
+          : null)
         : null,
+      bodyweightFocusId: mode === 'bodyweight' ? normalizeBodyweightFocusId(selectedBodyweightFocusId) : null,
       duration,
       exercises: [...new Set(exercises)],
       equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
@@ -4574,6 +4747,9 @@ function showHistory() {
           ? BODYWEIGHT_LANES.find(lane => lane.id === s.bodyweightLaneId)
           : null;
         const bodyweightLaneDisplay = bodyweightLane ? bodyweightLaneLabel(bodyweightLane) : '';
+        const bodyweightFocusDisplay = s.modeId === 'bodyweight'
+          ? t('bodyweightFocusBadge')(bodyweightFocusLabel(sessionBodyweightFocusId(s)))
+          : '';
         const recipeDisplay = s.recipeId === CURATED_RECIPES.nateliFullBody.id ? t('nateliRecipe')
           : s.recipeId === GUIDED_RECIPES.minimal3.id ? t('minimal3Name')
             : s.recipeId === AMRAP_PRESETS.fullBodyDensity.id ? t('amrapName') : '';
@@ -4592,7 +4768,7 @@ function showHistory() {
           <div class="history-date">${dateStr}</div>
           <div class="history-mode">${s.mode}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
           ${finisherDisplay}
-          <div class="history-detail">${[bodyweightLaneDisplay, recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
+          <div class="history-detail">${[bodyweightFocusDisplay, bodyweightLaneDisplay, recipeDisplay, equipmentDisplay, exDisplay].filter(Boolean).join('<br>')}</div>
         </div>`;
       }).join('');
     }
@@ -4754,14 +4930,22 @@ function buildCircuit() {
   currentStep = 0;
 }
 
-function createBodyweightPlan(lane = activeBodyweightLane || bodyweightLaneForHistory()) {
-  activeBodyweightLane = lane;
-  bodyweightPlan = lane[selectedLevel].map(bodyweightExercise);
+function createBodyweightPlan(lane = activeBodyweightLane) {
+  const focus = bodyweightFocusForId();
+  if (focus.id === 'balanced') {
+    activeBodyweightLane = lane || bodyweightLaneForHistory(readHistory(), focus.id);
+    bodyweightPlan = activeBodyweightLane[selectedLevel].map(bodyweightExercise);
+  } else {
+    activeBodyweightLane = null;
+    bodyweightPlan = focus[selectedLevel].map(bodyweightExercise);
+  }
   return bodyweightPlan;
 }
 
 function buildBodyweight() {
   const cfg = BODYWEIGHT_CFG[selectedMin][selectedLevel];
+  const focus = bodyweightFocusForId();
+  const rpe = bodyweightRpe(cfg, focus);
   const plan = bodyweightPlan || createBodyweightPlan();
   circuit = [];
   sessionExercises = plan.map(exercise => exercise.name);
@@ -4777,8 +4961,8 @@ function buildBodyweight() {
         duration: cfg.work,
         round,
         totalRounds: cfg.rounds,
-        modeLabel: `${bodyweightLaneLabel(activeBodyweightLane)} · ${round}/${cfg.rounds}`,
-        detail: `${cfg.work}s · RPE ${cfg.rpe}`,
+        modeLabel: `${focus.id === 'balanced' ? bodyweightLaneLabel(activeBodyweightLane) : t('bodyweightFocusBadge')(t(focus.nameKey))} · ${round}/${cfg.rounds}`,
+        detail: `${cfg.work}s · RPE ${rpe}`,
       });
       if (workStep < totalWorkSteps) {
         circuit.push({
@@ -4788,7 +4972,7 @@ function buildBodyweight() {
           duration: cfg.rest,
           round,
           totalRounds: cfg.rounds,
-          modeLabel: t('bodyweightName').toUpperCase(),
+          modeLabel: `${t('bodyweightName')} · ${t(focus.nameKey)}`.toUpperCase(),
         });
       }
     }
@@ -5491,6 +5675,7 @@ function selectMode(mode) {
   const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
   selectedCard?.classList.add('active');
   if (selectedCard?.matches('button')) selectedCard.setAttribute('aria-pressed', 'true');
+  renderBodyweightFocusSelector();
   document.getElementById('round-rest-group').classList.remove('visible');
   updateDurationOptions();
   updatePreview();
@@ -5607,7 +5792,9 @@ function updatePreview() {
     }
     case 'bodyweight': {
       const level = selectedLevel === 'beginner' ? t('beginner') : t('intermediate');
-      el.textContent = t('bodyweightPreview')(selectedMin, level);
+      const cfg = BODYWEIGHT_CFG[selectedMin][selectedLevel];
+      const focus = bodyweightFocusForId();
+      el.textContent = t('bodyweightPreview')(selectedMin, level, t(focus.nameKey), bodyweightRpe(cfg, focus));
       break;
     }
     case 'emom': {
@@ -5807,7 +5994,8 @@ function showFatlossPreview() {
 }
 
 function showBodyweightPreview() {
-  activeBodyweightLane = bodyweightLaneForHistory();
+  const focus = bodyweightFocusForId();
+  activeBodyweightLane = focus.id === 'balanced' ? bodyweightLaneForHistory(readHistory(), focus.id) : null;
   createBodyweightPlan(activeBodyweightLane);
   renderBodyweightPreview();
 }
@@ -5831,18 +6019,25 @@ function renderPlanPreview() {
 
 function renderBodyweightPreview() {
   const cfg = BODYWEIGHT_CFG[selectedMin][selectedLevel];
-  const lane = activeBodyweightLane || bodyweightLaneForHistory();
+  const focus = bodyweightFocusForId();
+  const lane = focus.id === 'balanced'
+    ? (activeBodyweightLane || bodyweightLaneForHistory(readHistory(), focus.id))
+    : null;
   const plan = bodyweightPlan || createBodyweightPlan(lane);
+  const rpe = bodyweightRpe(cfg, focus);
 
   document.querySelector('.cp-title').textContent = t('yourBodyweightPlan');
   document.getElementById('cp-subtitle').textContent = t('bodyweightSubtitle')(selectedMin, cfg.work, cfg.rest);
   const laneBadge = document.getElementById('cp-lane-badge');
   laneBadge.hidden = false;
-  laneBadge.textContent = bodyweightLaneLabel(lane);
+  laneBadge.textContent = focus.id === 'balanced'
+    ? bodyweightLaneLabel(lane)
+    : t('bodyweightFocusBadge')(t(focus.nameKey));
   document.getElementById('cp-science-note').hidden = false;
-  document.getElementById('cp-science-note').textContent = t('bodyweightScience');
+  document.getElementById('cp-science-note').textContent = `${t(focus.noteKey)} ${t('bodyweightScience')}`;
+  const coverageLabel = focus.id === 'balanced' ? t('full') : t(focus.nameKey);
   document.getElementById('cp-coverage').innerHTML = `
-    <span class="cp-tag full check">✓ ${t('full')}</span>
+    <span class="cp-tag full check">✓ ${coverageLabel}</span>
     <span class="cp-tag core check">✓ ${t('bodyweightEquipment')}</span>`;
   document.getElementById('cp-list').innerHTML = plan.map((exercise, index) => {
     const demo = getYouTubeDemo(exercise.name);
@@ -5850,7 +6045,7 @@ function renderBodyweightPreview() {
       <div class="cp-item-num">${index + 1}</div>
       <div class="cp-item-info">
         <div class="cp-item-name">${exName(exercise.name)}</div>
-        <div class="cp-item-detail">${cfg.rounds}× ${cfg.work}s · RPE ${cfg.rpe}</div>
+        <div class="cp-item-detail">${cfg.rounds}× ${cfg.work}s · RPE ${rpe}</div>
       </div>
       <a class="cp-item-demo" href="${demo.url}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="${t('demoAria')(exName(exercise.name))}">${t('demoShort')}</a>
       <span class="cp-item-tag ${exercise.group}">${groupLabel(exercise.group)}</span>
