@@ -37,7 +37,7 @@ KB Swing · Clean & Press (L/R) · Dead Clean from the floor (L/R) · Clean + Th
 The offset push-up is only offered with one hand centred on a kettlebell that has a perfectly stable flat base. If the bell moves, the on-screen instruction explicitly sends the athlete back to floor push-ups. The app intentionally excludes crush-grip presses and does not ask the athlete to balance on two unstable handles.
 
 ### Bodyweight core
-Forearm Plank · Side Plank (L/R) · Dead Bug · Mountain Climber · Bear Plank Shoulder Tap
+Forearm Plank · Side Plank (L/R) · Dead Bug · Reverse Crunch · Hollow Body Tuck · Bird Dog · Mountain Climber · Bear Plank Shoulder Tap
 
 ### No-kettlebell travel program
 
@@ -47,19 +47,19 @@ The dedicated travel mode is curated rather than randomly assembled. **Balanced*
 2. **Unilateral & stability** : alternating reverse lunge, push-up, glute bridge variation, Bird Dog, Side Plank and prone shoulder control;
 3. **Conditioning & trunk** : squat, push-up, glute bridge variation, Mountain Climber, Bear Plank Shoulder Tap and prone shoulder control.
 
-Beginner plans use incline push-ups on a stable wall or support and bilateral bridges. Intermediate plans use floor push-ups, tempo squats and single-leg bridges. Work stays around RPE 6–8, with explicit prompts to regress or stop for pain or form loss. No jumps, improvised door/towel rows, unstable furniture drills, forced failure or gimmicky burpees are programmed.
+The expanded pool adds movement patterns that were genuinely missing instead of collecting cosmetic variations: Pike Press for vertical pushing, close-grip push-ups for triceps, High Plank Plus and Prone Y Raise for shoulder control, Reverse Crunch and Hollow Body Tuck for distinct trunk functions, Bodyweight Single-Leg RDL for standing hip-hinge and balance, and Single-Leg Calf Raise. Beginner plans use stable regressions; intermediate plans use floor or longer-lever progressions. Work stays around RPE 6–8, with explicit prompts to regress or stop for pain or form loss. No jumps, improvised door/towel rows, unstable furniture drills, forced failure or gimmicky burpees are programmed.
 
 Three targeted focuses cover short-term recovery needs without changing the default program:
 
-- **Upper + core** is visibly recommended when cycling has already loaded the legs. It uses controlled push-ups, trunk work and scapular-control drills at RPE 6–7, with no squats, lunges, bridges, mountain climbers or meaningful lower-body loading.
-- **Lower + core** biases the legs and trunk when the upper body needs rest.
-- **Core & posture** is a lighter RPE 4–6 recovery session built around trunk and scapular control, without hard conditioning.
+- **Upper + core** is visibly recommended when cycling has already loaded the legs. Each variant uses exactly one demanding push plus lighter shoulder-control work and trunk training at RPE 6–7, with no meaningful lower-body loading.
+- **Lower + core** biases squat/lunge, hip extension, standing hinge, calves, balance and trunk work when the upper body needs rest.
+- **Core & posture** is a lighter RPE 4–6 recovery session combining stability, controlled trunk flexion/anti-extension and scapular control, without hard conditioning.
 
 Cycling is treated here as current training load, not a reason to permanently skip leg strength. The selector is fatigue management for a given session. The saved focus is included in workout history, while older no-kettlebell entries without a focus are interpreted as Balanced.
 
-The no-equipment limitation is explicit: prone W raises and reverse snow angels can train scapular and posterior-shoulder control, but they do **not** replace loaded rows. Add real horizontal pulling when safe equipment is available.
+The mode promises **no kettlebell**, not an empty room: floor space and an optional completely stable wall/chair are allowed. The Stable-Chair Dip is a curated alternative for users who enjoy and tolerate it, not a default staple. Its on-screen warning requires an immovable chair against a wall, hips close to the chair, foot assistance, a comfortable range and an immediate stop for front-shoulder pinching. This reflects the limited 2022 biomechanical evidence: bench dips train the triceps, but can take the shoulder to unusually deep extension. Prone shoulder-control drills still do **not** replace loaded rows; add real horizontal pulling when safe equipment is available.
 
-This product framing follows [ACSM's 2026 resistance-training guidance](https://acsm.org/resistance-training-guidelines-update-2026/), which emphasizes individualized programming, consistency over unnecessary complexity, meaningful bodyweight/home training and that training to failure is optional. The [WHO physical activity fact sheet](https://www.who.int/news-room/fact-sheets/detail/physical-activity) counts cycling as physical activity while still recommending muscle strengthening for everyone.
+This product framing follows [ACSM's 2026 resistance-training guidance](https://acsm.org/resistance-training-guidelines-update-2026/), which emphasizes individualized programming, consistency over unnecessary complexity, meaningful bodyweight/home training and that training to failure is optional. The [WHO physical activity fact sheet](https://www.who.int/news-room/fact-sheets/detail/physical-activity) counts cycling as physical activity while still recommending muscle strengthening for everyone. Exercise selection is also grounded in the [push-up plus systematic review](https://pmc.ncbi.nlm.nih.gov/articles/PMC6863690/), [core-exercise systematic review](https://pmc.ncbi.nlm.nih.gov/articles/PMC7345922/), [Stronger by Science no-gym guide](https://www.strongerbyscience.com/no-gym/), [E3 Rehab shoulder-control progression](https://e3rehab.com/scapulardyskinesis/) and [2022 bench/bar/ring dip biomechanics study](https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/).
 
 ## Fat-loss mode and scientific framing
 
@@ -179,7 +179,7 @@ The Supabase diagnostics cover legacy UUID migration, deterministic merge/no dup
 node tests/bodyweight-mode-diagnostic.mjs
 ```
 
-The bodyweight diagnostic checks bilingual setup and preview copy, focus visibility/accessibility/persistence, all four focus plans at every duration and level, focus-preserving exercise regeneration through the setup-to-preview flow, focus-scoped rotation and legacy Balanced history, zero-equipment exercise metadata/SVG/steps/search demos, saved focus payloads and history labels, exercise stats without tonnage, 44px touch targets and 320px containment. Regeneration cycles curated six-exercise variants while retaining no-kettlebell mode, focus, duration and level; each variant changes at least one exercise and keeps the focus safety constraints.
+The bodyweight diagnostic checks bilingual setup and preview copy, focus visibility/accessibility/persistence, all four focus plans at every duration and level, focus-preserving exercise regeneration through the setup-to-preview flow, focus-scoped rotation and legacy Balanced history, no-kettlebell exercise metadata/SVG/steps/search demos, expanded movement-pattern coverage, chair-dip warnings, saved focus payloads and history labels, exercise stats without tonnage, 44px touch targets and 320px containment. Regeneration cycles curated six-exercise variants while retaining no-kettlebell mode, focus, duration and level; each variant changes at least one exercise, keeps exactly one demanding push in Upper + Core, and preserves the focus safety constraints.
 
 ## License
 

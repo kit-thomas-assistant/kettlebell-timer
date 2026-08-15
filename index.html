@@ -1805,6 +1805,30 @@
     0%, 100% { transform: rotate(18deg); }
     45%, 60% { transform: rotate(-35deg); }
   }
+  @keyframes bw-pike {
+    0%, 100% { transform: translate(0, 0); }
+    45%, 60% { transform: translate(7px, 8px); }
+  }
+  @keyframes bw-scapular {
+    0%, 100% { transform: translateY(-2px); }
+    45%, 60% { transform: translateY(5px); }
+  }
+  @keyframes bw-core-curl {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    45%, 60% { transform: translate(-7px, -8px) rotate(-8deg); }
+  }
+  @keyframes bw-hinge {
+    0%, 100% { transform: rotate(0deg); }
+    45%, 60% { transform: rotate(19deg); }
+  }
+  @keyframes bw-calf {
+    0%, 100% { transform: translateY(0); }
+    45%, 60% { transform: translateY(-8px); }
+  }
+  @keyframes bw-dip {
+    0%, 100% { transform: translateY(-8px); }
+    45%, 60% { transform: translateY(7px); }
+  }
 
 </style>
 </head>
@@ -2150,12 +2174,12 @@ const STRINGS = {
     fatlossNote: 'La graisse abdominale ne se cible pas localement. Ce plan agit sur la dépense globale, la force et le tour de taille.',
     fatlossPreview: (min, level) => `${min} min · ${level} · préparation progressive + intervalles + force + core · blocs actifs RPE 7–8`,
     bodyweightName: 'Sans kettlebell',
-    bodyweightDesc: 'Programme voyage full-body · zéro matériel · 3 séances complémentaires',
-    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · zéro matériel · RPE ${rpe}`,
+    bodyweightDesc: 'Programme voyage full-body · sol + support stable optionnel · 3 séances complémentaires',
+    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · sans kettlebell · RPE ${rpe}`,
     bodyweightEquipment: 'Sans kettlebell',
     yourBodyweightPlan: 'Ton programme voyage',
-    bodyweightScience: 'Reste loin de l’échec. Régresse ou arrête si la forme se dégrade ou en cas de douleur. Les W au sol et anges inversés travaillent le contrôle des épaules, sans remplacer un row chargé.',
-    bodyweightSubtitle: (min, work, rest) => `${min} min environ · ${work}s travail / ${rest}s repos · zéro matériel`,
+    bodyweightScience: 'Reste loin de l’échec. Régresse ou arrête si la forme se dégrade ou en cas de douleur. Pour les dips, chaise immobile et amplitude confortable, jamais la descente la plus basse possible. Le contrôle d’épaule au sol ne remplace pas un row chargé.',
+    bodyweightSubtitle: (min, work, rest) => `${min} min environ · ${work}s travail / ${rest}s repos · sans kettlebell`,
     bodyweightLane: (number, name) => `Voyage ${number}/3 · ${name}`,
     bodyweightLaneBase: 'Base full-body',
     bodyweightLaneUnilateral: 'Unilatéral & stabilité',
@@ -2365,12 +2389,12 @@ const STRINGS = {
     fatlossNote: 'Abdominal fat cannot be spot-reduced. This plan targets total energy expenditure, strength and waist outcomes.',
     fatlossPreview: (min, level) => `${min} min · ${level} · progressive prep + intervals + strength + core · active blocks RPE 7–8`,
     bodyweightName: 'No kettlebell',
-    bodyweightDesc: 'Full-body travel program · no equipment · 3 complementary sessions',
-    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · no equipment · RPE ${rpe}`,
+    bodyweightDesc: 'Full-body travel program · floor + optional stable support · 3 complementary sessions',
+    bodyweightPreview: (min, level, focus, rpe) => `${min} min · ${level} · ${focus} · no kettlebell · RPE ${rpe}`,
     bodyweightEquipment: 'No kettlebell',
     yourBodyweightPlan: 'Your travel program',
-    bodyweightScience: 'Stay well short of failure. Regress or stop for pain or form loss. Prone W raises and reverse snow angels train shoulder control, but do not replace loaded rows.',
-    bodyweightSubtitle: (min, work, rest) => `About ${min} min · ${work}s work / ${rest}s rest · no equipment`,
+    bodyweightScience: 'Stay well short of failure. Regress or stop for pain or form loss. For chair dips, use an immovable chair and a comfortable range, never the deepest possible descent. Floor shoulder-control drills do not replace loaded rows.',
+    bodyweightSubtitle: (min, work, rest) => `About ${min} min · ${work}s work / ${rest}s rest · no kettlebell`,
     bodyweightLane: (number, name) => `Travel ${number}/3 · ${name}`,
     bodyweightLaneBase: 'Full-body base',
     bodyweightLaneUnilateral: 'Unilateral & stability',
@@ -2613,6 +2637,16 @@ const EX_NAME_EN = {
   'Planche latérale': 'Side Plank',
   'W au sol': 'Prone W Raise',
   'Ange inversé': 'Reverse Snow Angel',
+  'Pike Press': 'Pike Press',
+  'Pompes serrées inclinées': 'Incline Close-Grip Push-Up',
+  'Pompes serrées au sol': 'Floor Close-Grip Push-Up',
+  'Planche haute plus': 'High Plank Plus',
+  'Y au sol': 'Prone Y Raise',
+  'Reverse Crunch': 'Reverse Crunch',
+  'Hollow Body Tuck': 'Hollow Body Tuck',
+  'Single-Leg RDL sans charge': 'Bodyweight Single-Leg RDL',
+  'Mollet une jambe': 'Single-Leg Calf Raise',
+  'Dip sur chaise stable': 'Stable-Chair Dip',
 };
 
 // Exercise steps in English (keyed by French exercise name)
@@ -2697,6 +2731,16 @@ const EX_STEPS_EN = {
   'Planche latérale': ['Place the elbow directly below the shoulder', 'Use bent knees for support or straighten the legs', 'Lift the hips while keeping the torso aligned', 'Breathe steadily and switch sides at midpoint'],
   'W au sol': ['Lie face down with elbows bent into a W', 'Keep the forehead low and the neck long', 'Lift the hands and elbows slightly, squeezing the shoulder blades', 'Lower slowly; this is shoulder control, not a loaded row'],
   'Ange inversé': ['Lie face down with arms near the hips', 'Keep the ribs down and neck relaxed', 'Sweep the arms wide toward overhead without shrugging', 'Return slowly; this does not replace loaded rowing'],
+  'Pike Press': ['Start in an inverted V with hips high', 'Shift the head forward between the hands', 'Bend the elbows diagonally and lower only as far as controlled', 'Press the floor away while keeping the neck long'],
+  'Pompes serrées inclinées': ['Place hands just inside shoulder width on a completely stable support', 'Brace the body from head to heels', 'Lower with elbows close to the ribs', 'Press away without shrugging or losing alignment'],
+  'Pompes serrées au sol': ['Place hands just inside shoulder width, not necessarily in a diamond', 'Brace the body from head to heels', 'Lower with elbows close to the ribs', 'Press the floor away before form breaks'],
+  'Planche haute plus': ['Set the hands below the shoulders, knees down if needed', 'Keep the elbows straight throughout', 'Push the floor away to spread the shoulder blades', 'Return to neutral without sagging through the lower back'],
+  'Y au sol': ['Lie face down with arms in a wide Y and thumbs up', 'Keep the forehead low, ribs down and neck long', 'Lift the hands slightly without shrugging', 'Lower slowly; this is control work, not a loaded pull'],
+  'Reverse Crunch': ['Lie down with knees bent above the hips', 'Exhale and gently flatten the lower back', 'Curl the pelvis just off the floor without swinging the legs', 'Lower slowly and reset before the next rep'],
+  'Hollow Body Tuck': ['Lie down with hips and knees bent', 'Exhale and press the lower back into the floor', 'Lift the shoulders slightly and reach past the hips', 'Stop or tuck tighter as soon as the lower back lifts'],
+  'Single-Leg RDL sans charge': ['Stand on one leg with a soft knee, fingertips on a wall if needed', 'Reach the free leg back as the torso tips forward', 'Keep the hips square and spine long', 'Drive through the standing foot, then switch sides at midpoint'],
+  'Mollet une jambe': ['Stand tall on one foot with light fingertip support', 'Rise onto the ball of the foot without rolling the ankle', 'Pause briefly at the top', 'Lower slowly, then switch sides at midpoint'],
+  'Dip sur chaise stable': ['Use one immovable chair against a wall, hands beside the hips', 'Keep the hips close and feet near enough to assist', 'Lower only through a comfortable shoulder range', 'Press up before the shoulders roll forward; stop for pinching'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
 
@@ -3449,10 +3493,11 @@ for (const exercise of BODYWEIGHT_CORE_EXERCISES) {
   YOUTUBE_DEMOS[exercise.name] = exercise.demo;
 }
 
-// A deliberately small travel pool. These movements need only floor space or
-// a stable wall/support for the beginner push-up regression. Shoulder-control
-// drills are labelled honestly and are never presented as a replacement for a
-// loaded horizontal pull.
+// A deliberately curated travel pool. These movements need floor space or an
+// explicitly stable wall/chair support. Shoulder-control drills are labelled
+// honestly and are never presented as a replacement for a loaded horizontal
+// pull. Chair dips remain an optional variant with a visible range/stability
+// warning rather than a default staple.
 const BODYWEIGHT_TRAVEL_EXERCISES = [
   {
     name: 'Squat au poids du corps', level: 'beginner', group: 'lower', family: 'air-squat', pattern: 'squat', laterality: 'bilateral',
@@ -3515,6 +3560,86 @@ const BODYWEIGHT_TRAVEL_EXERCISES = [
     steps: ['Allongé ventre, bras près des hanches','Côtes au sol et nuque relâchée','Balaye les bras vers le haut sans hausser les épaules','Reviens lentement; ce mouvement ne remplace pas un row chargé'],
     demo: { query: 'reverse snow angel exercise proper form tutorial' },
   },
+  {
+    name: 'Pike Press', level: 'inter', group: 'upper', family: 'pike-press', pattern: 'vertical-push', laterality: 'bilateral',
+    detail: '6–10 reps contrôlées', reps: 8,
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="9" y1="76" x2="112" y2="76" stroke="${K}" stroke-width="2" opacity=".45"/><g style="animation:bw-pike 2.2s ease-in-out infinite;transform-origin:35px 68px"><circle cx="31" cy="47" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="39" y1="48" x2="72" y2="30" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="72" y1="30" x2="101" y2="72" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="44" x2="39" y2="72" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="40" x2="51" y2="72" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="31" y1="76" x2="57" y2="76" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Pars en V inversé, bassin haut','Avance la tête entre les mains','Plie les coudes en diagonale, amplitude contrôlée','Repousse le sol en gardant la nuque longue'],
+    demo: { query: 'pike push up pike press proper form tutorial' },
+  },
+  {
+    name: 'Pompes serrées inclinées', level: 'beginner', group: 'upper', family: 'close-grip-push-up', pattern: 'horizontal-push', laterality: 'bilateral',
+    detail: '6–12 reps propres', reps: 8, visualFrom: 'Pompes inclinées',
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    steps: ['Mains un peu plus serrées que les épaules sur un support parfaitement stable','Gaine le corps de la tête aux talons','Descends avec les coudes près des côtes','Repousse sans hausser les épaules ni perdre l’alignement'],
+    demo: { query: 'incline close grip push up proper form tutorial' },
+  },
+  {
+    name: 'Pompes serrées au sol', level: 'inter', group: 'upper', family: 'close-grip-push-up', pattern: 'horizontal-push', laterality: 'bilateral',
+    detail: '6–12 reps propres', reps: 8, visualFrom: 'Pompes au sol',
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    steps: ['Mains un peu plus serrées que les épaules, sans imposer un diamant','Gaine le corps de la tête aux talons','Descends avec les coudes près des côtes','Repousse avant que la forme ne se dégrade'],
+    demo: { query: 'close grip push up proper form tutorial' },
+  },
+  {
+    name: 'Planche haute plus', level: 'beginner', group: 'upper', family: 'plank-plus', pattern: 'scapular-control', laterality: 'bilateral',
+    detail: '8–12 reps lentes', reps: 10,
+    source: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6863690/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="8" y1="75" x2="113" y2="75" stroke="${K}" stroke-width="2" opacity=".45"/><circle cx="27" cy="34" r="8" fill="none" stroke="${B}" stroke-width="3"/><g style="animation:bw-scapular 2s ease-in-out infinite;transform-origin:55px 49px"><line x1="35" y1="39" x2="79" y2="53" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="79" y1="53" x2="108" y2="68" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g><line x1="48" y1="43" x2="39" y2="73" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="46" x2="53" y2="73" stroke="${B}" stroke-width="4" stroke-linecap="round"/><path d="M44 32 Q55 25 66 36" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/></svg>`,
+    steps: ['Mains sous les épaules, genoux au sol si besoin','Garde les coudes tendus pendant tout le mouvement','Pousse le sol pour écarter les omoplates','Reviens au neutre sans laisser les lombaires s’affaisser'],
+    demo: { query: 'high plank plus serratus anterior proper form tutorial' },
+  },
+  {
+    name: 'Y au sol', level: 'beginner', group: 'upper', family: 'prone-y', pattern: 'posterior-shoulder', laterality: 'bilateral',
+    detail: '8–12 reps légères', reps: 10,
+    source: 'https://e3rehab.com/scapulardyskinesis/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="10" y1="70" x2="110" y2="70" stroke="${K}" stroke-width="2" opacity=".45"/><circle cx="28" cy="56" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="36" y1="57" x2="80" y2="60" stroke="${B}" stroke-width="4" stroke-linecap="round"/><g style="animation:bw-snow-angel 2.6s ease-in-out infinite;transform-origin:53px 58px"><line x1="50" y1="58" x2="30" y2="31" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="56" y1="58" x2="79" y2="31" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g><line x1="80" y1="60" x2="105" y2="68" stroke="${B}" stroke-width="4" stroke-linecap="round"/></svg>`,
+    steps: ['Allongé ventre, bras en Y large, pouces vers le plafond','Front bas, côtes au sol et nuque longue','Décolle légèrement les mains sans hausser les épaules','Redescends lentement; ce contrôle ne remplace pas un tirage chargé'],
+    demo: { query: 'prone Y raise proper form physical therapist' },
+  },
+  {
+    name: 'Reverse Crunch', level: 'beginner', group: 'core', family: 'reverse-crunch', pattern: 'trunk-flexion', laterality: 'bilateral',
+    detail: '8–12 reps contrôlées', reps: 10,
+    source: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7345922/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="9" y1="72" x2="112" y2="72" stroke="${K}" stroke-width="2" opacity=".45"/><circle cx="25" cy="61" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="33" y1="62" x2="68" y2="62" stroke="${B}" stroke-width="4" stroke-linecap="round"/><g style="animation:bw-core-curl 2.2s ease-in-out infinite;transform-origin:68px 62px"><polyline points="68,62 84,44 103,54" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><line x1="103" y1="54" x2="104" y2="67" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g><line x1="47" y1="64" x2="38" y2="71" stroke="${B}" stroke-width="3" stroke-linecap="round"/></svg>`,
+    steps: ['Allongé, genoux fléchis au-dessus des hanches','Expire et plaque doucement les lombaires','Enroule juste le bassin sans lancer les jambes','Redescends lentement et replace-toi avant la rep suivante'],
+    demo: { query: 'reverse crunch controlled posterior pelvic tilt proper form tutorial' },
+  },
+  {
+    name: 'Hollow Body Tuck', level: 'inter', group: 'core', family: 'hollow-body', pattern: 'anti-extension', laterality: 'bilateral',
+    detail: '15–30 secondes propres', reps: 0,
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="8" y1="72" x2="112" y2="72" stroke="${K}" stroke-width="2" opacity=".45"/><g style="animation:bw-core-curl 2.8s ease-in-out infinite;transform-origin:60px 61px"><circle cx="29" cy="53" r="8" fill="none" stroke="${B}" stroke-width="3"/><path d="M37 57 Q61 70 78 58" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round"/><polyline points="77,58 91,44 103,57" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><line x1="48" y1="61" x2="68" y2="47" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Allongé, hanches et genoux fléchis','Expire et plaque les lombaires au sol','Décolle légèrement les épaules et tends les bras vers les hanches','Arrête ou replie davantage dès que les lombaires se décollent'],
+    demo: { query: 'hollow body tuck hold proper form tutorial' },
+  },
+  {
+    name: 'Single-Leg RDL sans charge', level: 'beginner', group: 'lower', family: 'single-leg-rdl', pattern: 'hinge', laterality: 'per-side',
+    detail: '6–10 par côté', reps: 8,
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="9" y1="80" x2="112" y2="80" stroke="${K}" stroke-width="2" opacity=".45"/><g style="animation:bw-hinge 2.5s ease-in-out infinite;transform-origin:60px 56px"><circle cx="59" cy="16" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="59" y1="24" x2="59" y2="55" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="59" y1="35" x2="43" y2="49" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="59" y1="35" x2="75" y2="49" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="59" y1="55" x2="51" y2="79" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="59" y1="55" x2="91" y2="58" stroke="${K}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Tiens-toi sur une jambe, genou souple; touche un mur du bout des doigts si besoin','Allonge la jambe libre derrière pendant que le buste bascule','Garde le bassin face au sol et le dos long','Pousse dans le pied d’appui puis change de côté à mi-temps'],
+    demo: { query: 'bodyweight single leg Romanian deadlift balance proper form tutorial' },
+  },
+  {
+    name: 'Mollet une jambe', level: 'beginner', group: 'lower', family: 'single-leg-calf-raise', pattern: 'calf-raise', laterality: 'per-side',
+    detail: '8–15 par côté', reps: 12,
+    source: 'https://www.strongerbyscience.com/no-gym/',
+    svg: `<svg viewBox="0 0 120 90" role="img"><line x1="11" y1="80" x2="109" y2="80" stroke="${K}" stroke-width="2" opacity=".45"/><line x1="25" y1="14" x2="25" y2="80" stroke="${K}" stroke-width="3" opacity=".55"/><g style="animation:bw-calf 2s ease-in-out infinite;transform-origin:61px 76px"><circle cx="58" cy="15" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="58" y1="23" x2="58" y2="54" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="35" x2="29" y2="37" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="58" y1="35" x2="73" y2="49" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="58" y1="54" x2="54" y2="77" stroke="${B}" stroke-width="4" stroke-linecap="round"/><polyline points="58,54 76,64 68,77" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+    steps: ['Grandis-toi sur un pied avec un appui léger du bout des doigts','Monte sur l’avant-pied sans laisser la cheville rouler','Marque une courte pause en haut','Redescends lentement puis change de côté à mi-temps'],
+    demo: { query: 'single leg calf raise proper form wall support tutorial' },
+  },
+  {
+    name: 'Dip sur chaise stable', level: 'beginner', group: 'upper', family: 'chair-dip', pattern: 'elbow-extension', laterality: 'bilateral',
+    detail: '6–10 reps confortables', reps: 8,
+    source: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/',
+    warning: 'Chaise immobile contre un mur. Bassin proche, pieds assez près pour aider, amplitude confortable. Ne cherche pas la descente maximale et arrête si l’avant de l’épaule pince.',
+    warningEn: 'Use an immovable chair against a wall. Keep hips close, feet near enough to assist, and use a comfortable range. Do not chase maximum depth; stop for front-shoulder pinching.',
+    svg: `<svg viewBox="0 0 120 90" role="img"><rect x="72" y="39" width="37" height="8" rx="2" fill="none" stroke="${K}" stroke-width="3"/><line x1="101" y1="47" x2="101" y2="80" stroke="${K}" stroke-width="4"/><g style="animation:bw-dip 2.2s ease-in-out infinite;transform-origin:70px 45px"><circle cx="57" cy="19" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="57" y1="27" x2="62" y2="53" stroke="${B}" stroke-width="4" stroke-linecap="round"/><polyline points="58,35 75,43 83,43" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="62,53 43,65 27,78" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="62,53 74,64 83,78" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+    steps: ['Bloque une chaise immobile contre un mur, mains près des hanches','Garde le bassin proche et les pieds assez près pour t’aider','Descends seulement dans une amplitude confortable','Repousse avant que les épaules roulent; arrête si ça pince'],
+    demo: { query: 'bench dip chair dip safe range proper form tutorial' },
+  },
 ];
 
 for (const exercise of BODYWEIGHT_TRAVEL_EXERCISES) {
@@ -3525,6 +3650,9 @@ for (const exercise of BODYWEIGHT_TRAVEL_EXERCISES) {
     meta: {
       equipment: 'Sans kettlebell', difficulty: exercise.level,
       family: exercise.family, pattern: exercise.pattern, laterality: exercise.laterality,
+      source: exercise.source || null,
+      warning: exercise.warning || null,
+      warningEn: exercise.warningEn || null,
     },
   };
   YOUTUBE_DEMOS[exercise.name] = exercise.demo;
@@ -3923,9 +4051,11 @@ const BODYWEIGHT_LANES = [
     alternatives: {
       beginner: [
         ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Planche avant-bras', 'W au sol', 'Dead Bug'],
+        ['Single-Leg RDL sans charge', 'Pompes serrées inclinées', 'Pont fessier', 'Reverse Crunch', 'Y au sol', 'Mollet une jambe'],
       ],
       inter: [
         ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Planche avant-bras', 'Ange inversé', 'Dead Bug'],
+        ['Single-Leg RDL sans charge', 'Pike Press', 'Pont fessier une jambe', 'Hollow Body Tuck', 'Planche haute plus', 'Y au sol'],
       ],
     },
   },
@@ -3936,9 +4066,11 @@ const BODYWEIGHT_LANES = [
     alternatives: {
       beginner: [
         ['Squat au poids du corps', 'Pompes inclinées', 'Pont fessier', 'Bird Dog', 'Planche avant-bras', 'W au sol'],
+        ['Fente arrière alternée', 'Dip sur chaise stable', 'Single-Leg RDL sans charge', 'Reverse Crunch', 'Planche haute plus', 'Mollet une jambe'],
       ],
       inter: [
         ['Squat tempo', 'Pompes au sol', 'Pont fessier une jambe', 'Bird Dog', 'Planche avant-bras', 'Ange inversé'],
+        ['Fente arrière alternée', 'Pompes serrées au sol', 'Single-Leg RDL sans charge', 'Hollow Body Tuck', 'Y au sol', 'Mollet une jambe'],
       ],
     },
   },
@@ -3949,9 +4081,11 @@ const BODYWEIGHT_LANES = [
     alternatives: {
       beginner: [
         ['Fente arrière alternée', 'Pompes inclinées', 'Pont fessier', 'Mountain Climber', 'Planche avant-bras', 'W au sol'],
+        ['Squat au poids du corps', 'Pompes serrées inclinées', 'Mollet une jambe', 'Mountain Climber', 'Reverse Crunch', 'Planche haute plus'],
       ],
       inter: [
         ['Fente arrière alternée', 'Pompes au sol', 'Pont fessier une jambe', 'Mountain Climber', 'Planche avant-bras', 'Ange inversé'],
+        ['Squat tempo', 'Pike Press', 'Single-Leg RDL sans charge', 'Mountain Climber', 'Hollow Body Tuck', 'Y au sol'],
       ],
     },
   },
@@ -3965,43 +4099,47 @@ const BODYWEIGHT_FOCUSES = [
   {
     id: 'upper-core', nameKey: 'bodyweightFocusUpperCore', noteKey: 'bodyweightFocusUpperCoreNote',
     recommended: true, rpe: '6–7',
-    beginner: ['Pompes inclinées', 'W au sol', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
-    inter: ['Pompes au sol', 'Ange inversé', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    beginner: ['Pompes serrées inclinées', 'Planche haute plus', 'Y au sol', 'Reverse Crunch', 'Bird Dog', 'Planche latérale'],
+    inter: ['Pike Press', 'Planche haute plus', 'Y au sol', 'Hollow Body Tuck', 'Bird Dog', 'Planche latérale'],
     alternatives: {
       beginner: [
-        ['Pompes inclinées', 'W au sol', 'Dead Bug', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)'],
+        ['Pompes inclinées', 'W au sol', 'Planche haute plus', 'Dead Bug', 'Reverse Crunch', 'Planche latérale'],
+        ['Dip sur chaise stable', 'Planche haute plus', 'Y au sol', 'Planche avant-bras', 'Bird Dog', 'Reverse Crunch'],
       ],
       inter: [
-        ['Pompes au sol', 'W au sol', 'Dead Bug', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)'],
+        ['Pompes serrées au sol', 'W au sol', 'Planche haute plus', 'Dead Bug', 'Reverse Crunch', 'Planche latérale'],
+        ['Dip sur chaise stable', 'Planche haute plus', 'Ange inversé', 'Hollow Body Tuck', 'Planche avant-bras', 'Bird Dog'],
       ],
     },
   },
   {
     id: 'lower-core', nameKey: 'bodyweightFocusLowerCore', noteKey: 'bodyweightFocusLowerCoreNote',
-    beginner: ['Squat au poids du corps', 'Fente arrière alternée', 'Pont fessier', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
-    inter: ['Squat tempo', 'Fente arrière alternée', 'Pont fessier une jambe', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+    beginner: ['Squat au poids du corps', 'Fente arrière alternée', 'Single-Leg RDL sans charge', 'Mollet une jambe', 'Reverse Crunch', 'Bird Dog'],
+    inter: ['Squat tempo', 'Pont fessier une jambe', 'Single-Leg RDL sans charge', 'Mollet une jambe', 'Hollow Body Tuck', 'Planche latérale'],
     alternatives: {
       beginner: [
-        ['Squat au poids du corps', 'Fente arrière alternée', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
-        ['Squat au poids du corps', 'Pont fessier', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+        ['Squat au poids du corps', 'Pont fessier', 'Mollet une jambe', 'Planche avant-bras', 'Dead Bug', 'Planche latérale'],
+        ['Fente arrière alternée', 'Pont fessier', 'Single-Leg RDL sans charge', 'Reverse Crunch', 'Bird Dog', 'Planche latérale'],
       ],
       inter: [
-        ['Squat tempo', 'Fente arrière alternée', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
-        ['Squat tempo', 'Pont fessier une jambe', 'Planche avant-bras', 'Dead Bug', 'Bird Dog', 'Planche latérale'],
+        ['Squat tempo', 'Fente arrière alternée', 'Mollet une jambe', 'Planche avant-bras', 'Reverse Crunch', 'Planche latérale'],
+        ['Fente arrière alternée', 'Pont fessier une jambe', 'Single-Leg RDL sans charge', 'Hollow Body Tuck', 'Bird Dog', 'Planche latérale'],
       ],
     },
   },
   {
     id: 'core-posture', nameKey: 'bodyweightFocusCorePosture', noteKey: 'bodyweightFocusCorePostureNote',
     rpe: '4–6',
-    beginner: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
-    inter: ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Ange inversé'],
+    beginner: ['Dead Bug', 'Reverse Crunch', 'Bird Dog', 'Planche avant-bras', 'Planche haute plus', 'Y au sol'],
+    inter: ['Hollow Body Tuck', 'Reverse Crunch', 'Bird Dog', 'Planche latérale', 'Planche haute plus', 'Y au sol'],
     alternatives: {
       beginner: [
-        ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'W au sol'],
+        ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'W au sol', 'Planche haute plus'],
+        ['Reverse Crunch', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)', 'Y au sol', 'W au sol'],
       ],
       inter: [
-        ['Dead Bug', 'Bird Dog', 'Planche avant-bras', 'Planche latérale (G)', 'Planche latérale (D)', 'Ange inversé'],
+        ['Hollow Body Tuck', 'Bird Dog', 'Planche avant-bras', 'Planche latérale', 'Ange inversé', 'Planche haute plus'],
+        ['Reverse Crunch', 'Bird Dog', 'Planche latérale (G)', 'Planche latérale (D)', 'Y au sol', 'Ange inversé'],
       ],
     },
   },

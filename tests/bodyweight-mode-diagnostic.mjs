@@ -173,8 +173,19 @@ try {
       && getYouTubeDemo(name)?.url.startsWith('https://www.youtube.com/results?search_query=')
       && !getYouTubeDemo(name)?.url.includes('watch?v='));
 
-    const upperLegLoading = new Set(['Squat au poids du corps', 'Squat tempo', 'Fente arrière alternée', 'Pont fessier', 'Pont fessier une jambe', 'Mountain Climber', 'Bear Plank Shoulder Tap']);
+    const newCoverage = [
+      'Pike Press', 'Pompes serrées inclinées', 'Pompes serrées au sol', 'Planche haute plus', 'Y au sol',
+      'Reverse Crunch', 'Hollow Body Tuck', 'Single-Leg RDL sans charge', 'Mollet une jambe', 'Dip sur chaise stable',
+    ];
+    const expandedMovementCoverageWorks = newCoverage.every(name => allTravelNames.includes(name))
+      && ['vertical-push', 'scapular-control', 'trunk-flexion', 'anti-extension', 'hinge', 'calf-raise']
+        .every(pattern => allTravelNames.some(name => exercisePattern(name) === pattern))
+      && EX_DATA['Dip sur chaise stable'].meta.warning.includes('Chaise immobile')
+      && EX_DATA['Dip sur chaise stable'].meta.warningEn.includes('immovable chair');
+
+    const upperLegLoading = new Set(['Squat au poids du corps', 'Squat tempo', 'Fente arrière alternée', 'Pont fessier', 'Pont fessier une jambe', 'Single-Leg RDL sans charge', 'Mollet une jambe', 'Mountain Climber', 'Bear Plank Shoulder Tap']);
     const hardConditioning = new Set(['Mountain Climber', 'Bear Plank Shoulder Tap']);
+    const hardUpperPushes = new Set(['Pompes inclinées', 'Pompes au sol', 'Pompes serrées inclinées', 'Pompes serrées au sol', 'Pike Press', 'Dip sur chaise stable']);
     let programsAreSensible = true;
     let focusPlansRespectIntent = true;
     let allFocusRegenerationsChangeExercises = true;
@@ -199,6 +210,8 @@ try {
               : step.modeLabel.includes(t(focus.nameKey)));
           if (focus.id === 'upper-core') {
             focusPlansRespectIntent &&= names.every(name => !upperLegLoading.has(name))
+              && names.filter(name => hardUpperPushes.has(name)).length === 1
+              && names.filter(name => bodyweightExercise(name).group === 'upper').length >= 2
               && work.every(step => step.detail.includes('RPE 6–7'));
           }
           if (focus.id === 'lower-core') {
@@ -216,7 +229,9 @@ try {
             && names.some(name => !regeneratedNames.includes(name))
             && regeneratedNames.some(name => !names.includes(name));
           if (focus.id === 'upper-core') {
-            focusPlansRespectIntent &&= regeneratedNames.every(name => !upperLegLoading.has(name));
+            focusPlansRespectIntent &&= regeneratedNames.every(name => !upperLegLoading.has(name))
+              && regeneratedNames.filter(name => hardUpperPushes.has(name)).length === 1
+              && regeneratedNames.filter(name => bodyweightExercise(name).group === 'upper').length >= 2;
           }
           if (focus.id === 'lower-core') {
             focusPlansRespectIntent &&= regeneratedNames.some(name => bodyweightExercise(name).group === 'lower')
@@ -293,7 +308,7 @@ try {
       && document.getElementById('preview-text').textContent.includes('RPE 6–7')
       && document.querySelector('.cp-title').textContent === 'Ton programme voyage'
       && document.getElementById('cp-lane-badge').textContent.includes('Focus · Haut + tronc')
-      && document.getElementById('cp-science-note').textContent.includes('sans remplacer un row chargé');
+      && document.getElementById('cp-science-note').textContent.includes('ne remplace pas un row chargé');
 
     // Exercise regeneration must run through the actual setup -> preview ->
     // button flow. It must swap at least one exercise, not merely reorder the
@@ -353,7 +368,7 @@ try {
     return {
       frenchEntryWorks, explicitSelectionWorks, lastBellZeroEntersMode, selectingBellExitsCleanly,
       durationAndLevelOptionsWork, focusSelectorWorks, focusOnlyInBodyweight, focusPersistenceWorks,
-      zeroEquipmentOnly, completeExerciseUx, programsAreSensible, focusPlansRespectIntent,
+      zeroEquipmentOnly, completeExerciseUx, expandedMovementCoverageWorks, programsAreSensible, focusPlansRespectIntent,
       allFocusRegenerationsChangeExercises,
       laneRotationUsesBodyweightOnly, focusScopedHistoryWorks, weightedLaneIgnoresBodyweight,
       bodyweightHistoryAndStatsWork, historyFocusWorks, legacyHistoryDisplaysBalanced,
