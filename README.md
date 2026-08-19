@@ -17,6 +17,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Guided sessions layer** : progressive disclosure keeps fixed recipes separate from random generation. Minimal 3 runs 10 total thrusters (5/side), 12 total rows (6/side), then 15 swings in that exact order, with a 60 / 90 / 120 / 180s round-rest choice and a 3–4 quality-round cue
 - **Real AMRAP runner** : Full-body Density uses a fixed six-movement checklist, 10 / 12 / 15 / 20-minute clock, manual exercise advancement, visible round counter, pause/resume and free rest
 - **Optional 5-minute finisher** : after a completed main workout, add two or three rounds of two-hand goblet curls, light overhead triceps extensions and halos. It is attached to the original history entry and never advances the weekly lane twice
+- **End-of-workout achievement** : skipping, completing or stopping the optional finisher opens a final recap with the real weekly 3-session progress, weekly streak, saved-session total and a six-week activity view. Ten sub-second celebration signatures rotate randomly, with reduced-motion support
 - **Fat-loss goal mode** : a structured 15 / 20 / 25 min plan combining preparation, kettlebell intervals, full-body strength and a core finisher; “Vary this session” changes the movement families while preserving phases, timing, side balance and available equipment
 - **Three complementary weekly sessions** : a stable preview lane rotates only after completion through Strength base, Hinge & power, then Mixed & unilateral. Every fat-loss session remains full-body; the lane is a bias, not a body-part split
 - **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
@@ -93,6 +94,7 @@ Regeneration compares movement-family signatures with the displayed plan and the
 4. Rest periods with breathing animation
 5. For AMRAP and fixed guided recipes, tick through the checklist manually while the workout clock stays visible
 6. At the summary, either finish cleanly or add the optional five-minute arms and shoulders finisher
+7. Review the final consistency achievement, then return to setup or prepare another workout
 
 ## Stack
 
@@ -167,6 +169,12 @@ node tests/guided-amrap-finisher-diagnostic.mjs
 ```
 
 The guided/AMRAP/finisher diagnostic checks the exact fixed recipes and rep targets, duration and rest choices, manual round advancement, pause and free-rest states, single-save completion, finisher history attachment and weekly-lane invariants, FR/EN copy, query-only demos, new exercise metadata/equipment filtering and 320px containment.
+
+```bash
+node tests/achievement-diagnostic.mjs
+```
+
+The achievement diagnostic checks that restart actions stay hidden during the finisher offer, every route into final completion renders history-backed progress, all ten celebration variants are selectable, reduced motion suppresses animation, both final actions work, FR/EN copy remains complete and the panel fits at 320px.
 
 ```bash
 node tests/supabase-sync-diagnostic.mjs

@@ -1044,12 +1044,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
-    padding: 3rem;
+    gap: 1.5rem;
+    width: 100%;
+    min-height: 100vh;
+    padding: 2rem max(1rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
     text-align: center;
   }
   #done h2 { font-size: 3rem; font-weight: 900; }
   .done-stats { color: var(--muted); font-size: 1.1rem; line-height: 2; }
+  #done[data-stage="achievement"] > h2,
+  #done[data-stage="achievement"] > .done-stats,
+  #done[data-stage="achievement"] > .finisher-offer { display: none; }
+  #done:not([data-stage="achievement"]) > .achievement-panel { display: none; }
   .finisher-recap {
     width: min(100%, 420px);
     display: flex;
@@ -1066,17 +1072,7 @@
   .finisher-recap-copy { display: grid; gap: 0.08rem; line-height: 1.3; }
   .finisher-recap-copy strong { color: #ffd4c5; font-size: 0.9rem; }
   .finisher-recap-copy span { color: #aaa; font-size: 0.72rem; }
-  #again-btn {
-    padding: 1rem 3rem;
-    border-radius: 1.5rem;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .done-actions { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; width: min(100%, 360px); }
+  .done-actions { display: none; }
   .finisher-offer {
     display: none;
     width: min(100%, 420px);
@@ -1168,6 +1164,137 @@
   .finisher-rounds button.active { border-color: var(--rest); color: #092724; background: var(--rest); }
   #finisher-start { width: 100%; border-color: var(--accent); color: #fff; background: var(--accent); }
   #finisher-skip { border-color: transparent; color: var(--muted); background: transparent; }
+
+  /* Final achievement: the only place where exit/restart actions are shown. */
+  .achievement-panel {
+    position: relative;
+    isolation: isolate;
+    width: min(100%, 520px);
+    overflow: hidden;
+    padding: clamp(1.1rem, 4vw, 1.7rem);
+    border: 1px solid #3c3936;
+    border-radius: 1.35rem;
+    background: #1b1a19;
+    box-shadow: 0 22px 56px rgba(0,0,0,0.32);
+    text-align: left;
+  }
+  .achievement-content { position: relative; z-index: 2; }
+  .achievement-kicker {
+    color: var(--rest);
+    font-size: 0.66rem;
+    font-weight: 950;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  #done .achievement-title {
+    margin-top: 0.35rem;
+    font-size: clamp(1.75rem, 7vw, 2.65rem);
+    font-weight: 950;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+  .achievement-copy {
+    max-width: 43ch;
+    margin-top: 0.65rem;
+    color: #aaa5a1;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .achievement-week {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: end;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 1rem;
+    border: 1px solid #3c3936;
+    border-radius: 1rem;
+    background: #22201e;
+  }
+  .achievement-week-label { color: #aaa5a1; font-size: 0.66rem; font-weight: 850; letter-spacing: 1.2px; text-transform: uppercase; }
+  .achievement-week-value { margin-top: 0.22rem; font-size: 1.35rem; font-weight: 950; line-height: 1.05; }
+  .achievement-week-value strong { color: var(--accent); font-size: 2.05rem; }
+  .achievement-week-markers { display: flex; gap: 0.42rem; padding-bottom: 0.18rem; }
+  .achievement-week-marker { width: 1.45rem; height: 0.5rem; border-radius: 99px; background: #45413e; }
+  .achievement-week-marker.is-done { background: var(--accent); }
+  .achievement-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    margin-top: 0.9rem;
+    border-block: 1px solid #35322f;
+  }
+  .achievement-metric { min-width: 0; padding: 0.85rem 0.5rem; }
+  .achievement-metric + .achievement-metric { border-left: 1px solid #35322f; }
+  .achievement-metric-value { display: block; color: var(--text); font-size: 1.35rem; font-weight: 950; font-variant-numeric: tabular-nums; }
+  .achievement-metric-label { display: block; margin-top: 0.18rem; color: #8f8a86; font-size: 0.64rem; line-height: 1.3; }
+  .achievement-history { margin-top: 1rem; }
+  .achievement-history-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .achievement-history-head strong { font-size: 0.72rem; }
+  .achievement-history-head span { color: #817d79; font-size: 0.6rem; }
+  .achievement-heatmap {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0,1fr));
+    gap: 0.32rem;
+    margin-top: 0.55rem;
+  }
+  .achievement-heatmap-week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 0.15rem; }
+  .achievement-day { aspect-ratio: 1; border-radius: 2px; background: #34312f; }
+  .achievement-day.has-session { background: var(--rest); }
+  .achievement-day.is-future { opacity: 0.24; }
+  .achievement-panel .finisher-recap { margin-top: 1rem; }
+  .achievement-actions { display: grid; grid-template-columns: 1.35fr 1fr; gap: 0.65rem; margin-top: 1.15rem; }
+  .achievement-actions button {
+    min-height: 50px;
+    border: 1px solid #4a4642;
+    border-radius: 0.82rem;
+    background: #262320;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  #achievement-done { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .achievement-actions button:focus-visible { outline: 3px solid var(--rest); outline-offset: 3px; }
+
+  .achievement-fx { position: absolute; z-index: 1; inset: 0; overflow: hidden; pointer-events: none; }
+  .achievement-particle { position: absolute; left: 50%; top: 22%; width: 8px; height: 8px; border-radius: 2px; background: var(--accent); opacity: 0; }
+  .achievement-particle:nth-child(3n) { background: var(--rest); }
+  .achievement-particle:nth-child(4n) { border-radius: 50%; background: #f5c85b; }
+  .achievement-panel.is-celebrating .achievement-particle { animation-duration: 760ms; animation-fill-mode: both; animation-timing-function: cubic-bezier(.16,1,.3,1); }
+  .achievement-panel[data-celebration="burst"].is-celebrating .achievement-particle { animation-name: achievement-burst; }
+  .achievement-panel[data-celebration="sparks"].is-celebrating .achievement-particle { animation-name: achievement-sparks; width: 3px; height: 20px; }
+  .achievement-panel[data-celebration="rings"].is-celebrating .achievement-particle { animation-name: achievement-rings; width: 18px; height: 18px; border: 2px solid var(--accent); background: transparent; border-radius: 50%; }
+  .achievement-panel[data-celebration="lift"].is-celebrating .achievement-particle { animation-name: achievement-lift; }
+  .achievement-panel[data-celebration="orbit"].is-celebrating .achievement-particle { animation-name: achievement-orbit; transform-origin: 0 90px; }
+  .achievement-panel[data-celebration="flash"].is-celebrating .achievement-particle { animation-name: achievement-flash; width: 34px; height: 5px; }
+  .achievement-panel[data-celebration="scatter"].is-celebrating .achievement-particle { animation-name: achievement-scatter; }
+  .achievement-panel[data-celebration="ripple"].is-celebrating .achievement-particle { animation-name: achievement-ripple; width: 10px; height: 10px; border: 2px solid var(--rest); background: transparent; border-radius: 50%; }
+  .achievement-panel[data-celebration="crown"].is-celebrating .achievement-particle { animation-name: achievement-crown; transform: rotate(45deg); }
+  .achievement-panel[data-celebration="confetti"].is-celebrating .achievement-particle { animation-name: achievement-confetti; }
+  .achievement-particle:nth-child(1) { --x: -170px; --y: -44px; --r: -42deg; --delay: 0ms; }
+  .achievement-particle:nth-child(2) { --x: -132px; --y: 46px; --r: 72deg; --delay: 32ms; }
+  .achievement-particle:nth-child(3) { --x: -94px; --y: -72px; --r: 118deg; --delay: 58ms; }
+  .achievement-particle:nth-child(4) { --x: -58px; --y: 78px; --r: -96deg; --delay: 18ms; }
+  .achievement-particle:nth-child(5) { --x: -24px; --y: -98px; --r: 154deg; --delay: 76ms; }
+  .achievement-particle:nth-child(6) { --x: 18px; --y: 92px; --r: -138deg; --delay: 42ms; }
+  .achievement-particle:nth-child(7) { --x: 54px; --y: -86px; --r: 68deg; --delay: 8ms; }
+  .achievement-particle:nth-child(8) { --x: 92px; --y: 70px; --r: -72deg; --delay: 68ms; }
+  .achievement-particle:nth-child(9) { --x: 128px; --y: -54px; --r: 126deg; --delay: 24ms; }
+  .achievement-particle:nth-child(10) { --x: 166px; --y: 34px; --r: -112deg; --delay: 84ms; }
+  .achievement-particle:nth-child(11) { --x: -148px; --y: -2px; --r: 88deg; --delay: 90ms; }
+  .achievement-particle:nth-child(12) { --x: 146px; --y: -6px; --r: -64deg; --delay: 48ms; }
+  .achievement-panel.is-celebrating .achievement-particle { animation-delay: var(--delay); }
+  @keyframes achievement-burst { 0% { opacity: 0; transform: translate(0,0) scale(.3) rotate(0); } 16% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scale(1) rotate(var(--r)); } }
+  @keyframes achievement-sparks { 0% { opacity: 0; transform: translate(0,30px) scaleY(.2) rotate(var(--r)); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scaleY(1) rotate(var(--r)); } }
+  @keyframes achievement-rings { 0% { opacity: .8; transform: translate(0,0) scale(.2); } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scale(3); } }
+  @keyframes achievement-lift { 0% { opacity: 0; transform: translate(var(--x),110px) rotate(0); } 18% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),-120px) rotate(var(--r)); } }
+  @keyframes achievement-orbit { 0% { opacity: 0; transform: rotate(0deg) translateY(-72px) scale(.5); } 22% { opacity: 1; } 100% { opacity: 0; transform: rotate(240deg) translateY(-118px) scale(1); } }
+  @keyframes achievement-flash { 0% { opacity: 0; transform: translate(0,0) scaleX(.1) rotate(var(--r)); } 32% { opacity: .95; } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scaleX(1) rotate(var(--r)); } }
+  @keyframes achievement-scatter { 0% { opacity: 0; transform: translate(0,0) scale(1.7); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scale(.35); } }
+  @keyframes achievement-ripple { 0% { opacity: .9; transform: translate(0,0) scale(.2); } 100% { opacity: 0; transform: translate(var(--x),var(--y)) scale(4.5); } }
+  @keyframes achievement-crown { 0% { opacity: 0; transform: translate(var(--x),-100px) rotate(45deg) scale(.2); } 32% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),var(--y)) rotate(var(--r)) scale(1); } }
+  @keyframes achievement-confetti { 0% { opacity: 0; transform: translate(var(--x),-120px) rotate(0); } 18% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x),125px) rotate(var(--r)); } }
 
   /* Manual sequence runner for AMRAP and fixed guided recipes. */
   #sequence-runner {
@@ -1670,6 +1797,13 @@
     .seq-controls { grid-template-columns: 48px minmax(0,0.9fr) minmax(0,1.25fr); gap: 0.35rem; }
     .seq-controls button { padding-inline: 0.35rem; font-size: 0.72rem; }
     .finisher-offer { padding-inline: 0.8rem; }
+    #done { justify-content: flex-start; padding-inline: 0.55rem; }
+    .achievement-panel { padding: 1rem 0.85rem; border-radius: 1rem; }
+    .achievement-week { grid-template-columns: 1fr; align-items: start; gap: 0.65rem; }
+    .achievement-history-head { align-items: flex-start; flex-direction: column; gap: 0.2rem; }
+    .achievement-heatmap { gap: 0.2rem; }
+    .achievement-heatmap-week { gap: 0.1rem; }
+    .achievement-actions { grid-template-columns: 1fr; }
     .history-box { padding: 1.2rem; }
     .history-sync-form { flex-direction: column; }
     .history-sync-form .history-sync-button { width: 100%; }
@@ -1680,10 +1814,14 @@
   @media (prefers-reduced-motion: reduce) {
     .finisher-recap-icon { filter: none; }
     .seq-item, .finisher-offer { transition: none; }
+    .achievement-fx { display: none; }
+    .achievement-particle { animation: none !important; }
   }
 
   @media (forced-colors: active) {
     .consistency-day.has-session { background: Highlight; }
+    .achievement-day.has-session,
+    .achievement-week-marker.is-done { background: Highlight; }
   }
 
   /* ──── SVG ANIMATIONS ──── */
@@ -2061,16 +2199,9 @@
 </div>
 
 <!-- ──── DONE ──── -->
-<div id="done">
+<div id="done" data-stage="offer">
   <h2>💪 Terminé !</h2>
   <div class="done-stats" id="done-stats"></div>
-  <div class="finisher-recap" id="finisher-recap" hidden aria-live="polite">
-    <span class="finisher-recap-icon" aria-hidden="true">🔥</span>
-    <span class="finisher-recap-copy">
-      <strong id="finisher-recap-title">Finisher terminé</strong>
-      <span id="finisher-recap-detail"></span>
-    </span>
-  </div>
   <div class="finisher-offer" id="finisher-offer">
     <div class="finisher-eyebrow" id="finisher-eyebrow">🔥 Finisher optionnel</div>
     <h3 id="finisher-title">1 → 2 → 3, puis on recommence</h3>
@@ -2084,7 +2215,56 @@
     <button id="finisher-start" type="button">Lancer le finisher</button>
     <button id="finisher-skip" type="button">Non merci, terminer</button>
   </div>
-  <div class="done-actions"><button id="again-btn">Encore un ?</button></div>
+  <section class="achievement-panel" id="achievement-panel" data-celebration="burst" aria-labelledby="achievement-title" aria-live="polite">
+    <div class="achievement-fx" id="achievement-fx" aria-hidden="true">
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+      <span class="achievement-particle"></span><span class="achievement-particle"></span>
+    </div>
+    <div class="achievement-content">
+      <div class="achievement-kicker" id="achievement-kicker">Séance validée</div>
+      <h2 class="achievement-title" id="achievement-title">Le travail est fait.</h2>
+      <p class="achievement-copy" id="achievement-copy"></p>
+      <div class="achievement-week">
+        <div>
+          <div class="achievement-week-label" id="achievement-week-label">Objectif de la semaine</div>
+          <div class="achievement-week-value" id="achievement-week-value"></div>
+        </div>
+        <div class="achievement-week-markers" id="achievement-week-markers" aria-hidden="true"></div>
+      </div>
+      <div class="achievement-metrics">
+        <div class="achievement-metric">
+          <span class="achievement-metric-value" id="achievement-streak-value"></span>
+          <span class="achievement-metric-label" id="achievement-streak-label"></span>
+        </div>
+        <div class="achievement-metric">
+          <span class="achievement-metric-value" id="achievement-total-value"></span>
+          <span class="achievement-metric-label" id="achievement-total-label"></span>
+        </div>
+      </div>
+      <div class="achievement-history">
+        <div class="achievement-history-head">
+          <strong id="achievement-history-title">Tes 6 dernières semaines</strong>
+          <span id="achievement-history-note">un point = une séance</span>
+        </div>
+        <div class="achievement-heatmap" id="achievement-heatmap" role="img"></div>
+      </div>
+      <div class="finisher-recap" id="finisher-recap" hidden aria-live="polite">
+        <span class="finisher-recap-icon" aria-hidden="true">🔥</span>
+        <span class="finisher-recap-copy">
+          <strong id="finisher-recap-title">Finisher terminé</strong>
+          <span id="finisher-recap-detail"></span>
+        </span>
+      </div>
+      <div class="achievement-actions">
+        <button id="achievement-done" type="button">Terminé</button>
+        <button id="again-btn" type="button">Encore un</button>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- ──── MANUAL SEQUENCE RUNNER ──── -->
@@ -2277,6 +2457,20 @@ const STRINGS = {
     beginnerLabel: 'Débutant',
     intermediateLabel: 'Intermédiaire',
     goAgain: 'Encore un ?',
+    achievementKicker: 'Séance validée',
+    achievementTitle: 'Le travail est fait.',
+    achievementTitleFinisher: 'Jusqu’au bout.',
+    achievementCopy: (remaining) => remaining > 0
+      ? `Encore ${remaining} séance${remaining > 1 ? 's' : ''} pour atteindre ton rythme de la semaine.`
+      : 'Objectif hebdomadaire atteint. Tout ce qui vient ensuite, c’est du bonus.',
+    achievementWeekLabel: 'Objectif de la semaine',
+    achievementSessions: 'séances',
+    achievementStreakLabel: (count) => `semaine${count !== 1 ? 's' : ''} dans le rythme`,
+    achievementTotalLabel: (count) => `séance${count !== 1 ? 's' : ''} enregistrée${count !== 1 ? 's' : ''}`,
+    achievementHistoryTitle: 'Tes 6 dernières semaines',
+    achievementHistoryNote: 'un point = une séance',
+    achievementHeatmapAria: (count) => `${count} séance${count !== 1 ? 's' : ''} sur les 6 dernières semaines`,
+    achievementDone: 'Terminé',
     finisherEyebrow: '🔥 Finisher optionnel',
     finisherTitle: '1 → 2 → 3, puis on recommence',
     finisherDesc: 'Fais les trois mouvements dans cet ordre. Repose-toi, puis repars au 1.',
@@ -2485,6 +2679,20 @@ const STRINGS = {
     beginnerLabel: 'Beginner',
     intermediateLabel: 'Intermediate',
     goAgain: 'Go again?',
+    achievementKicker: 'Workout logged',
+    achievementTitle: 'The work is done.',
+    achievementTitleFinisher: 'All the way through.',
+    achievementCopy: (remaining) => remaining > 0
+      ? `${remaining} more workout${remaining > 1 ? 's' : ''} to hit your weekly rhythm.`
+      : 'Weekly target reached. Everything from here is a bonus.',
+    achievementWeekLabel: 'This week’s target',
+    achievementSessions: 'workouts',
+    achievementStreakLabel: (count) => `week${count !== 1 ? 's' : ''} streak`,
+    achievementTotalLabel: (count) => `workout${count !== 1 ? 's' : ''} logged`,
+    achievementHistoryTitle: 'Your last 6 weeks',
+    achievementHistoryNote: 'one dot = one workout',
+    achievementHeatmapAria: (count) => `${count} workout${count !== 1 ? 's' : ''} over the last 6 weeks`,
+    achievementDone: 'Done',
     finisherEyebrow: '🔥 Optional finisher',
     finisherTitle: '1 → 2 → 3, then repeat',
     finisherDesc: 'Do all three movements in this order. Rest, then start again at 1.',
@@ -2967,6 +3175,7 @@ function applyLangToUI() {
   // Done screen
   document.querySelector('#done h2').textContent = t('done');
   document.getElementById('again-btn').textContent = t('goAgain');
+  document.getElementById('achievement-done').textContent = t('achievementDone');
   document.getElementById('finisher-eyebrow').textContent = t('finisherEyebrow');
   document.getElementById('finisher-title').textContent = t('finisherTitle');
   document.getElementById('finisher-desc').textContent = t('finisherDesc');
@@ -2978,6 +3187,7 @@ function applyLangToUI() {
     button.textContent = `${button.dataset.rounds} ${t('rounds')}`;
   });
   renderFinisherOffer();
+  if (document.getElementById('done').dataset.stage === 'achievement') renderAchievement(new Date(), false);
   document.getElementById('seq-checklist').setAttribute('aria-label', t('sequenceAria'));
   document.querySelector('#seq-demo .youtube-demo-label').textContent = t('workoutDemo');
   document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
@@ -4280,6 +4490,10 @@ let sessionSaved = false;
 let finisherRounds = 2;
 let finisherWasOffered = false;
 let finisherCompleted = false;
+const ACHIEVEMENT_VARIANTS = Object.freeze([
+  'burst', 'sparks', 'rings', 'lift', 'orbit',
+  'flash', 'scatter', 'ripple', 'crown', 'confetti',
+]);
 
 function loadEquipmentInventory() {
   const fallback = Object.fromEntries(EQUIPMENT_WEIGHTS.map(weight => [weight, weight === 12 ? 1 : 0]));
@@ -4791,6 +5005,72 @@ function buildConsistencyHeatmap(history, now = new Date(), weekCount = CONSISTE
       };
     });
   });
+}
+
+function selectAchievementVariant(index = Math.floor(Math.random() * ACHIEVEMENT_VARIANTS.length)) {
+  const panel = document.getElementById('achievement-panel');
+  if (!panel) return null;
+  const safeIndex = ((Number(index) || 0) % ACHIEVEMENT_VARIANTS.length + ACHIEVEMENT_VARIANTS.length) % ACHIEVEMENT_VARIANTS.length;
+  const variant = ACHIEVEMENT_VARIANTS[safeIndex];
+  panel.dataset.celebration = variant;
+  panel.classList.remove('is-celebrating');
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    void panel.offsetWidth;
+    panel.classList.add('is-celebrating');
+  }
+  return variant;
+}
+
+function renderAchievement(now = new Date(), celebrate = true) {
+  const history = readHistory();
+  const { currentCount, streak } = weeklyConsistency(history, now);
+  const progress = Math.min(currentCount, WEEKLY_SESSION_TARGET);
+  const remaining = Math.max(0, WEEKLY_SESSION_TARGET - progress);
+  const recentWeeks = buildConsistencyHeatmap(history, now, 6);
+  const recentCount = recentWeeks.flat().reduce((sum, day) => sum + day.count, 0);
+  const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+  const dateFormatter = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+
+  document.getElementById('achievement-kicker').textContent = t('achievementKicker');
+  document.getElementById('achievement-title').textContent = finisherCompleted ? t('achievementTitleFinisher') : t('achievementTitle');
+  document.getElementById('achievement-copy').textContent = t('achievementCopy')(remaining);
+  document.getElementById('achievement-week-label').textContent = t('achievementWeekLabel');
+  document.getElementById('achievement-week-value').innerHTML = `<strong>${progress}</strong> / ${WEEKLY_SESSION_TARGET} ${t('achievementSessions')}`;
+  document.getElementById('achievement-week-markers').innerHTML = Array.from(
+    { length: WEEKLY_SESSION_TARGET },
+    (_, index) => `<span class="achievement-week-marker${index < progress ? ' is-done' : ''}"></span>`
+  ).join('');
+  document.getElementById('achievement-streak-value').textContent = String(streak);
+  document.getElementById('achievement-streak-label').textContent = t('achievementStreakLabel')(streak);
+  document.getElementById('achievement-total-value').textContent = String(history.length);
+  document.getElementById('achievement-total-label').textContent = t('achievementTotalLabel')(history.length);
+  document.getElementById('achievement-history-title').textContent = t('achievementHistoryTitle');
+  document.getElementById('achievement-history-note').textContent = t('achievementHistoryNote');
+
+  const heatmap = document.getElementById('achievement-heatmap');
+  heatmap.setAttribute('aria-label', t('achievementHeatmapAria')(recentCount));
+  heatmap.innerHTML = recentWeeks.map(week => `<span class="achievement-heatmap-week">${week.map(day => {
+    const sessionLabel = day.count > 0 ? t('sessionDone') : t('noSession');
+    const label = `${dateFormatter.format(day.date)} : ${sessionLabel}`;
+    return `<span class="achievement-day${day.count > 0 ? ' has-session' : ''}${day.isFuture ? ' is-future' : ''}" title="${label}"></span>`;
+  }).join('')}</span>`).join('');
+
+  const recap = document.getElementById('finisher-recap');
+  recap.hidden = !finisherCompleted;
+  if (finisherCompleted) {
+    document.getElementById('finisher-recap-title').textContent = t('finisherDone');
+    document.getElementById('finisher-recap-detail').textContent = t('finisherRecapDetail')(runnerRoundsCompleted || finisherRounds);
+  }
+  if (celebrate) selectAchievementVariant();
+}
+
+function showAchievement({ focus = true } = {}) {
+  const done = document.getElementById('done');
+  document.getElementById('finisher-offer').classList.remove('visible');
+  done.dataset.stage = 'achievement';
+  renderAchievement();
+  showOnly('done');
+  if (focus) requestAnimationFrame(() => document.getElementById('achievement-done').focus());
 }
 
 function renderConsistency(now = new Date()) {
@@ -5836,7 +6116,7 @@ function completeSequenceRunner() {
       document.getElementById('finisher-recap-detail').textContent = t('finisherRecapDetail')(runnerRoundsCompleted);
       playFinisherVictory();
     }
-    showOnly('done');
+    showAchievement();
     return;
   }
   const recipeId = runnerRecipe.id;
@@ -5864,7 +6144,7 @@ document.getElementById('seq-stop').addEventListener('click', () => {
     attachFinisherToSession(activeSessionId, false);
     finisherWasOffered = true;
     document.getElementById('finisher-offer').classList.remove('visible');
-    showOnly('done');
+    showAchievement();
   } else {
     showOnly('setup');
   }
@@ -6560,6 +6840,7 @@ function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
   sessionSaved = true;
   beepDone();
   releaseWake();
+  document.getElementById('done').dataset.stage = 'offer';
   showOnly('done');
   const completedModeName = modeName(selectedMode);
   const durStr = selectedMin ? `${selectedMin} min` : '~25 min';
@@ -6593,7 +6874,9 @@ function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
     sessionMetadata.statsEstimated = true;
   }
   activeSessionId = saveSession(selectedMode, selectedMin || 25, sessionExercises, sessionMetadata);
-  document.getElementById('finisher-offer').classList.toggle('visible', selectedMode !== 'bodyweight' && !finisherCompleted);
+  const offersFinisher = selectedMode !== 'bodyweight' && !finisherCompleted;
+  document.getElementById('finisher-offer').classList.toggle('visible', offersFinisher);
+  if (!offersFinisher) showAchievement();
 }
 
 document.getElementById('finisher-rounds').addEventListener('click', event => {
@@ -6613,11 +6896,17 @@ document.getElementById('finisher-start').addEventListener('click', () => {
 });
 document.getElementById('finisher-skip').addEventListener('click', () => {
   finisherWasOffered = true;
+  showAchievement();
+});
+document.getElementById('achievement-done').addEventListener('click', () => {
   document.getElementById('finisher-offer').classList.remove('visible');
+  showOnly('setup');
+  window.scrollTo({ top: 0, behavior: 'auto' });
 });
 document.getElementById('again-btn').addEventListener('click', () => {
   document.getElementById('finisher-offer').classList.remove('visible');
   showOnly('setup');
+  requestAnimationFrame(() => document.getElementById('go-btn').focus());
 });
 
 document.addEventListener('visibilitychange', () => {
