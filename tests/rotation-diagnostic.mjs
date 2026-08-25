@@ -143,7 +143,54 @@ try {
     const badgeEnglishWorks = document.getElementById('cp-lane-badge').textContent === 'Session 1/3 · Strength base'
       && document.getElementById('cp-regenerate').textContent.includes('Vary this session');
 
-    return { upperPoolWorks, funExerciseWorks, safetyFallbackWorks, pushPullWorks, sideFamiliesWork, youtubeSearchWorks, regenerationWorks, laneSequenceWorks, regenerateKeepsLane, saveAdvancesLane, backwardsCompatibilityWorks, badgeFrenchWorks, badgeEnglishWorks };
+    localStorage.setItem('kb_history', '[]');
+    setLang('fr');
+    selectedMode = 'circuit'; selectedMin = 20; selectedLevel = 'beginner';
+    showCircuitPreview();
+    const circuitBadge = document.getElementById('cp-lane-badge');
+    const balancedCircuitWorks = selectedRecipe?.id === CURATED_RECIPES.nateliFullBody.id
+      && !circuitBadge.hidden
+      && circuitBadge.textContent.includes('Séance équilibrée');
+
+    const pushSession = {
+      date: monday.toISOString(), modeId: 'bodyweight', mode: 'Poids du corps', duration: 20,
+      exercises: ['Pompes au sol', 'Pompes inclinées', 'Pompe décalée sur kettlebell', 'Push-up + kettlebell drag'],
+    };
+    localStorage.setItem('kb_history', JSON.stringify([pushSession]));
+    showCircuitPreview();
+    let complementaryRegenerationWorks = true;
+    for (let i = 0; i < 30; i++) {
+      const pushCount = pickedCircuitExercises.filter(exercise => exercisePattern(exercise.name) === 'horizontal-push').length;
+      complementaryRegenerationWorks &&= pushCount <= 1
+        && activeTrainingContext.ranked[0]?.[0] === 'horizontal-push'
+        && selectedRecipe === null;
+      regenerateCircuit();
+    }
+    const complementaryBadgeWorks = circuitBadge.textContent.includes('Complémentaire à lundi')
+      && circuitBadge.textContent.includes('Moins de poussée');
+
+    const daysAgo = amount => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - amount);
+      return date.toISOString();
+    };
+    const unsortedHistory = [
+      { date: daysAgo(12), exercises: ['Goblet Squat'] },
+      { date: daysAgo(8), exercises: ['Pompes au sol', 'Pompes inclinées'] },
+      { date: daysAgo(9), exercises: ['Kettlebell Swing'] },
+      { date: 'invalid', exercises: ['Goblet Squat'] },
+      { date: daysAgo(1) },
+    ];
+    const recencyContext = buildRecentTrainingContext(unsortedHistory, now);
+    const recencyWindowWorks = recencyContext.latestSession?.date === unsortedHistory[1].date
+      && recencyContext.loads['horizontal-push'] > recencyContext.loads.hinge
+      && !recencyContext.loads.squat;
+
+    selectedMode = 'guided'; selectedGuidedRecipe = GUIDED_RECIPES.minimal3;
+    renderSequencePreview();
+    const hiddenBadgeWorks = circuitBadge.hidden && getComputedStyle(circuitBadge).display === 'none';
+
+    return { upperPoolWorks, funExerciseWorks, safetyFallbackWorks, pushPullWorks, sideFamiliesWork, youtubeSearchWorks, regenerationWorks, laneSequenceWorks, regenerateKeepsLane, saveAdvancesLane, backwardsCompatibilityWorks, badgeFrenchWorks, badgeEnglishWorks, balancedCircuitWorks, complementaryRegenerationWorks, complementaryBadgeWorks, recencyWindowWorks, hiddenBadgeWorks };
   })()`);
 
   await call(ws, 'Emulation.setDeviceMetricsOverride', { width: 320, height: 800, deviceScaleFactor: 1, mobile: true });

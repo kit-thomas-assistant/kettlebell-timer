@@ -269,11 +269,13 @@
   }
   .cp-lane-badge {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
+    gap: 0.12rem;
     max-width: calc(100vw - 2rem);
-    padding: 0.35rem 0.7rem;
+    padding: 0.48rem 0.82rem;
     border: 1px solid rgba(255,107,53,0.42);
-    border-radius: 999px;
+    border-radius: 0.75rem;
     background: rgba(255,107,53,0.09);
     color: #ffd2c2;
     font-size: 0.7rem;
@@ -281,6 +283,9 @@
     line-height: 1.25;
     text-align: center;
   }
+  .cp-lane-badge[hidden] { display: none; }
+  .cp-lane-badge strong { font-size: 0.72rem; font-weight: 850; }
+  .cp-lane-badge span { color: #c9a89c; font-size: 0.64rem; font-weight: 650; }
   .cp-coverage {
     display: flex;
     gap: 0.5rem;
@@ -2302,7 +2307,7 @@
   <button id="cp-back">← Retour</button>
   <div class="cp-title">Ton Circuit</div>
   <div class="cp-subtitle" id="cp-subtitle">5 exercices · 3 rounds · 30s/15s</div>
-  <div class="cp-lane-badge" id="cp-lane-badge" hidden></div>
+  <div class="cp-lane-badge" id="cp-lane-badge" role="status" aria-live="polite" hidden></div>
   <div class="cp-coverage" id="cp-coverage"></div>
   <div class="cp-science-note" id="cp-science-note" hidden></div>
   <div class="cp-list" id="cp-list" aria-live="polite"></div>
@@ -2425,6 +2430,19 @@ const STRINGS = {
     yourCircuit: 'Ton Circuit',
     regenerate: '🔄 Régénérer',
     varySession: '🔄 Varier cette séance',
+    complementaryTo: (day) => `Complémentaire à ${day}`,
+    balancedSession: 'Séance équilibrée',
+    recentLoadHint: (loaded, priorities) => `Moins de ${loaded} · priorité ${priorities}`,
+    balancedSessionHint: 'Répartition complète des mouvements',
+    patternHorizontalPush: 'poussée',
+    patternHorizontalPull: 'tirage',
+    patternVerticalPush: 'épaules',
+    patternSquat: 'jambes',
+    patternLunge: 'fentes',
+    patternHinge: 'charnière',
+    patternStability: 'core',
+    patternFullBody: 'full body',
+    patternCarry: 'portés',
     weeklyLane: (number, name) => `Séance ${number}/3 · ${name}`,
     laneBase: 'Base force',
     lanePower: 'Hinge & puissance',
@@ -2653,6 +2671,19 @@ const STRINGS = {
     yourCircuit: 'Your Circuit',
     regenerate: '🔄 Regenerate',
     varySession: '🔄 Vary this session',
+    complementaryTo: (day) => `Complements ${day}`,
+    balancedSession: 'Balanced session',
+    recentLoadHint: (loaded, priorities) => `Less ${loaded} · focus on ${priorities}`,
+    balancedSessionHint: 'All major movement patterns covered',
+    patternHorizontalPush: 'pushing',
+    patternHorizontalPull: 'pulling',
+    patternVerticalPush: 'shoulders',
+    patternSquat: 'legs',
+    patternLunge: 'lunges',
+    patternHinge: 'hinge',
+    patternStability: 'core',
+    patternFullBody: 'full body',
+    patternCarry: 'carries',
     weeklyLane: (number, name) => `Session ${number}/3 · ${name}`,
     laneBase: 'Strength base',
     lanePower: 'Hinge & power',
@@ -4054,6 +4085,7 @@ function exerciseFamily(name) {
 function exercisePattern(name) {
   const explicit = EXERCISE_MOVEMENT_META.get(name)?.pattern;
   if (explicit) return explicit;
+  if (/Pompe|Push-?up|Floor Press/i.test(name)) return 'horizontal-push';
   if (/Row|Pullover|High Pull/.test(name)) return 'horizontal-pull';
   if (/Press|Thruster|Snatch/.test(name)) return 'vertical-push';
   if (/Swing|Deadlift|Romanian|Clean/.test(name)) return 'hinge';
@@ -4435,6 +4467,63 @@ function weeklyLaneForHistory(history = readHistory(), now = new Date()) {
   return WEEKLY_LANES[completedThisWeek % WEEKLY_LANES.length];
 }
 
+const MOVEMENT_PATTERN_KEYS = Object.freeze({
+  'horizontal-push': 'patternHorizontalPush',
+  'horizontal-pull': 'patternHorizontalPull',
+  'vertical-push': 'patternVerticalPush',
+  squat: 'patternSquat',
+  lunge: 'patternLunge',
+  hinge: 'patternHinge',
+  stability: 'patternStability',
+  'full-body': 'patternFullBody',
+  carry: 'patternCarry',
+});
+
+function movementPatternLabel(pattern) {
+  const key = MOVEMENT_PATTERN_KEYS[pattern];
+  return key ? t(key) : pattern;
+}
+
+function buildRecentTrainingContext(history = readHistory(), now = new Date()) {
+  const sessions = (Array.isArray(history) ? history : [])
+    .filter(session => Array.isArray(session?.exercises) && session.exercises.length > 0 && localDayStart(session.date))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const recentSessions = sessions.slice(0, 2);
+  const includedSessions = sessions.filter(session => isSessionInWeek(session, now) || recentSessions.includes(session));
+  const loads = {};
+
+  includedSessions.forEach(session => {
+    const recentIndex = recentSessions.indexOf(session);
+    const weight = (isSessionInWeek(session, now) ? 1 : 0)
+      + (recentIndex === 0 ? 3 : recentIndex === 1 ? 1.5 : 0);
+    const countedFamilies = new Set();
+    session.exercises.forEach(name => {
+      const family = exerciseFamily(name);
+      if (countedFamilies.has(family)) return;
+      countedFamilies.add(family);
+      const pattern = exercisePattern(name);
+      loads[pattern] = (loads[pattern] || 0) + weight;
+    });
+  });
+
+  const ranked = Object.entries(loads).sort((a, b) => b[1] - a[1]);
+  return {
+    loads,
+    ranked,
+    latestSession: recentSessions[0] || null,
+    hasUsefulHistory: ranked.length > 0 && ranked[0][1] > 0,
+    maxLoad: ranked[0]?.[1] || 0,
+  };
+}
+
+function recentPatternPenalty(name, context = activeTrainingContext) {
+  if (!context?.hasUsefulHistory || !context.maxLoad) return 0;
+  const normalizedLoad = (context.loads[exercisePattern(name)] || 0) / context.maxLoad;
+  // Recent load must outweigh the weekly lane ordering, while remaining a
+  // penalty rather than a hard ban so constrained filters can still generate.
+  return normalizedLoad * 45;
+}
+
 function bodyweightLaneForHistory(history = readHistory(), focusId = 'balanced') {
   const normalizedFocusId = normalizeBodyweightFocusId(focusId);
   const completedBodyweightSessions = history.filter(session =>
@@ -4483,6 +4572,7 @@ let wakeLock = null;
 let sessionExercises = [];
 let fatlossPlan = null;
 let activeWeeklyLane = null;
+let activeTrainingContext = null;
 let bodyweightPlan = null;
 let activeBodyweightLane = null;
 let selectedBodyweightFocusId = (() => {
@@ -4811,7 +4901,11 @@ function pickCircuitExercises(count, level, groups) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const lane = activeWeeklyLane || weeklyLaneForHistory();
     const shuffled = shuffle(pool)
-      .map((exercise, index) => ({ exercise, index, priority: lanePriority(exercise.name, lane, null) }))
+      .map((exercise, index) => ({
+        exercise,
+        index,
+        priority: lanePriority(exercise.name, lane, null) + recentPatternPenalty(exercise.name),
+      }))
       .sort((a, b) => a.priority - b.priority || a.index - b.index)
       .map(item => item.exercise);
 
@@ -6499,6 +6593,7 @@ let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 
 function showCircuitPreview() {
   activeWeeklyLane = weeklyLaneForHistory();
+  activeTrainingContext = buildRecentTrainingContext();
   activeGroups = new Set(['upper', 'lower', 'full', 'core']);
   selectedRecipe = null;
   circuitPreviewFresh = true;
@@ -6623,7 +6718,7 @@ function regenerateCircuit(animate) {
   const recipeIsAvailable = recipe.exercises.every(exercise => hasCompatibleEquipment(exercise.name));
   // Circuit 20 intentionally opens on the curated recipe once. Regenerate then
   // returns to the existing random generator instead of adding another home mode.
-  if (circuitPreviewFresh && selectedMin === 20 && recipeIsAvailable) {
+  if (circuitPreviewFresh && selectedMin === 20 && recipeIsAvailable && !activeTrainingContext?.hasUsefulHistory) {
     selectedRecipe = recipe;
     pickedCircuitExercises = recipe.exercises.map(enrichExercise);
   } else {
@@ -6655,12 +6750,44 @@ function toggleCircuitGroup(group) {
   renderCircuitPreview();
 }
 
+function renderCircuitHistoryBadge(exercises = pickedCircuitExercises) {
+  const badge = document.getElementById('cp-lane-badge');
+  const context = activeTrainingContext || buildRecentTrainingContext();
+  const title = document.createElement('strong');
+  const hint = document.createElement('span');
+
+  if (!context.hasUsefulHistory || !context.latestSession) {
+    title.textContent = t('balancedSession');
+    hint.textContent = t('balancedSessionHint');
+  } else {
+    const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+    const weekday = new Date(context.latestSession.date)
+      .toLocaleDateString(locale, { weekday: 'long' })
+      .toLocaleLowerCase(locale);
+    const loadedPattern = context.ranked[0][0];
+    const priorityPatterns = [...new Set((exercises || []).map(exercise => exercisePattern(exercise.name)))]
+      .filter(pattern => pattern !== loadedPattern)
+      .sort((a, b) => (context.loads[a] || 0) - (context.loads[b] || 0))
+      .slice(0, 2);
+    title.textContent = t('complementaryTo')(weekday);
+    hint.textContent = priorityPatterns.length
+      ? t('recentLoadHint')(
+        movementPatternLabel(loadedPattern),
+        priorityPatterns.map(movementPatternLabel).join(' + ')
+      )
+      : t('balancedSessionHint');
+  }
+
+  badge.replaceChildren(title, hint);
+  badge.hidden = false;
+}
+
 function renderCircuitPreview() {
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   const picked = pickedCircuitExercises;
   document.querySelector('.cp-title').textContent = selectedRecipe ? t(selectedRecipe.nameKey) : t('yourCircuit');
   document.getElementById('cp-science-note').hidden = true;
-  document.getElementById('cp-lane-badge').hidden = true;
+  renderCircuitHistoryBadge(picked);
   document.getElementById('cp-regenerate').textContent = t('regenerate');
   document.getElementById('cp-regenerate').style.display = '';
 
