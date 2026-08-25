@@ -9,7 +9,7 @@ import { extname, join, resolve } from 'node:path';
 const chromium = process.env.CHROMIUM_BIN || '/snap/bin/chromium';
 const profile = await mkdtemp(join(tmpdir(), 'kb-bodyweight-test-'));
 const debugPort = 12000 + Math.floor(Math.random() * 20000);
-const allowedAssets = new Set(['/index.html', '/history-sync.js', '/workout-stats.js', '/supabase-sync.js']);
+const allowedAssets = new Set(['/index.html', '/motion-rigs-v2.js', '/history-sync.js', '/workout-stats.js', '/supabase-sync.js']);
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname;
   const safePath = pathname === '/' ? '/index.html' : pathname;

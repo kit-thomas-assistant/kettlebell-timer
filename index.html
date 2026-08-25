@@ -2340,6 +2340,11 @@
 <div class="wake-hint" id="wake-hint"></div>
 
 <script>
+  if (new URLSearchParams(window.location.search).get('motion') !== 'legacy') {
+    document.write('<script src="./motion-rigs-v2.js"></scr' + 'ipt>');
+  }
+</script>
+<script>
 // ══════════════════════════════════════════════
 //  I18N SYSTEM
 // ══════════════════════════════════════════════
@@ -3925,6 +3930,22 @@ function updateExerciseMeta(visual, step) {
 
 function getVisual(name) {
   return EX_DATA[name] || EX_DATA['_rest'];
+}
+
+function renderExerciseVisual(elementId, exerciseName, legacySvg) {
+  const container = document.getElementById(elementId);
+  const motion = window.KettlebellMotionV2;
+  let mounted = false;
+  if (motion?.enabled && exerciseName) {
+    try { mounted = motion.mount(container, exerciseName); } catch (error) {
+      console.warn('Motion V2 fallback', exerciseName, error);
+    }
+  }
+  if (!mounted) {
+    motion?.destroy?.(container);
+    container.innerHTML = legacySvg;
+  }
+  return mounted;
 }
 
 // ══════════════════════════════════════════════
@@ -6055,7 +6076,7 @@ function renderSequenceRunner() {
   document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
 
   if (resting) {
-    document.getElementById('seq-visual').innerHTML = getVisual('_rest').svg;
+    renderExerciseVisual('seq-visual', null, getVisual('_rest').svg);
     document.getElementById('seq-name').textContent = runnerFreeRest ? t('freeRest') : t('restCalm');
     document.getElementById('seq-target').textContent = runnerRoundRestLeft > 0 ? formatClock(runnerRoundRestLeft) : t('resumeExercise');
     document.getElementById('seq-coach').innerHTML = displaySteps('_rest').map(step => `<span>${step}</span>`).join('');
@@ -6064,7 +6085,7 @@ function renderSequenceRunner() {
       : '';
     updateDemoLink('seq-demo', null);
   } else {
-    document.getElementById('seq-visual').innerHTML = getVisual(current.name).svg;
+    renderExerciseVisual('seq-visual', current.name, getVisual(current.name).svg);
     document.getElementById('seq-name').textContent = exName(current.name);
     document.getElementById('seq-target').textContent = exerciseTarget(current);
     document.getElementById('seq-coach').innerHTML = displaySteps(current.name).map(step => `<span>${step}</span>`).join('');
@@ -6351,7 +6372,7 @@ function showPreview() {
   document.getElementById('pv-label').textContent = label + ' · ' + t('next');
   document.getElementById('pv-name').textContent = displayName(step);
   document.getElementById('pv-detail').textContent = `${displayDetail(step)} · ${step.duration}s`;
-  document.getElementById('pv-anim').innerHTML = visual.svg;
+  renderExerciseVisual('pv-anim', step.name, visual.svg);
   updateDemoLink('pv-demo', step.name);
   updateExerciseMeta(visual, step);
 
@@ -6414,7 +6435,7 @@ function showTimer() {
   ringFill.className.baseVal = 'timer-ring-fill' + (step.type === 'rest' ? ' rest' : '');
 
   const visual = getVisual(step.type === 'work' ? step.name : '_rest');
-  document.getElementById('wo-anim').innerHTML = visual.svg;
+  renderExerciseVisual('wo-anim', step.type === 'work' ? step.name : null, visual.svg);
   updateDemoLink('wo-demo', step.type === 'work' ? step.name : '');
   const miniSteps = step.type === 'work' ? displaySteps(step.name) : displaySteps('_rest');
   document.getElementById('wo-steps-mini').innerHTML = miniSteps.map(s =>

@@ -40,7 +40,7 @@ const mockSdk = `<script>
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost');
   const pathname = url.pathname;
-  if (pathname === '/history-sync.js' || pathname === '/workout-stats.js' || pathname === '/supabase-sync.js') {
+  if (pathname === '/motion-rigs-v2.js' || pathname === '/history-sync.js' || pathname === '/workout-stats.js' || pathname === '/supabase-sync.js') {
     response.setHeader('Content-Type', 'text/javascript; charset=utf-8');
     response.end(await readFile(resolve(pathname.slice(1))));
     return;

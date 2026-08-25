@@ -11,7 +11,7 @@ const profile = await mkdtemp(join(tmpdir(), 'kb-fatloss-test-'));
 const debugPort = 12000 + Math.floor(Math.random() * 20000);
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname;
-  const asset = pathname === '/history-sync.js' || pathname === '/supabase-sync.js' ? pathname.slice(1) : 'index.html';
+  const asset = pathname === '/motion-rigs-v2.js' || pathname === '/history-sync.js' || pathname === '/supabase-sync.js' ? pathname.slice(1) : 'index.html';
   response.setHeader('Content-Type', asset.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'text/html; charset=utf-8');
   response.end(await readFile(resolve(asset)));
 });

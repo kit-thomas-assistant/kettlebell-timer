@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 const chromium = process.env.CHROMIUM_BIN || '/snap/bin/chromium';
 const profile = await mkdtemp(join(tmpdir(), 'kb-achievement-test-'));
 const debugPort = 12000 + Math.floor(Math.random() * 20000);
-const scriptAssets = new Set(['/history-sync.js', '/workout-stats.js', '/supabase-sync.js']);
+const scriptAssets = new Set(['/motion-rigs-v2.js', '/history-sync.js', '/workout-stats.js', '/supabase-sync.js']);
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname;
   const asset = scriptAssets.has(pathname) ? pathname.slice(1) : 'index.html';
