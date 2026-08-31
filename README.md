@@ -19,7 +19,9 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Optional 5-minute finisher** : after a completed main workout, add two or three rounds of two-hand goblet curls, light overhead triceps extensions and halos. It is attached to the original history entry and never advances the weekly lane twice
 - **End-of-workout achievement** : skipping, completing or stopping the optional finisher opens a final recap with the real weekly 3-session progress, weekly streak, saved-session total and a six-week activity view. Ten sub-second celebration signatures rotate randomly, with reduced-motion support
 - **Fat-loss goal mode** : a structured 15 / 20 / 25 min plan combining preparation, kettlebell intervals, full-body strength and a core finisher; “Vary this session” changes the movement families while preserving phases, timing, side balance and available equipment
-- **Three complementary weekly sessions** : a stable preview lane rotates only after completion through Strength base, Hinge & power, then Mixed & unilateral. Every fat-loss session remains full-body; the lane is a bias, not a body-part split
+- **Optional frozen weekly plan** : “Prepare my week” builds three complementary full-body Circuit sessions from the selected duration, level, equipment and the previous 7–10 days of movement load. The saved week advances 1/3 → 3/3 only when those planned sessions are completed, changes only through an explicit rebuild/variation action, and never replaces the zero-history free-session route
+- **Push-volume guardrails** : every generated Circuit allows at most one horizontal-push slot and two total horizontal/vertical push slots. Floor, incline, offset and close-grip push-ups plus High Plank Plus share the same support-position budget instead of masquerading as unrelated families
+- **Three complementary weekly biases** : Strength base, Hinge & power, then Mixed & unilateral keep every planned session full-body; the lane is a bias, not a body-part split
 - **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
 - **Audio cues** : beeps at transitions and 3-second warnings
 - **Screen wake lock** : keeps the display on during your workout
@@ -102,7 +104,7 @@ Regeneration compares movement-family signatures with the displayed plan and the
 - SVG animations (CSS keyframes)
 - Web Audio API for beeps
 - Screen Wake Lock API
-- localStorage for equipment selection and the offline-first workout history cache
+- localStorage for equipment selection, the versioned frozen weekly plan and the offline-first workout history cache
 - Supabase Auth + Postgres for optional cross-device history sync (history only, no equipment/preferences)
 
 ### Supabase setup
@@ -151,6 +153,12 @@ node tests/rotation-diagnostic.mjs
 ```
 
 The rotation diagnostic checks the enlarged one-bell upper-body pools, horizontal push/pull coverage, left/right movement families, YouTube search-only URLs, perceptible fat-loss regeneration, stable three-session lanes, history compatibility, bilingual badges and 320px containment.
+
+```bash
+node tests/weekly-plan-diagnostic.mjs
+```
+
+The weekly-plan diagnostic checks the untouched zero-history quick start, versioned three-session persistence, explicit regeneration, planned-session completion linkage, next-session progress, repeated push-volume caps, bilingual copy, 44px controls and 320px containment.
 
 ```bash
 node tests/equipment-recipe-diagnostic.mjs

@@ -195,6 +195,7 @@
         client,
         onHistory: () => {
           if (typeof window.renderConsistency === 'function') window.renderConsistency();
+          if (typeof window.renderWeeklyPlanCard === 'function') window.renderWeeklyPlanCard();
           if ($('history-modal')?.style.display === 'flex' && typeof window.showHistory === 'function') window.showHistory();
         },
         onState: onManagerState,

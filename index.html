@@ -567,6 +567,87 @@
     line-height: 1.5;
   }
 
+  .weekly-plan-card {
+    width: min(100%, 620px);
+    padding: 1rem;
+    border: 1px solid rgba(255,107,53,0.42);
+    border-radius: 1.15rem;
+    background:
+      linear-gradient(135deg, rgba(255,107,53,0.14), rgba(255,107,53,0.025) 58%),
+      var(--surface);
+    box-shadow: inset 3px 0 var(--accent);
+  }
+  .weekly-plan-card[hidden] { display: none; }
+  .weekly-plan-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .weekly-plan-kicker {
+    color: var(--accent);
+    font-size: 0.64rem;
+    font-weight: 850;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+  .weekly-plan-title { margin-top: 0.18rem; font-size: 1.05rem; font-weight: 900; }
+  .weekly-plan-copy {
+    margin: 0.35rem 0 0;
+    color: #bda79f;
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+  .weekly-plan-progress {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+  }
+  .weekly-plan-slot {
+    min-width: 0;
+    padding: 0.55rem 0.45rem;
+    border: 1px solid #414141;
+    border-radius: 0.7rem;
+    background: rgba(0,0,0,0.2);
+    color: #b8b8b8;
+    font-size: 0.66rem;
+    font-weight: 750;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .weekly-plan-slot strong { display: block; color: var(--text); font-size: 0.74rem; }
+  .weekly-plan-slot.current { border-color: var(--accent); color: #ffd2c2; }
+  .weekly-plan-slot.done { border-color: var(--rest); color: var(--rest); background: rgba(78,205,196,0.08); }
+  .weekly-plan-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.55rem;
+    margin-top: 0.8rem;
+  }
+  .weekly-plan-actions button {
+    min-height: 46px;
+    padding: 0.72rem 0.9rem;
+    border: 1px solid #555;
+    border-radius: 0.8rem;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 850;
+    cursor: pointer;
+  }
+  #weekly-plan-action { border-color: var(--accent); background: var(--accent); color: #fff; }
+  #weekly-plan-regenerate[hidden] { display: none; }
+  #weekly-plan-action:disabled { opacity: 0.55; cursor: default; }
+  #weekly-plan-action:focus-visible,
+  #weekly-plan-regenerate:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 420px) {
+    .weekly-plan-head { display: block; }
+    .weekly-plan-actions { grid-template-columns: 1fr; }
+    .weekly-plan-actions button { width: 100%; }
+  }
+
   .setup-buttons {
     display: flex;
     justify-content: center;
@@ -587,6 +668,14 @@
   }
   #go-btn:hover { transform: scale(1.03); }
   #go-btn:active { transform: scale(0.97); }
+  #go-btn.secondary {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid #555;
+    background: transparent;
+    color: #d2d2d2;
+    font-size: 0.92rem;
+  }
+  #go-btn.secondary:hover { border-color: var(--accent); color: #fff; }
   #go-btn:disabled {
     cursor: not-allowed;
     opacity: 0.38;
@@ -2137,6 +2226,21 @@
 
   <p class="preview-info" id="preview-text"></p>
 
+  <section class="weekly-plan-card" id="weekly-plan-card" aria-labelledby="weekly-plan-title" hidden>
+    <div class="weekly-plan-head">
+      <div>
+        <div class="weekly-plan-kicker" id="weekly-plan-kicker">Ma semaine</div>
+        <div class="weekly-plan-title" id="weekly-plan-title">3 séances qui travaillent ensemble</div>
+        <p class="weekly-plan-copy" id="weekly-plan-copy"></p>
+      </div>
+    </div>
+    <div class="weekly-plan-progress" id="weekly-plan-progress" role="list" aria-live="polite"></div>
+    <div class="weekly-plan-actions">
+      <button id="weekly-plan-action" type="button"></button>
+      <button id="weekly-plan-regenerate" type="button" hidden></button>
+    </div>
+  </section>
+
   <div class="setup-buttons">
     <button id="go-btn">Voir le circuit →</button>
   </div>
@@ -2413,6 +2517,23 @@ const STRINGS = {
     nateliRecipe: 'Full-body David Nateli',
     recipeSubtitle: (rounds, duration) => `${rounds} passages · environ ${duration} min · transitions automatiques`,
     viewCircuit: 'Voir le circuit →',
+    freeCircuit: 'Séance libre →',
+    weeklyPlanKicker: 'Ma semaine',
+    weeklyPlanTitle: '3 séances qui travaillent ensemble',
+    weeklyPlanEmptyCopy: 'Prépare une fois la semaine : la charge est répartie entre les 3 séances, puis le plan reste stable.',
+    weeklyPlanActiveCopy: 'Plan figé pour cette semaine · une séance full-body à la fois.',
+    weeklyPlanPrepare: 'Préparer ma semaine',
+    weeklyPlanLaunch: slot => `Lancer la séance ${slot}/3`,
+    weeklyPlanComplete: 'Semaine terminée ✓',
+    weeklyPlanRegenerate: 'Refaire le plan',
+    weeklyPlanSlot: slot => `Séance ${slot}`,
+    weeklyPlanReady: 'À venir',
+    weeklyPlanCurrent: 'Prochaine',
+    weeklyPlanDone: 'Terminée',
+    weeklyPlanFrozenHint: 'Plan hebdo · cette séance reste enregistrée telle quelle',
+    weeklyPlanSnapshot: (min, level) => `${min} min · ${level} · charge des 10 derniers jours`,
+    weeklyPlanRegenerated: 'Nouveau plan enregistré pour cette semaine.',
+    weeklyPlanSlotAria: (slot, state) => `Séance ${slot} sur 3, ${state}`,
     history: '📋 Historique',
     consistencyProgress: (count) => `${count} / 3 cette semaine`,
     consistencyOpen: 'Voir le détail',
@@ -2655,6 +2776,23 @@ const STRINGS = {
     nateliRecipe: 'David Nateli full-body',
     recipeSubtitle: (rounds, duration) => `${rounds} passes · about ${duration} min · automatic transitions`,
     viewCircuit: 'View circuit →',
+    freeCircuit: 'Free session →',
+    weeklyPlanKicker: 'My week',
+    weeklyPlanTitle: '3 sessions that work together',
+    weeklyPlanEmptyCopy: 'Plan once for the week: load is shared across 3 sessions, then the plan stays stable.',
+    weeklyPlanActiveCopy: 'Frozen for this week · one full-body session at a time.',
+    weeklyPlanPrepare: 'Prepare my week',
+    weeklyPlanLaunch: slot => `Start session ${slot}/3`,
+    weeklyPlanComplete: 'Week complete ✓',
+    weeklyPlanRegenerate: 'Rebuild plan',
+    weeklyPlanSlot: slot => `Session ${slot}`,
+    weeklyPlanReady: 'Upcoming',
+    weeklyPlanCurrent: 'Next',
+    weeklyPlanDone: 'Complete',
+    weeklyPlanFrozenHint: 'Weekly plan · this session stays saved as generated',
+    weeklyPlanSnapshot: (min, level) => `${min} min · ${level} · last 10 days of training load`,
+    weeklyPlanRegenerated: 'A new plan was saved for this week.',
+    weeklyPlanSlotAria: (slot, state) => `Session ${slot} of 3, ${state}`,
     history: '📋 History',
     consistencyProgress: (count) => `${count} / 3 this week`,
     consistencyOpen: 'View details',
@@ -4095,6 +4233,35 @@ function exercisePattern(name) {
   return 'full-body';
 }
 
+// Training stress is intentionally broader than the exercise taxonomy. A
+// plank-plus is useful scapular work, but after several push-up variations it
+// still loads the same support position. The circuit budget therefore treats
+// it as horizontal pushing; chair dips count as vertical pushing.
+function exerciseStressPattern(name) {
+  if (name === 'Planche haute plus') return 'horizontal-push';
+  if (name === 'Dip sur chaise stable') return 'vertical-push';
+  return exercisePattern(name);
+}
+
+function circuitStressCounts(exercises = []) {
+  return exercises.reduce((counts, exercise) => {
+    const name = typeof exercise === 'string' ? exercise : exercise.name;
+    const pattern = exerciseStressPattern(name);
+    counts[pattern] = (counts[pattern] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function canAddCircuitExercise(exercises, candidate) {
+  const counts = circuitStressCounts(exercises);
+  const pattern = exerciseStressPattern(candidate.name);
+  const horizontal = counts['horizontal-push'] || 0;
+  const vertical = counts['vertical-push'] || 0;
+  if (pattern === 'horizontal-push' && horizontal >= 1) return false;
+  if (['horizontal-push', 'vertical-push'].includes(pattern) && horizontal + vertical >= 2) return false;
+  return true;
+}
+
 // Equipment metadata is kept separate from the exercise copy so generation,
 // recipes and the timer can all apply the same compatibility rules.
 const EQUIPMENT_WEIGHTS = [8, 10, 12, 14, 16, 20, 24];
@@ -4485,23 +4652,33 @@ function movementPatternLabel(pattern) {
 }
 
 function buildRecentTrainingContext(history = readHistory(), now = new Date()) {
+  const today = localDayStart(now);
+  const cutoff = today && addLocalDays(today, -10);
   const sessions = (Array.isArray(history) ? history : [])
-    .filter(session => Array.isArray(session?.exercises) && session.exercises.length > 0 && localDayStart(session.date))
+    .filter(session => {
+      const day = localDayStart(session?.date);
+      return Array.isArray(session?.exercises)
+        && session.exercises.length > 0
+        && day
+        && (!cutoff || day.getTime() >= cutoff.getTime())
+        && (!today || day.getTime() <= today.getTime());
+    })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const recentSessions = sessions.slice(0, 2);
-  const includedSessions = sessions.filter(session => isSessionInWeek(session, now) || recentSessions.includes(session));
+  const recentSessions = sessions.slice(0, 3);
+  const includedSessions = sessions;
   const loads = {};
 
   includedSessions.forEach(session => {
     const recentIndex = recentSessions.indexOf(session);
-    const weight = (isSessionInWeek(session, now) ? 1 : 0)
-      + (recentIndex === 0 ? 3 : recentIndex === 1 ? 1.5 : 0);
+    const ageDays = today ? Math.max(0, Math.round((today.getTime() - localDayStart(session.date).getTime()) / 86400000)) : 0;
+    const weight = Math.max(0.35, 1 - ageDays / 12)
+      + (recentIndex === 0 ? 2.5 : recentIndex === 1 ? 1.25 : recentIndex === 2 ? 0.5 : 0);
     const countedFamilies = new Set();
     session.exercises.forEach(name => {
       const family = exerciseFamily(name);
       if (countedFamilies.has(family)) return;
       countedFamilies.add(family);
-      const pattern = exercisePattern(name);
+      const pattern = exerciseStressPattern(name);
       loads[pattern] = (loads[pattern] || 0) + weight;
     });
   });
@@ -4518,10 +4695,136 @@ function buildRecentTrainingContext(history = readHistory(), now = new Date()) {
 
 function recentPatternPenalty(name, context = activeTrainingContext) {
   if (!context?.hasUsefulHistory || !context.maxLoad) return 0;
-  const normalizedLoad = (context.loads[exercisePattern(name)] || 0) / context.maxLoad;
+  const normalizedLoad = (context.loads[exerciseStressPattern(name)] || 0) / context.maxLoad;
   // Recent load must outweigh the weekly lane ordering, while remaining a
   // penalty rather than a hard ban so constrained filters can still generate.
   return normalizedLoad * 45;
+}
+
+const WEEKLY_PLAN_STORAGE_KEY = 'kb_weekly_plan_v1';
+const WEEKLY_PLAN_VERSION = 1;
+
+function weeklyPlanWeekKey(now = new Date()) {
+  return localDateKey(localWeekStart(now));
+}
+
+function readWeeklyPlan(now = new Date()) {
+  try {
+    const plan = JSON.parse(localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY) || 'null');
+    if (!plan || plan.version !== WEEKLY_PLAN_VERSION || plan.weekStart !== weeklyPlanWeekKey(now)) return null;
+    if (!Array.isArray(plan.sessions) || plan.sessions.length !== 3) return null;
+    return plan;
+  } catch { return null; }
+}
+
+function writeWeeklyPlan(plan) {
+  localStorage.setItem(WEEKLY_PLAN_STORAGE_KEY, JSON.stringify(plan));
+  return plan;
+}
+
+function weeklyPlanCompletedSlots(plan, history = readHistory()) {
+  const slots = new Set();
+  if (!plan) return slots;
+  history.forEach(session => {
+    if (session?.weeklyPlanId === plan.id && Number.isInteger(Number(session.weeklyPlanSlot))) {
+      slots.add(Number(session.weeklyPlanSlot));
+    }
+  });
+  return slots;
+}
+
+function weeklyPlanningContext(history = readHistory(), now = new Date()) {
+  const today = localDayStart(now);
+  const cutoff = addLocalDays(today, -9);
+  const sessions = (Array.isArray(history) ? history : [])
+    .filter(session => {
+      const day = localDayStart(session?.date);
+      return day && day >= cutoff && day <= today && Array.isArray(session.exercises) && session.exercises.length;
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const loads = {};
+  sessions.forEach(session => {
+    const day = localDayStart(session.date);
+    const ageDays = Math.max(0, Math.round((today - day) / 86400000));
+    const weight = 1 + Math.max(0, 9 - ageDays) / 4.5;
+    const countedFamilies = new Set();
+    session.exercises.forEach(name => {
+      const family = exerciseFamily(name);
+      if (countedFamilies.has(family)) return;
+      countedFamilies.add(family);
+      const pattern = exerciseStressPattern(name);
+      loads[pattern] = (loads[pattern] || 0) + weight;
+    });
+  });
+  const ranked = Object.entries(loads).sort((a, b) => b[1] - a[1]);
+  return {
+    loads,
+    ranked,
+    latestSession: sessions[0] || null,
+    hasUsefulHistory: ranked.length > 0,
+    maxLoad: ranked[0]?.[1] || 0,
+  };
+}
+
+function addPlannedSessionToContext(context, exercises, weight = 2.5) {
+  const loads = { ...(context?.loads || {}) };
+  const countedFamilies = new Set();
+  exercises.forEach(exercise => {
+    const name = typeof exercise === 'string' ? exercise : exercise.name;
+    const family = exerciseFamily(name);
+    if (countedFamilies.has(family)) return;
+    countedFamilies.add(family);
+    const pattern = exerciseStressPattern(name);
+    loads[pattern] = (loads[pattern] || 0) + weight;
+  });
+  const ranked = Object.entries(loads).sort((a, b) => b[1] - a[1]);
+  return { ...context, loads, ranked, hasUsefulHistory: ranked.length > 0, maxLoad: ranked[0]?.[1] || 0 };
+}
+
+function createWeeklyPlan(now = new Date(), { force = false } = {}) {
+  const existing = readWeeklyPlan(now);
+  if (existing && !force) return existing;
+  if (!selectedWeights().length || !CIRCUIT_CFG[selectedMin]?.[selectedLevel]) return null;
+  const previousLane = activeWeeklyLane;
+  const previousContext = activeTrainingContext;
+  let planningContext = weeklyPlanningContext(readHistory(), now);
+  const cfg = CIRCUIT_CFG[selectedMin][selectedLevel];
+  const sessions = WEEKLY_LANES.map((lane, index) => {
+    activeWeeklyLane = lane;
+    activeTrainingContext = planningContext;
+    const exercises = pickCircuitExercises(cfg.exCount, selectedLevel, new Set(['upper', 'lower', 'full', 'core']));
+    planningContext = addPlannedSessionToContext(planningContext, exercises);
+    return {
+      slot: index + 1,
+      laneId: lane.id,
+      exercises: exercises.map(exercise => exercise.name),
+    };
+  });
+  activeWeeklyLane = previousLane;
+  activeTrainingContext = previousContext;
+  const createdAt = new Date().toISOString();
+  const idSuffix = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return writeWeeklyPlan({
+    version: WEEKLY_PLAN_VERSION,
+    id: `week-${weeklyPlanWeekKey(now)}-${idSuffix}`,
+    weekStart: weeklyPlanWeekKey(now),
+    createdAt,
+    updatedAt: createdAt,
+    duration: selectedMin,
+    level: selectedLevel,
+    equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
+    sessions,
+  });
+}
+
+function updateWeeklyPlanSession(planId, slot, exercises) {
+  const plan = readWeeklyPlan();
+  if (!plan || plan.id !== planId) return null;
+  const session = plan.sessions.find(candidate => candidate.slot === slot);
+  if (!session) return null;
+  session.exercises = exercises.map(exercise => typeof exercise === 'string' ? exercise : exercise.name);
+  plan.updatedAt = new Date().toISOString();
+  return writeWeeklyPlan(plan);
 }
 
 function bodyweightLaneForHistory(history = readHistory(), focusId = 'balanced') {
@@ -4572,6 +4875,7 @@ let wakeLock = null;
 let sessionExercises = [];
 let fatlossPlan = null;
 let activeWeeklyLane = null;
+let activeWeeklyPlanSession = null;
 let activeTrainingContext = null;
 let bodyweightPlan = null;
 let activeBodyweightLane = null;
@@ -4938,7 +5242,10 @@ function pickCircuitExercises(count, level, groups) {
     for (const g of requiredGrps) {
       if (picked.some(exercise => exercise.group === g)) continue;
       if (byGroup[g] && byGroup[g].length > 0) {
-        const ex = byGroup[g].find(candidate => !usedFamilies.has(exerciseFamily(candidate.name))) || byGroup[g][0];
+        const ex = byGroup[g].find(candidate =>
+          !usedFamilies.has(exerciseFamily(candidate.name)) && canAddCircuitExercise(picked, candidate)
+        ) || byGroup[g].find(candidate => canAddCircuitExercise(picked, candidate));
+        if (!ex) continue;
         picked.push(ex);
         usedNames.add(ex.name);
         usedFamilies.add(exerciseFamily(ex.name));
@@ -4950,6 +5257,7 @@ function pickCircuitExercises(count, level, groups) {
       if (picked.length >= count) break;
       if (usedNames.has(ex.name)) continue;
       if (usedFamilies.has(exerciseFamily(ex.name))) continue;
+      if (!canAddCircuitExercise(picked, ex)) continue;
       picked.push(ex);
       usedNames.add(ex.name);
       usedFamilies.add(exerciseFamily(ex.name));
@@ -4959,6 +5267,7 @@ function pickCircuitExercises(count, level, groups) {
     for (const ex of shuffled) {
       if (picked.length >= count) break;
       if (usedNames.has(ex.name)) continue;
+      if (!canAddCircuitExercise(picked, ex)) continue;
       picked.push(ex);
       usedNames.add(ex.name);
     }
@@ -4987,7 +5296,12 @@ function pickCircuitExercises(count, level, groups) {
   }
 
   // Fallback (should not reach here)
-  return shuffle(pool).slice(0, count).map(enrichExercise);
+  const fallback = [];
+  for (const exercise of shuffle(pool)) {
+    if (fallback.length >= count) break;
+    if (canAddCircuitExercise(fallback, exercise)) fallback.push(exercise);
+  }
+  return fallback.map(enrichExercise);
 }
 
 // Keep valid displayed exercises and fill only the slots freed by a category
@@ -5001,6 +5315,7 @@ function refillCircuitExercises(current, count, level, groups) {
   for (const ex of current) {
     if (kept.length >= count) break;
     if (!groups.has(ex.group) || !hasCompatibleEquipment(ex.name) || usedNames.has(ex.name)) continue;
+    if (!canAddCircuitExercise(kept, ex)) continue;
     kept.push(enrichExercise(ex));
     usedNames.add(ex.name);
   }
@@ -5012,6 +5327,7 @@ function refillCircuitExercises(current, count, level, groups) {
   for (const ex of [...preferred, ...shuffle(eligible)]) {
     if (kept.length >= count) break;
     if (usedNames.has(ex.name)) continue;
+    if (!canAddCircuitExercise(kept, ex)) continue;
     kept.push(enrichExercise(ex));
     usedNames.add(ex.name);
   }
@@ -6082,6 +6398,7 @@ function showOnly(id) {
     document.getElementById(s).style.display = 'none';
   });
   document.getElementById(id).style.display = 'flex';
+  if (id === 'setup') renderWeeklyPlanCard();
 }
 
 function formatClock(seconds) {
@@ -6272,6 +6589,7 @@ document.getElementById('seq-stop').addEventListener('click', () => {
 function selectMode(mode) {
   if (mode === 'bodyweight' && selectedWeights().length) clearEquipmentForBodyweight();
   selectedMode = mode;
+  activeWeeklyPlanSession = null;
   selectedGuidedRecipe = mode === 'amrap' ? AMRAP_PRESETS.fullBodyDensity : null;
   fatlossPlan = null;
   bodyweightPlan = null;
@@ -6377,6 +6695,87 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
   });
 });
 
+function renderWeeklyPlanCard() {
+  const card = document.getElementById('weekly-plan-card');
+  if (!card) return;
+  const available = selectedMode === 'circuit' && selectedWeights().length > 0;
+  card.hidden = !available;
+  if (!available) return;
+
+  const plan = readWeeklyPlan();
+  const completed = weeklyPlanCompletedSlots(plan);
+  const nextSession = plan?.sessions.find(session => !completed.has(session.slot)) || null;
+  document.getElementById('weekly-plan-kicker').textContent = t('weeklyPlanKicker');
+  document.getElementById('weekly-plan-title').textContent = t('weeklyPlanTitle');
+  const planLevel = plan?.level === 'inter' ? t('intermediate') : t('beginner');
+  document.getElementById('weekly-plan-copy').textContent = plan
+    ? `${t('weeklyPlanActiveCopy')} ${t('weeklyPlanSnapshot')(plan.duration, planLevel)}`
+    : t('weeklyPlanEmptyCopy');
+
+  const progress = document.getElementById('weekly-plan-progress');
+  progress.innerHTML = (plan?.sessions || WEEKLY_LANES.map((lane, index) => ({ slot: index + 1, laneId: lane.id })))
+    .map(session => {
+      const lane = WEEKLY_LANES.find(candidate => candidate.id === session.laneId) || WEEKLY_LANES[session.slot - 1];
+      const done = completed.has(session.slot);
+      const current = !done && nextSession?.slot === session.slot;
+      const state = done ? t('weeklyPlanDone') : current ? t('weeklyPlanCurrent') : t('weeklyPlanReady');
+      return `<div class="weekly-plan-slot${done ? ' done' : current ? ' current' : ''}" role="listitem" aria-label="${t('weeklyPlanSlotAria')(session.slot, state)}">
+        <strong>${t('weeklyPlanSlot')(session.slot)}</strong>
+        ${lane ? t(lane.nameKey) : state}<br>${plan ? state : '·'}
+      </div>`;
+    }).join('');
+
+  const action = document.getElementById('weekly-plan-action');
+  action.disabled = Boolean(plan && !nextSession);
+  action.textContent = !plan ? t('weeklyPlanPrepare') : nextSession ? t('weeklyPlanLaunch')(nextSession.slot) : t('weeklyPlanComplete');
+  const regenerate = document.getElementById('weekly-plan-regenerate');
+  // Once a planned session has been completed, keep the remaining week stable.
+  // Rebuilding is available before the week starts, never as an accidental reset.
+  regenerate.hidden = !plan || completed.size > 0;
+  regenerate.textContent = t('weeklyPlanRegenerate');
+}
+
+function syncSetupToWeeklyPlan(plan) {
+  selectMode('circuit');
+  selectedMin = plan.duration;
+  selectedLevel = plan.level;
+  document.querySelectorAll('.dur-btn').forEach(button => button.classList.toggle('active', Number(button.dataset.min) === selectedMin));
+  document.querySelectorAll('.diff-btn').forEach(button => button.classList.toggle('active', button.dataset.level === selectedLevel));
+  updatePreview();
+}
+
+function launchWeeklyPlanSession(plan, plannedSession) {
+  if (!plan || !plannedSession) return;
+  syncSetupToWeeklyPlan(plan);
+  activeWeeklyPlanSession = { planId: plan.id, slot: plannedSession.slot };
+  activeWeeklyLane = WEEKLY_LANES.find(lane => lane.id === plannedSession.laneId) || WEEKLY_LANES[plannedSession.slot - 1];
+  activeTrainingContext = weeklyPlanningContext();
+  activeGroups = new Set(['upper', 'lower', 'full', 'core']);
+  selectedRecipe = null;
+  circuitPreviewFresh = false;
+  lighterWeights = false;
+  pickedCircuitExercises = plannedSession.exercises.map(name => enrichExercise(exerciseEntry(name, selectedLevel)));
+  renderCircuitPreview();
+}
+
+document.getElementById('weekly-plan-action').addEventListener('click', () => {
+  let plan = readWeeklyPlan();
+  if (!plan) {
+    plan = createWeeklyPlan();
+    renderWeeklyPlanCard();
+    updatePreview();
+    return;
+  }
+  const completed = weeklyPlanCompletedSlots(plan);
+  launchWeeklyPlanSession(plan, plan.sessions.find(session => !completed.has(session.slot)));
+});
+
+document.getElementById('weekly-plan-regenerate').addEventListener('click', () => {
+  createWeeklyPlan(new Date(), { force: true });
+  renderWeeklyPlanCard();
+  updatePreview();
+});
+
 function updatePreview() {
   const el = document.getElementById('preview-text');
   const goButton = document.getElementById('go-btn');
@@ -6389,6 +6788,8 @@ function updatePreview() {
       selectedMode === 'circuit' ? t('viewCircuit') :
       ['fatloss', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
       t('letsGo');
+    goButton.classList.remove('secondary');
+    renderWeeklyPlanCard();
     return;
   }
   switch (selectedMode) {
@@ -6443,9 +6844,11 @@ function updatePreview() {
   }
   // Adapt go button label
   document.getElementById('go-btn').textContent =
-    selectedMode === 'circuit' ? t('viewCircuit') :
+    selectedMode === 'circuit' ? (readWeeklyPlan() ? t('freeCircuit') : t('viewCircuit')) :
     ['fatloss', 'bodyweight', 'amrap', 'guided'].includes(selectedMode) ? t('viewPlan') :
     t('letsGo');
+  goButton.classList.toggle('secondary', selectedMode === 'circuit' && Boolean(readWeeklyPlan()));
+  renderWeeklyPlanCard();
 }
 
 // Initialize
@@ -6592,6 +6995,7 @@ document.getElementById('go-btn').addEventListener('click', () => {
 let activeGroups = new Set(['upper', 'lower', 'full', 'core']);
 
 function showCircuitPreview() {
+  activeWeeklyPlanSession = null;
   activeWeeklyLane = weeklyLaneForHistory();
   activeTrainingContext = buildRecentTrainingContext();
   activeGroups = new Set(['upper', 'lower', 'full', 'core']);
@@ -6602,12 +7006,14 @@ function showCircuitPreview() {
 }
 
 function showFatlossPreview() {
+  activeWeeklyPlanSession = null;
   activeWeeklyLane = weeklyLaneForHistory();
   generateFatlossPlan({ avoidPlan: null });
   renderFatlossPreview();
 }
 
 function showBodyweightPreview() {
+  activeWeeklyPlanSession = null;
   const focus = bodyweightFocusForId();
   activeBodyweightLane = focus.id === 'balanced' ? bodyweightLaneForHistory(readHistory(), focus.id) : null;
   createBodyweightPlan(activeBodyweightLane);
@@ -6713,6 +7119,10 @@ function renderSequencePreview() {
 }
 
 function regenerateCircuit(animate) {
+  if (activeWeeklyPlanSession) {
+    renderCircuitPreview();
+    return;
+  }
   const c = CIRCUIT_CFG[selectedMin][selectedLevel];
   const recipe = CURATED_RECIPES.nateliFullBody;
   const recipeIsAvailable = recipe.exercises.every(exercise => hasCompatibleEquipment(exercise.name));
@@ -6735,6 +7145,7 @@ function regenerateCircuit(animate) {
 }
 
 function toggleCircuitGroup(group) {
+  if (activeWeeklyPlanSession) return;
   if (selectedRecipe) return;
   if (!['upper', 'lower', 'full', 'core'].includes(group)) return;
   if (activeGroups.has(group)) activeGroups.delete(group);
@@ -6756,7 +7167,11 @@ function renderCircuitHistoryBadge(exercises = pickedCircuitExercises) {
   const title = document.createElement('strong');
   const hint = document.createElement('span');
 
-  if (!context.hasUsefulHistory || !context.latestSession) {
+  if (activeWeeklyPlanSession) {
+    const lane = activeWeeklyLane || WEEKLY_LANES[activeWeeklyPlanSession.slot - 1];
+    title.textContent = laneLabel(lane);
+    hint.textContent = t('weeklyPlanFrozenHint');
+  } else if (!context.hasUsefulHistory || !context.latestSession) {
     title.textContent = t('balancedSession');
     hint.textContent = t('balancedSessionHint');
   } else {
@@ -6789,7 +7204,7 @@ function renderCircuitPreview() {
   document.getElementById('cp-science-note').hidden = true;
   renderCircuitHistoryBadge(picked);
   document.getElementById('cp-regenerate').textContent = t('regenerate');
-  document.getElementById('cp-regenerate').style.display = '';
+  document.getElementById('cp-regenerate').style.display = activeWeeklyPlanSession ? 'none' : '';
 
   document.getElementById('cp-subtitle').textContent = selectedRecipe
     ? t('recipeSubtitle')(selectedRecipe.rounds, selectedRecipe.approximateMinutes)
@@ -6802,7 +7217,9 @@ function renderCircuitPreview() {
     ? `<span class="cp-recipe-badge">✦ ${t('recipeLabel')}</span>`
     : ['upper', 'lower', 'full', 'core'].map(g => {
       const active = activeGroups.has(g);
-      return `<button type="button" class="cp-tag ${g} ${active ? 'check' : 'missing'}" data-group="${g}" aria-pressed="${active}">${active ? '✓' : '✗'} ${groupLabel(g)}</button>`;
+      return activeWeeklyPlanSession
+        ? `<span class="cp-tag ${g} ${active ? 'check' : 'missing'}">${active ? '✓' : '✗'} ${groupLabel(g)}</span>`
+        : `<button type="button" class="cp-tag ${g} ${active ? 'check' : 'missing'}" data-group="${g}" aria-pressed="${active}">${active ? '✓' : '✗'} ${groupLabel(g)}</button>`;
     }).join('');
 
   // Exercise list
@@ -6825,7 +7242,8 @@ function renderCircuitPreview() {
   const noCategories = activeGroups.size === 0;
   document.getElementById('cp-go').disabled = noCategories || picked.length === 0;
   document.getElementById('cp-regenerate').disabled = noCategories;
-  updateLightenAction(picked);
+  if (activeWeeklyPlanSession) document.getElementById('cp-lighten').style.display = 'none';
+  else updateLightenAction(picked);
 
   showOnly('circuit-preview');
 }
@@ -6900,6 +7318,7 @@ document.getElementById('cp-coverage').addEventListener('click', (event) => {
 });
 
 document.getElementById('cp-back').addEventListener('click', () => {
+  activeWeeklyPlanSession = null;
   showOnly('setup');
 });
 
@@ -7016,12 +7435,17 @@ function completeMainSession({ workSteps, workSeconds, metadata = {} }) {
     ...metadata,
     effectiveWorkSeconds: Math.max(0, Math.round(workSeconds)),
   };
+  if (selectedMode === 'circuit' && activeWeeklyPlanSession) {
+    sessionMetadata.weeklyPlanId = activeWeeklyPlanSession.planId;
+    sessionMetadata.weeklyPlanSlot = activeWeeklyPlanSession.slot;
+  }
   if (exerciseStats.length) {
     sessionMetadata.exerciseStats = exerciseStats;
     sessionMetadata.statsVersion = 1;
     sessionMetadata.statsEstimated = true;
   }
   activeSessionId = saveSession(selectedMode, selectedMin || 25, sessionExercises, sessionMetadata);
+  renderWeeklyPlanCard();
   const offersFinisher = selectedMode !== 'bodyweight' && !finisherCompleted;
   document.getElementById('finisher-offer').classList.toggle('visible', offersFinisher);
   if (!offersFinisher) showAchievement();
