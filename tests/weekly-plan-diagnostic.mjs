@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -83,8 +83,9 @@ try {
     const firstSnapshot = localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY);
     renderWeeklyPlanCard(); updatePreview();
     const stableSnapshot = localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY);
-    const planShapeWorks = plan.sessions.length === 3
-      && plan.sessions.every((session, index) => session.slot === index + 1 && session.exercises.length === 6)
+    const planShapeWorks = plan.version === 2
+      && plan.sessions.length === 3
+      && plan.sessions.every((session, index) => session.slot === index + 1 && session.source === 'planned' && session.exercises.length === 6)
       && firstSnapshot === stableSnapshot;
     const plannedCapsWork = plan.sessions.every(session => {
       const counts = circuitStressCounts(session.exercises);
@@ -131,11 +132,75 @@ try {
     const freeRouteStillWorks = activeWeeklyPlanSession === null
       && document.getElementById('circuit-preview').style.display === 'flex';
 
+    localStorage.removeItem(WEEKLY_PLAN_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY);
+    const monday = localWeekStart(new Date());
+    monday.setHours(9, 0, 0, 0);
+    const mondaySession = {
+      id: crypto.randomUUID(),
+      date: monday.toISOString(),
+      updatedAt: monday.toISOString(),
+      mode: 'Circuit', modeId: 'circuit', duration: 20,
+      exercises: ['Goblet Squat', 'Pompes inclinées', 'Suitcase Row', 'KB Romanian Deadlift', 'Dead Bug', 'Farmer Carry'],
+    };
+    localStorage.setItem('kb_history', JSON.stringify([mondaySession]));
+    activeWeeklyPlanSession = null;
+    showOnly('setup');
+    renderWeeklyPlanCard();
+    const recoveryOfferWorks = document.getElementById('weekly-plan-copy').textContent.includes('historique')
+      && document.getElementById('weekly-plan-action').textContent.includes('Inclure')
+      && !document.getElementById('weekly-plan-regenerate').hidden
+      && document.getElementById('weekly-plan-regenerate').textContent.includes('3 nouvelles');
+
+    document.getElementById('weekly-plan-action').click();
+    const resumedPlan = readWeeklyPlan();
+    const midweekResumeWorks = resumedPlan.version === 2
+      && resumedPlan.historyAdoption === 'adopted'
+      && resumedPlan.sessions[0].source === 'history'
+      && resumedPlan.sessions[0].historySessionId === mondaySession.id
+      && bodyweightPlanSignature(resumedPlan.sessions[0].exercises) === bodyweightPlanSignature(mondaySession.exercises)
+      && resumedPlan.sessions.slice(1).every(session => session.source === 'planned' && session.exercises.length === 6)
+      && weeklyPlanCompletedSlots(resumedPlan).has(1)
+      && document.getElementById('weekly-plan-action').textContent.includes('2/3')
+      && document.getElementById('weekly-plan-progress').textContent.includes('déjà faite');
+    const resumedCapsWork = resumedPlan.sessions.slice(1).every(session => {
+      const counts = circuitStressCounts(session.exercises);
+      return (counts['horizontal-push'] || 0) <= 1
+        && (counts['horizontal-push'] || 0) + (counts['vertical-push'] || 0) <= 2;
+    });
+
+    localStorage.removeItem(WEEKLY_PLAN_STORAGE_KEY);
+    renderWeeklyPlanCard();
+    document.getElementById('weekly-plan-regenerate').click();
+    const freshPlan = readWeeklyPlan();
+    const ignoreHistoryWorks = freshPlan.historyAdoption === 'declined'
+      && freshPlan.sessions.every(session => session.source === 'planned')
+      && weeklyPlanCompletedSlots(freshPlan).size === 0
+      && document.getElementById('weekly-plan-action').textContent.includes('1/3');
+
+    const legacyPlan = {
+      ...freshPlan,
+      version: 1,
+      historyAdoption: undefined,
+      sessions: freshPlan.sessions.map(({ source, ...session }) => session),
+    };
+    localStorage.removeItem(WEEKLY_PLAN_STORAGE_KEY);
+    localStorage.setItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY, JSON.stringify(legacyPlan));
+    const migratedPlan = readWeeklyPlan();
+    const legacyMigrationWorks = migratedPlan.version === 2
+      && migratedPlan.sessions.every(session => session.source === 'planned')
+      && Boolean(localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY))
+      && !localStorage.getItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY);
+
+    localStorage.removeItem(WEEKLY_PLAN_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY);
     setLang('en'); showOnly('setup'); renderWeeklyPlanCard(); updatePreview();
     const bilingualWorks = document.getElementById('weekly-plan-kicker').textContent === 'My week'
-      && document.getElementById('go-btn').textContent.includes('Free session');
+      && document.getElementById('go-btn').textContent.includes('View circuit')
+      && document.getElementById('weekly-plan-copy').textContent.includes('history')
+      && document.getElementById('weekly-plan-action').textContent.includes('Include');
 
-    return { zeroHistoryQuickStartWorks, planShapeWorks, plannedCapsWork, generatedCapsWork, explicitRegenerationWorks, launchWorks, completionWorks, frozenPlanWorks, freeRouteStillWorks, bilingualWorks };
+    return { zeroHistoryQuickStartWorks, planShapeWorks, plannedCapsWork, generatedCapsWork, explicitRegenerationWorks, launchWorks, completionWorks, frozenPlanWorks, freeRouteStillWorks, recoveryOfferWorks, midweekResumeWorks, resumedCapsWork, ignoreHistoryWorks, legacyMigrationWorks, bilingualWorks };
   })()`);
 
   await call(ws, 'Emulation.setDeviceMetricsOverride', { width: 320, height: 800, deviceScaleFactor: 1, mobile: true });
@@ -150,6 +215,10 @@ try {
     };
   })()`);
   const combined = { ...result, ...mobile };
+  if (process.env.SCREENSHOT_PATH) {
+    const screenshot = await call(ws, 'Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+    await writeFile(process.env.SCREENSHOT_PATH, Buffer.from(screenshot.data, 'base64'));
+  }
   console.log(JSON.stringify(combined, null, 2));
   if (Object.values(combined).some(value => value !== true)) process.exitCode = 1;
   ws.close();

@@ -2522,7 +2522,14 @@ const STRINGS = {
     weeklyPlanTitle: '3 séances qui travaillent ensemble',
     weeklyPlanEmptyCopy: 'Prépare une fois la semaine : la charge est répartie entre les 3 séances, puis le plan reste stable.',
     weeklyPlanActiveCopy: 'Plan figé pour cette semaine · une séance full-body à la fois.',
+    weeklyPlanDetectedCopy: (count, days) => count === 1
+      ? `Ta séance de ${days} est dans l’historique. Inclus-la comme séance 1/3 : les deux suivantes seront adaptées à ce que tu as déjà travaillé.`
+      : `${count} séances de cette semaine sont dans l’historique (${days}). Inclus-les : le plan préparera seulement ce qu’il reste.`,
     weeklyPlanPrepare: 'Préparer ma semaine',
+    weeklyPlanAdoptOne: day => `Inclure ${day} et continuer`,
+    weeklyPlanAdoptMany: count => `Inclure mes ${count} séances`,
+    weeklyPlanStartFresh: 'Préparer 3 nouvelles',
+    weeklyPlanKeepFresh: 'Garder les 3 prévues',
     weeklyPlanLaunch: slot => `Lancer la séance ${slot}/3`,
     weeklyPlanComplete: 'Semaine terminée ✓',
     weeklyPlanRegenerate: 'Refaire le plan',
@@ -2530,6 +2537,7 @@ const STRINGS = {
     weeklyPlanReady: 'À venir',
     weeklyPlanCurrent: 'Prochaine',
     weeklyPlanDone: 'Terminée',
+    weeklyPlanImported: day => `${day} · déjà faite`,
     weeklyPlanFrozenHint: 'Plan hebdo · cette séance reste enregistrée telle quelle',
     weeklyPlanSnapshot: (min, level) => `${min} min · ${level} · charge des 10 derniers jours`,
     weeklyPlanRegenerated: 'Nouveau plan enregistré pour cette semaine.',
@@ -2781,7 +2789,14 @@ const STRINGS = {
     weeklyPlanTitle: '3 sessions that work together',
     weeklyPlanEmptyCopy: 'Plan once for the week: load is shared across 3 sessions, then the plan stays stable.',
     weeklyPlanActiveCopy: 'Frozen for this week · one full-body session at a time.',
+    weeklyPlanDetectedCopy: (count, days) => count === 1
+      ? `Your ${days} workout is already in history. Include it as session 1/3 and the next two will adapt to what you already trained.`
+      : `${count} workouts from this week are already in history (${days}). Include them and the plan will prepare only what remains.`,
     weeklyPlanPrepare: 'Prepare my week',
+    weeklyPlanAdoptOne: day => `Include ${day} and continue`,
+    weeklyPlanAdoptMany: count => `Include my ${count} workouts`,
+    weeklyPlanStartFresh: 'Prepare 3 new sessions',
+    weeklyPlanKeepFresh: 'Keep the 3 planned sessions',
     weeklyPlanLaunch: slot => `Start session ${slot}/3`,
     weeklyPlanComplete: 'Week complete ✓',
     weeklyPlanRegenerate: 'Rebuild plan',
@@ -2789,6 +2804,7 @@ const STRINGS = {
     weeklyPlanReady: 'Upcoming',
     weeklyPlanCurrent: 'Next',
     weeklyPlanDone: 'Complete',
+    weeklyPlanImported: day => `${day} · already done`,
     weeklyPlanFrozenHint: 'Weekly plan · this session stays saved as generated',
     weeklyPlanSnapshot: (min, level) => `${min} min · ${level} · last 10 days of training load`,
     weeklyPlanRegenerated: 'A new plan was saved for this week.',
@@ -4701,36 +4717,79 @@ function recentPatternPenalty(name, context = activeTrainingContext) {
   return normalizedLoad * 45;
 }
 
-const WEEKLY_PLAN_STORAGE_KEY = 'kb_weekly_plan_v1';
-const WEEKLY_PLAN_VERSION = 1;
+const WEEKLY_PLAN_STORAGE_KEY = 'kb_weekly_plan_v2';
+const LEGACY_WEEKLY_PLAN_STORAGE_KEY = 'kb_weekly_plan_v1';
+const WEEKLY_PLAN_VERSION = 2;
 
 function weeklyPlanWeekKey(now = new Date()) {
   return localDateKey(localWeekStart(now));
 }
 
+function normalizeWeeklyPlan(plan, now = new Date()) {
+  if (!plan || plan.weekStart !== weeklyPlanWeekKey(now)) return null;
+  if (!Array.isArray(plan.sessions) || plan.sessions.length !== 3) return null;
+  if (plan.version === WEEKLY_PLAN_VERSION) return plan;
+  if (plan.version !== 1) return null;
+  return {
+    ...plan,
+    version: WEEKLY_PLAN_VERSION,
+    sessions: plan.sessions.map(session => ({ ...session, source: 'planned' })),
+  };
+}
+
 function readWeeklyPlan(now = new Date()) {
   try {
-    const plan = JSON.parse(localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY) || 'null');
-    if (!plan || plan.version !== WEEKLY_PLAN_VERSION || plan.weekStart !== weeklyPlanWeekKey(now)) return null;
-    if (!Array.isArray(plan.sessions) || plan.sessions.length !== 3) return null;
-    return plan;
+    const current = normalizeWeeklyPlan(JSON.parse(localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY) || 'null'), now);
+    if (current) return current;
+    const legacy = normalizeWeeklyPlan(JSON.parse(localStorage.getItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY) || 'null'), now);
+    if (!legacy) return null;
+    localStorage.setItem(WEEKLY_PLAN_STORAGE_KEY, JSON.stringify(legacy));
+    localStorage.removeItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY);
+    return legacy;
   } catch { return null; }
 }
 
 function writeWeeklyPlan(plan) {
   localStorage.setItem(WEEKLY_PLAN_STORAGE_KEY, JSON.stringify(plan));
+  localStorage.removeItem(LEGACY_WEEKLY_PLAN_STORAGE_KEY);
   return plan;
 }
 
 function weeklyPlanCompletedSlots(plan, history = readHistory()) {
   const slots = new Set();
   if (!plan) return slots;
+  plan.sessions.forEach(session => {
+    if (session?.source === 'history') slots.add(Number(session.slot));
+  });
   history.forEach(session => {
     if (session?.weeklyPlanId === plan.id && Number.isInteger(Number(session.weeklyPlanSlot))) {
       slots.add(Number(session.weeklyPlanSlot));
     }
   });
   return slots;
+}
+
+function weeklyPlanEligibleHistorySessions(history = readHistory(), now = new Date()) {
+  return (Array.isArray(history) ? history : [])
+    .filter(session => session?.modeId !== 'bodyweight'
+      && !session?.weeklyPlanId
+      && Array.isArray(session?.exercises)
+      && session.exercises.length > 0
+      && isSessionInWeek(session, now))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
+}
+
+function weeklyPlanAdoptionCandidates(plan = readWeeklyPlan(), history = readHistory(), now = new Date()) {
+  if (plan && weeklyPlanCompletedSlots(plan, history).size > 0) return [];
+  if (plan?.historyAdoption === 'adopted' || plan?.historyAdoption === 'declined') return [];
+  return weeklyPlanEligibleHistorySessions(history, now);
+}
+
+function weeklyPlanHistoryDay(session) {
+  const date = new Date(session?.date);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long' }).format(date);
 }
 
 function weeklyPlanningContext(history = readHistory(), now = new Date()) {
@@ -4781,15 +4840,34 @@ function addPlannedSessionToContext(context, exercises, weight = 2.5) {
   return { ...context, loads, ranked, hasUsefulHistory: ranked.length > 0, maxLoad: ranked[0]?.[1] || 0 };
 }
 
-function createWeeklyPlan(now = new Date(), { force = false } = {}) {
+function createWeeklyPlan(now = new Date(), {
+  force = false,
+  adoptHistorySessions = [],
+  declineHistory = false,
+} = {}) {
   const existing = readWeeklyPlan(now);
   if (existing && !force) return existing;
   if (!selectedWeights().length || !CIRCUIT_CFG[selectedMin]?.[selectedLevel]) return null;
+  const eligibleKeys = new Set(weeklyPlanEligibleHistorySessions(readHistory(), now).map(session => session.id || `${session.date}|${session.modeId}`));
+  const importedSessions = (Array.isArray(adoptHistorySessions) ? adoptHistorySessions : [])
+    .filter(session => eligibleKeys.has(session.id || `${session.date}|${session.modeId}`))
+    .slice(0, 3);
   const previousLane = activeWeeklyLane;
   const previousContext = activeTrainingContext;
   let planningContext = weeklyPlanningContext(readHistory(), now);
   const cfg = CIRCUIT_CFG[selectedMin][selectedLevel];
   const sessions = WEEKLY_LANES.map((lane, index) => {
+    const imported = importedSessions[index];
+    if (imported) {
+      return {
+        slot: index + 1,
+        laneId: lane.id,
+        source: 'history',
+        historySessionId: imported.id || null,
+        completedAt: imported.date,
+        exercises: [...new Set(imported.exercises)],
+      };
+    }
     activeWeeklyLane = lane;
     activeTrainingContext = planningContext;
     const exercises = pickCircuitExercises(cfg.exCount, selectedLevel, new Set(['upper', 'lower', 'full', 'core']));
@@ -4797,6 +4875,7 @@ function createWeeklyPlan(now = new Date(), { force = false } = {}) {
     return {
       slot: index + 1,
       laneId: lane.id,
+      source: 'planned',
       exercises: exercises.map(exercise => exercise.name),
     };
   });
@@ -4813,8 +4892,16 @@ function createWeeklyPlan(now = new Date(), { force = false } = {}) {
     duration: selectedMin,
     level: selectedLevel,
     equipment: Object.fromEntries(Object.entries(equipmentInventory).filter(([, count]) => count > 0)),
+    historyAdoption: importedSessions.length ? 'adopted' : declineHistory ? 'declined' : 'not-needed',
     sessions,
   });
+}
+
+function declineWeeklyPlanHistoryAdoption(plan) {
+  if (!plan) return null;
+  plan.historyAdoption = 'declined';
+  plan.updatedAt = new Date().toISOString();
+  return writeWeeklyPlan(plan);
 }
 
 function updateWeeklyPlanSession(planId, slot, exercises) {
@@ -6704,13 +6791,18 @@ function renderWeeklyPlanCard() {
 
   const plan = readWeeklyPlan();
   const completed = weeklyPlanCompletedSlots(plan);
+  const adoptionCandidates = weeklyPlanAdoptionCandidates(plan);
+  const hasAdoptionOffer = adoptionCandidates.length > 0;
+  const adoptionDays = [...new Set(adoptionCandidates.map(weeklyPlanHistoryDay).filter(Boolean))].join(', ');
   const nextSession = plan?.sessions.find(session => !completed.has(session.slot)) || null;
   document.getElementById('weekly-plan-kicker').textContent = t('weeklyPlanKicker');
   document.getElementById('weekly-plan-title').textContent = t('weeklyPlanTitle');
   const planLevel = plan?.level === 'inter' ? t('intermediate') : t('beginner');
-  document.getElementById('weekly-plan-copy').textContent = plan
-    ? `${t('weeklyPlanActiveCopy')} ${t('weeklyPlanSnapshot')(plan.duration, planLevel)}`
-    : t('weeklyPlanEmptyCopy');
+  document.getElementById('weekly-plan-copy').textContent = hasAdoptionOffer
+    ? t('weeklyPlanDetectedCopy')(adoptionCandidates.length, adoptionDays)
+    : plan
+      ? `${t('weeklyPlanActiveCopy')} ${t('weeklyPlanSnapshot')(plan.duration, planLevel)}`
+      : t('weeklyPlanEmptyCopy');
 
   const progress = document.getElementById('weekly-plan-progress');
   progress.innerHTML = (plan?.sessions || WEEKLY_LANES.map((lane, index) => ({ slot: index + 1, laneId: lane.id })))
@@ -6719,20 +6811,31 @@ function renderWeeklyPlanCard() {
       const done = completed.has(session.slot);
       const current = !done && nextSession?.slot === session.slot;
       const state = done ? t('weeklyPlanDone') : current ? t('weeklyPlanCurrent') : t('weeklyPlanReady');
+      const detail = session.source === 'history'
+        ? t('weeklyPlanImported')(weeklyPlanHistoryDay({ date: session.completedAt }))
+        : `${lane ? t(lane.nameKey) : state}<br>${plan ? state : '·'}`;
       return `<div class="weekly-plan-slot${done ? ' done' : current ? ' current' : ''}" role="listitem" aria-label="${t('weeklyPlanSlotAria')(session.slot, state)}">
         <strong>${t('weeklyPlanSlot')(session.slot)}</strong>
-        ${lane ? t(lane.nameKey) : state}<br>${plan ? state : '·'}
+        ${detail}
       </div>`;
     }).join('');
 
   const action = document.getElementById('weekly-plan-action');
-  action.disabled = Boolean(plan && !nextSession);
-  action.textContent = !plan ? t('weeklyPlanPrepare') : nextSession ? t('weeklyPlanLaunch')(nextSession.slot) : t('weeklyPlanComplete');
+  action.disabled = Boolean(plan && !nextSession && !hasAdoptionOffer);
+  action.textContent = hasAdoptionOffer
+    ? adoptionCandidates.length === 1
+      ? t('weeklyPlanAdoptOne')(adoptionDays)
+      : t('weeklyPlanAdoptMany')(adoptionCandidates.length)
+    : !plan
+      ? t('weeklyPlanPrepare')
+      : nextSession ? t('weeklyPlanLaunch')(nextSession.slot) : t('weeklyPlanComplete');
   const regenerate = document.getElementById('weekly-plan-regenerate');
   // Once a planned session has been completed, keep the remaining week stable.
   // Rebuilding is available before the week starts, never as an accidental reset.
-  regenerate.hidden = !plan || completed.size > 0;
-  regenerate.textContent = t('weeklyPlanRegenerate');
+  regenerate.hidden = !hasAdoptionOffer && (!plan || completed.size > 0);
+  regenerate.textContent = hasAdoptionOffer
+    ? plan ? t('weeklyPlanKeepFresh') : t('weeklyPlanStartFresh')
+    : t('weeklyPlanRegenerate');
 }
 
 function syncSetupToWeeklyPlan(plan) {
@@ -6760,6 +6863,13 @@ function launchWeeklyPlanSession(plan, plannedSession) {
 
 document.getElementById('weekly-plan-action').addEventListener('click', () => {
   let plan = readWeeklyPlan();
+  const adoptionCandidates = weeklyPlanAdoptionCandidates(plan);
+  if (adoptionCandidates.length) {
+    plan = createWeeklyPlan(new Date(), { force: true, adoptHistorySessions: adoptionCandidates });
+    renderWeeklyPlanCard();
+    updatePreview();
+    return;
+  }
   if (!plan) {
     plan = createWeeklyPlan();
     renderWeeklyPlanCard();
@@ -6771,7 +6881,14 @@ document.getElementById('weekly-plan-action').addEventListener('click', () => {
 });
 
 document.getElementById('weekly-plan-regenerate').addEventListener('click', () => {
-  createWeeklyPlan(new Date(), { force: true });
+  const plan = readWeeklyPlan();
+  const adoptionCandidates = weeklyPlanAdoptionCandidates(plan);
+  if (adoptionCandidates.length) {
+    if (plan) declineWeeklyPlanHistoryAdoption(plan);
+    else createWeeklyPlan(new Date(), { force: true, declineHistory: true });
+  } else {
+    createWeeklyPlan(new Date(), { force: true });
+  }
   renderWeeklyPlanCard();
   updatePreview();
 });

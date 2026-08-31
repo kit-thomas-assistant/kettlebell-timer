@@ -19,7 +19,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Optional 5-minute finisher** : after a completed main workout, add two or three rounds of two-hand goblet curls, light overhead triceps extensions and halos. It is attached to the original history entry and never advances the weekly lane twice
 - **End-of-workout achievement** : skipping, completing or stopping the optional finisher opens a final recap with the real weekly 3-session progress, weekly streak, saved-session total and a six-week activity view. Ten sub-second celebration signatures rotate randomly, with reduced-motion support
 - **Fat-loss goal mode** : a structured 15 / 20 / 25 min plan combining preparation, kettlebell intervals, full-body strength and a core finisher; “Vary this session” changes the movement families while preserving phases, timing, side balance and available equipment
-- **Optional frozen weekly plan** : “Prepare my week” builds three complementary full-body Circuit sessions from the selected duration, level, equipment and the previous 7–10 days of movement load. The saved week advances 1/3 → 3/3 only when those planned sessions are completed, changes only through an explicit rebuild/variation action, and never replaces the zero-history free-session route
+- **Optional frozen weekly plan** : “Prepare my week” builds three complementary full-body Circuit sessions from the selected duration, level, equipment and the previous 7–10 days of movement load. If the week already started, the app offers to adopt up to three completed kettlebell sessions from the current week as finished slots, then generates only the complementary sessions still needed. The saved week advances 1/3 → 3/3, changes only through an explicit rebuild/variation action, and never replaces the zero-history free-session route
 - **Push-volume guardrails** : every generated Circuit allows at most one horizontal-push slot and two total horizontal/vertical push slots. Floor, incline, offset and close-grip push-ups plus High Plank Plus share the same support-position budget instead of masquerading as unrelated families
 - **Three complementary weekly biases** : Strength base, Hinge & power, then Mixed & unilateral keep every planned session full-body; the lane is a bias, not a body-part split
 - **Hard category filters** : disabling upper/lower/full body/core immediately removes that category
@@ -158,7 +158,7 @@ The rotation diagnostic checks the enlarged one-bell upper-body pools, horizonta
 node tests/weekly-plan-diagnostic.mjs
 ```
 
-The weekly-plan diagnostic checks the untouched zero-history quick start, versioned three-session persistence, explicit regeneration, planned-session completion linkage, next-session progress, repeated push-volume caps, bilingual copy, 44px controls and 320px containment.
+The weekly-plan diagnostic checks the untouched zero-history quick start, V1 → V2 migration, versioned three-session persistence, explicit regeneration, planned-session completion linkage, current-week history adoption or explicit rejection, next-session progress, repeated push-volume caps, bilingual copy, 44px controls and 320px containment.
 
 ```bash
 node tests/equipment-recipe-diagnostic.mjs
