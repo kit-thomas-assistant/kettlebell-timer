@@ -15,6 +15,7 @@ A minimal, offline-first kettlebell workout timer with animated exercise demonst
 - **Conservative load suggestions** : lighter available bells for overhead/technical work, heavier available bells for hinges, squats, rows and carries, with one optional “Use lighter weights” action
 - **Guided 20-minute recipe** : the David Nateli full-body sequence runs inside Circuit mode with automatic transitions, four ordered passes, rep targets as guidance and midpoint side-switch cues
 - **Guided sessions layer** : progressive disclosure keeps fixed recipes separate from random generation. Minimal 3 runs 10 total thrusters (5/side), 12 total rows (6/side), then 15 swings in that exact order, with a 60 / 90 / 120 / 180s round-rest choice and a 3–4 quality-round cue
+- **Guided hip-mobility utility** : a secondary homepage card launches seven fixed no-equipment movements from the saved mobility routine, with bespoke animated SVG demos, manual 1/7 progress and conservative range/pain cues. Completion stays separate from kettlebell history and never advances the weekly plan
 - **Real AMRAP runner** : Full-body Density uses a fixed six-movement checklist, 10 / 12 / 15 / 20-minute clock, manual exercise advancement, visible round counter, pause/resume and free rest
 - **Optional 5-minute finisher** : after a completed main workout, add two or three rounds of two-hand goblet curls, light overhead triceps extensions and halos. It is attached to the original history entry and never advances the weekly lane twice
 - **End-of-workout achievement** : skipping, completing or stopping the optional finisher opens a final recap with the real weekly 3-session progress, weekly streak, saved-session total and a six-week activity view. Ten sub-second celebration signatures rotate randomly, with reduced-motion support
@@ -177,6 +178,12 @@ node tests/guided-amrap-finisher-diagnostic.mjs
 ```
 
 The guided/AMRAP/finisher diagnostic checks the exact fixed recipes and rep targets, duration and rest choices, manual round advancement, pause and free-rest states, single-save completion, finisher history attachment and weekly-lane invariants, FR/EN copy, query-only demos, new exercise metadata/equipment filtering and 320px containment.
+
+```bash
+node tests/mobility-routine-diagnostic.mjs
+```
+
+The mobility diagnostic checks homepage hierarchy, the exact seven-movement sequence and targets, bespoke SVG/coaching coverage, manual 1/7 progression, persistent safety guidance, a history-neutral completion state, FR/EN copy, reduced-motion support, 44px controls and 320px containment.
 
 ```bash
 node tests/achievement-diagnostic.mjs

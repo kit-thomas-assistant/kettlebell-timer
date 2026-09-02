@@ -159,6 +159,8 @@
     width: 100%;
   }
   @media (max-width: 600px) {
+    .mobility-card { grid-template-columns: auto minmax(0,1fr); }
+    .mobility-cta { grid-column: 2; white-space: normal; }
     .mode-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 380px) {
@@ -228,6 +230,29 @@
   .guided-recipe.active { border-color: var(--rest); box-shadow: inset 3px 0 var(--rest); }
   .guided-recipe strong { display: block; font-size: 0.92rem; }
   .guided-recipe span { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.7rem; line-height: 1.35; }
+  .mobility-card {
+    width: 100%;
+    min-height: 86px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #3a4645;
+    border-radius: 1rem;
+    background:
+      linear-gradient(105deg, rgba(78,205,196,0.11), transparent 46%),
+      var(--surface);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .mobility-card:hover { border-color: var(--rest); }
+  .mobility-card:focus-visible { outline: 3px solid var(--rest); outline-offset: 3px; }
+  .mobility-icon { font-size: 1.65rem; }
+  .mobility-card strong { display: block; font-size: 0.98rem; }
+  .mobility-card small { display: block; margin-top: 0.28rem; color: var(--muted); font-size: 0.7rem; line-height: 1.35; }
+  .mobility-cta { color: var(--rest); font-size: 0.72rem; font-weight: 900; white-space: nowrap; }
   .rest-options { display: none; }
   .rest-options.visible { display: block; }
   .rest-btn {
@@ -897,6 +922,7 @@
   }
   .youtube-demo:hover { border-color: var(--accent); background: #39201b; }
   .youtube-demo:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .youtube-demo[hidden] { display: none; }
   .youtube-demo.has-thumbnail {
     position: relative;
     width: 150px;
@@ -1406,6 +1432,40 @@
       radial-gradient(circle at 50% -10%, rgba(255,107,53,0.17), transparent 36%),
       var(--bg);
   }
+  #sequence-runner.is-mobility {
+    background:
+      radial-gradient(circle at 50% -10%, rgba(78,205,196,0.14), transparent 38%),
+      var(--bg);
+  }
+  .is-mobility .seq-badge { background: var(--rest); }
+  .is-mobility .seq-clock { color: var(--rest); }
+  .is-mobility .seq-round { letter-spacing: 1.4px; }
+  .is-mobility .seq-controls { grid-template-columns: 52px minmax(0, 1fr); }
+  .mobility-quality-cue {
+    width: min(100%, 700px);
+    padding: 0.72rem 0.85rem;
+    border-left: 3px solid var(--rest);
+    border-radius: 0.3rem 0.7rem 0.7rem 0.3rem;
+    background: rgba(78,205,196,0.08);
+    color: #b9d6d3;
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+  #mobility-complete {
+    display: none;
+    width: 100vw;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: radial-gradient(circle at 50% 30%, rgba(78,205,196,0.15), transparent 40%), var(--bg);
+  }
+  .mobility-complete-card { width: min(100%, 520px); text-align: center; }
+  .mobility-complete-icon { font-size: 3.4rem; }
+  .mobility-complete-card h2 { margin-top: 0.8rem; font-size: clamp(1.8rem, 7vw, 2.8rem); }
+  .mobility-complete-card p { margin: 0.7rem auto 1.4rem; max-width: 38rem; color: var(--muted); line-height: 1.55; }
+  #mobility-complete-home { min-width: 180px; min-height: 52px; border: 0; border-radius: 0.85rem; background: var(--rest); color: #092724; font: inherit; font-weight: 900; cursor: pointer; }
+  #mobility-complete-home:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
   .seq-top { width: min(100%, 700px); text-align: center; }
   .seq-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 0.4rem; background: var(--rest); color: #092724; font-size: 0.68rem; font-weight: 900; letter-spacing: 1.4px; }
   .seq-clock { margin-top: 0.55rem; font-size: clamp(2.4rem, 10vw, 4.8rem); font-weight: 950; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -1872,6 +1932,7 @@
     .stats-box { max-height: 100%; padding: 1rem; border-radius: 1.2rem 1.2rem 0.75rem 0.75rem; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .stats-bar-row { grid-template-columns: minmax(5.8rem,1fr) minmax(4rem,1.4fr) auto; gap: 0.45rem; }
+    .is-mobility .seq-checklist { grid-template-columns: repeat(2, minmax(0,1fr)); }
   }
   @media (max-width: 380px) {
     .bodyweight-focus-grid { grid-template-columns: 1fr; }
@@ -1884,6 +1945,9 @@
     .consistency-footer { align-items: flex-start; }
     .guided-recipes { grid-template-columns: 1fr; }
     .seq-main { grid-template-columns: 92px minmax(0,1fr); }
+    .is-mobility .seq-checklist { grid-template-columns: 1fr; }
+    .is-mobility .seq-controls { grid-template-columns: 48px minmax(0,1fr); }
+    .is-mobility #seq-pause { display: none; }
     .seq-checklist { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .is-finisher .seq-checklist { grid-template-columns: repeat(3, minmax(0,1fr)); }
     .is-finisher .seq-item { flex-direction: column; gap: 0.25rem; }
@@ -1910,6 +1974,7 @@
     .seq-item, .finisher-offer { transition: none; }
     .achievement-fx { display: none; }
     .achievement-particle { animation: none !important; }
+    .mobility-motion { animation: none !important; }
   }
 
   @media (forced-colors: active) {
@@ -1999,6 +2064,10 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(12px); }
   }
+  @keyframes mobility-lunge { 0%,100% { transform: translateX(-8px); } 50% { transform: translateX(8px) translateY(7px); } }
+  @keyframes mobility-shift { 0%,100% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }
+  @keyframes mobility-hinge { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(13deg); } }
+  @keyframes mobility-switch { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
   @keyframes figure8-sway {
     0%, 100% { transform: translateX(-6px); }
     50% { transform: translateX(6px); }
@@ -2185,6 +2254,15 @@
       </button>
     </div>
   </details>
+
+  <button class="mobility-card" id="mobility-launch" type="button">
+    <span class="mobility-icon" aria-hidden="true">🧘</span>
+    <span>
+      <strong id="mobility-card-title">Mobilité hanches</strong>
+      <small id="mobility-card-meta">7 mouvements · 8–10 min · sans matériel</small>
+    </span>
+    <span class="mobility-cta" id="mobility-card-cta">Lancer la routine →</span>
+  </button>
 
   <div class="option-group equipment-panel" id="equipment-group">
     <label id="equipment-label">Mes kettlebells</label>
@@ -2398,12 +2476,22 @@
     </div>
   </div>
   <ol class="seq-checklist" id="seq-checklist" aria-label="Séquence des mouvements"></ol>
+  <div class="mobility-quality-cue" id="mobility-quality-cue" role="note" hidden></div>
   <div class="seq-controls">
     <button id="seq-stop" type="button" aria-label="Stop">✕</button>
     <button id="seq-pause" type="button">⏸ Pause</button>
     <button id="seq-next" type="button">Exercice suivant →</button>
   </div>
   <button id="seq-rest" class="rest-btn" type="button">Repos libre</button>
+</div>
+
+<div id="mobility-complete">
+  <section class="mobility-complete-card" aria-labelledby="mobility-complete-title">
+    <div class="mobility-complete-icon" aria-hidden="true">✓</div>
+    <h2 id="mobility-complete-title">Routine terminée</h2>
+    <p id="mobility-complete-copy">Sept mouvements faits avec contrôle. Cette routine n’est pas ajoutée à ton plan kettlebell.</p>
+    <button id="mobility-complete-home" type="button">Retour à l’accueil</button>
+  </section>
 </div>
 
 <!-- ──── CIRCUIT PREVIEW ──── -->
@@ -2497,6 +2585,17 @@ const STRINGS = {
     guidedSessions: 'Séances guidées',
     minimal3Desc: 'Thrusters → rows → swings · 3–4 tours propres',
     densityDesc: 'AMRAP full-body · 6 mouvements · rythme libre',
+    mobilityTitle: 'Mobilité hanches',
+    mobilityMeta: '7 mouvements · 8–10 min · sans matériel',
+    mobilityLaunch: 'Lancer la routine →',
+    mobilityName: 'Mobilité hanches',
+    mobilityProgress: (step, total) => `Mouvement ${step} sur ${total}`,
+    mobilityQualityCue: 'Privilégie une amplitude utile à la vitesse. Arrête si la fatigue réduit ton amplitude, ou en cas de douleur vive ou d’instabilité.',
+    mobilityNext: 'Mouvement suivant →',
+    mobilityFinish: 'Terminer la routine',
+    mobilityBack: 'Retour à l’accueil',
+    mobilityCompleteTitle: 'Routine terminée',
+    mobilityCompleteCopy: 'Sept mouvements faits avec contrôle. Cette routine n’est pas ajoutée à ton plan kettlebell.',
     roundRest: 'Repos entre les tours',
     duration: 'Durée',
     level: 'Niveau',
@@ -2764,6 +2863,17 @@ const STRINGS = {
     guidedSessions: 'Guided workouts',
     minimal3Desc: 'Thrusters → rows → swings · 3–4 quality rounds',
     densityDesc: 'Full-body AMRAP · 6 movements · self-paced',
+    mobilityTitle: 'Hip mobility',
+    mobilityMeta: '7 movements · 8–10 min · no equipment',
+    mobilityLaunch: 'Start the routine →',
+    mobilityName: 'Hip mobility',
+    mobilityProgress: (step, total) => `Movement ${step} of ${total}`,
+    mobilityQualityCue: 'Prioritize useful range over speed. Stop if fatigue reduces your range, or if you feel sharp pain or instability.',
+    mobilityNext: 'Next movement →',
+    mobilityFinish: 'Finish routine',
+    mobilityBack: 'Back to home',
+    mobilityCompleteTitle: 'Routine complete',
+    mobilityCompleteCopy: 'Seven movements completed with control. This routine was not added to your kettlebell plan.',
     roundRest: 'Rest between rounds',
     duration: 'Duration',
     level: 'Level',
@@ -3047,6 +3157,16 @@ const EX_NAME_EN = {
   'Dip sur chaise stable': 'Stable-Chair Dip',
 };
 
+Object.assign(EX_NAME_EN, {
+  'Fente avant dynamique': 'Dynamic forward lunge + knee drive',
+  'Mobilité latérale hanches/adducteurs': 'Lateral hip + adductor mobility',
+  'Squat profond mains au sol': 'Deep squat with hands on floor',
+  'Elephant Walk': 'Elephant walk',
+  'Transitions 90/90': '90/90 hip switches',
+  'Squat Cosaque assisté': 'Assisted Cossack squat',
+  'Squat cavalier': 'Horse squat',
+});
+
 // Exercise steps in English (keyed by French exercise name)
 const EX_STEPS_EN = {
   'Clean à deux mains': ['KB between your feet, both hands on the handle', 'Hinge with a long spine', 'Drive the hips and guide the KB to the chest', 'Keep it close, then lower with control'],
@@ -3141,6 +3261,16 @@ const EX_STEPS_EN = {
   'Dip sur chaise stable': ['Use one immovable chair against a wall, hands beside the hips', 'Keep the hips close and feet near enough to assist', 'Lower only through a comfortable shoulder range', 'Press up before the shoulders roll forward; stop for pinching'],
   '_rest': ['Breathe deeply', 'Shake your arms', 'Get ready for next'],
 };
+
+Object.assign(EX_STEPS_EN, {
+  'Fente avant dynamique': ['Step into a comfortable forward lunge', 'Keep the front knee tracking over the foot', 'Drive back up and bring the rear knee forward', 'Use a wall lightly if balance feels uncertain'],
+  'Mobilité latérale hanches/adducteurs': ['Take a wide stance and shift the hips to one side', 'Keep the other leg long and both feet grounded', 'Move only through a useful, controlled range', 'Complete the target, then change sides'],
+  'Squat profond mains au sol': ['Place both hands on the floor inside the feet', 'Lower the hips into a comfortable deep squat', 'Lift the hips without forcing the knees straight', 'Return to the squat slowly for each rep'],
+  'Elephant Walk': ['Start in a short downward-dog shape', 'Bend one knee while lengthening the other leg', 'Alternate sides without bouncing or forcing range', 'Keep the spine long and shoulders relaxed'],
+  'Transitions 90/90': ['Sit tall with both knees bent', 'Rotate both knees together from side to side', 'Keep the motion smooth and use your hands if needed', 'Count one controlled switch as one rep'],
+  'Squat Cosaque assisté': ['Hold a wall or solid support lightly', 'Shift toward one side as the other leg lengthens', 'Keep the working foot and knee aligned', 'Stay in a pain-free range, then change sides'],
+  'Squat cavalier': ['Take a wide stance with toes turned out slightly', 'Lower into a comfortable wide squat', 'Keep knees tracking over toes and torso tall', 'Stand with control; do not bounce at the bottom'],
+});
 
 // Exercise detail translations (FR -> EN)
 const EX_DETAIL_EN = {
@@ -3342,6 +3472,13 @@ function applyLangToUI() {
   document.getElementById('guided-summary').textContent = t('guidedSessions');
   document.querySelector('[data-guided="minimal-3"] span').textContent = t('minimal3Desc');
   document.querySelector('[data-guided="full-body-density"] span').textContent = t('densityDesc');
+  document.getElementById('mobility-card-title').textContent = t('mobilityTitle');
+  document.getElementById('mobility-card-meta').textContent = t('mobilityMeta');
+  document.getElementById('mobility-card-cta').textContent = t('mobilityLaunch');
+  document.getElementById('mobility-quality-cue').textContent = t('mobilityQualityCue');
+  document.getElementById('mobility-complete-title').textContent = t('mobilityCompleteTitle');
+  document.getElementById('mobility-complete-copy').textContent = t('mobilityCompleteCopy');
+  document.getElementById('mobility-complete-home').textContent = t('mobilityBack');
   document.getElementById('round-rest-label').textContent = t('roundRest');
   document.getElementById('equipment-label').textContent = t('equipment');
   renderEquipmentSelector();
@@ -3383,6 +3520,7 @@ function applyLangToUI() {
   document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
   document.getElementById('seq-next').textContent = runnerKind === 'finisher' ? t('finishFinisher') : t('nextExerciseButton');
   document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
+  if (document.getElementById('sequence-runner').style.display === 'flex') renderSequenceRunner();
 
   // History modal
   document.querySelector('.history-box h3').textContent = t('historyTitle');
@@ -4042,6 +4180,44 @@ const BODYWEIGHT_TRAVEL_EXERCISES = [
   },
 ];
 
+Object.assign(EX_DATA, {
+  'Fente avant dynamique': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:mobility-lunge 2.6s ease-in-out infinite"><circle cx="53" cy="17" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="53" y1="25" x2="53" y2="56" stroke="${B}" stroke-width="4" stroke-linecap="round"/><line x1="53" y1="36" x2="38" y2="49" stroke="${B}" stroke-width="3" stroke-linecap="round"/><line x1="53" y1="36" x2="70" y2="48" stroke="${B}" stroke-width="3" stroke-linecap="round"/><polyline points="53,56 78,67 93,87" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="53,56 38,72 25,87" fill="none" stroke="${K}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+    steps: ['Avance dans une fente confortable','Garde le genou avant dans l’axe du pied','Repousse le sol et monte le genou arrière','Effleure un mur si l’équilibre est incertain'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'per-side' },
+  },
+  'Mobilité latérale hanches/adducteurs': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:mobility-shift 2.8s ease-in-out infinite"><circle cx="60" cy="16" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="60" y1="24" x2="60" y2="55" stroke="${B}" stroke-width="4"/><line x1="60" y1="37" x2="42" y2="48" stroke="${B}" stroke-width="3"/><line x1="60" y1="37" x2="78" y2="48" stroke="${B}" stroke-width="3"/><polyline points="60,55 42,68 22,87" fill="none" stroke="${K}" stroke-width="4" stroke-linecap="round"/><polyline points="60,55 78,66 103,87" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round"/></g></svg>`,
+    steps: ['Prends une position large et décale les hanches','Garde l’autre jambe longue et les pieds au sol','Reste dans une amplitude utile, sans à-coup','Fais les reps puis change de côté'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'per-side' },
+  },
+  'Squat profond mains au sol': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:mobility-hinge 2.5s ease-in-out infinite;transform-origin:60px 68px"><circle cx="60" cy="24" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="60" y1="32" x2="60" y2="60" stroke="${B}" stroke-width="4"/><line x1="60" y1="43" x2="43" y2="82" stroke="${K}" stroke-width="3"/><line x1="60" y1="43" x2="77" y2="82" stroke="${K}" stroke-width="3"/><polyline points="60,60 40,69 28,87" fill="none" stroke="${B}" stroke-width="4"/><polyline points="60,60 80,69 92,87" fill="none" stroke="${B}" stroke-width="4"/></g></svg>`,
+    steps: ['Pose les deux mains au sol entre les pieds','Descends les hanches dans un squat confortable','Remonte les hanches sans forcer les genoux tendus','Reviens lentement dans le squat'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'bilateral' },
+  },
+  'Elephant Walk': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:mobility-switch 2.4s ease-in-out infinite;transform-origin:62px 58px"><circle cx="22" cy="62" r="7" fill="none" stroke="${B}" stroke-width="3"/><polyline points="29,61 61,38 85,61" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><line x1="34" y1="57" x2="23" y2="87" stroke="${B}" stroke-width="4"/><line x1="44" y1="51" x2="39" y2="87" stroke="${B}" stroke-width="4"/><polyline points="85,61 94,73 101,87" fill="none" stroke="${K}" stroke-width="4"/><polyline points="85,61 75,73 68,87" fill="none" stroke="${B}" stroke-width="4"/></g></svg>`,
+    steps: ['Pars en V inversé, mains proches des pieds','Plie un genou pendant que l’autre jambe s’allonge','Alterne sans rebondir ni forcer','Garde le dos long et les épaules relâchées'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'alternating' },
+  },
+  'Transitions 90/90': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="84" x2="112" y2="84" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:mobility-switch 2.8s ease-in-out infinite;transform-origin:60px 62px"><circle cx="60" cy="24" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="60" y1="32" x2="60" y2="62" stroke="${B}" stroke-width="4"/><line x1="60" y1="43" x2="42" y2="60" stroke="${B}" stroke-width="3"/><line x1="60" y1="43" x2="78" y2="60" stroke="${B}" stroke-width="3"/><polyline points="60,62 38,65 22,79" fill="none" stroke="${K}" stroke-width="4"/><polyline points="60,62 79,70 98,77" fill="none" stroke="${B}" stroke-width="4"/></g></svg>`,
+    steps: ['Assieds-toi grand, les deux genoux fléchis','Fais pivoter les deux genoux ensemble','Pose les mains si nécessaire pour rester fluide','Compte une bascule contrôlée par rep'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'alternating' },
+  },
+  'Squat Cosaque assisté': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="11" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><line x1="17" y1="12" x2="17" y2="88" stroke="${K}" stroke-width="3" opacity=".65"/><g class="mobility-motion" style="animation:mobility-shift 2.8s ease-in-out infinite"><circle cx="58" cy="21" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="58" y1="29" x2="58" y2="59" stroke="${B}" stroke-width="4"/><line x1="58" y1="40" x2="20" y2="41" stroke="${K}" stroke-width="3"/><line x1="58" y1="40" x2="74" y2="51" stroke="${B}" stroke-width="3"/><polyline points="58,59 39,69 31,87" fill="none" stroke="${B}" stroke-width="4"/><line x1="58" y1="59" x2="103" y2="87" stroke="${K}" stroke-width="4"/></g></svg>`,
+    steps: ['Tiens légèrement un mur ou support solide','Décale-toi d’un côté, l’autre jambe s’allonge','Garde le pied et le genou d’appui alignés','Reste sans douleur, puis change de côté'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'per-side', warning: 'Support solide uniquement. Arrête en cas de douleur vive ou de sensation d’instabilité.', warningEn: 'Use only a solid support. Stop for sharp pain or a feeling of instability.' },
+  },
+  'Squat cavalier': {
+    svg: `<svg viewBox="0 0 120 100" role="img"><line x1="8" y1="88" x2="112" y2="88" stroke="${K}" stroke-width="2" opacity=".35"/><g class="mobility-motion" style="animation:squat-down 2.6s ease-in-out infinite"><circle cx="60" cy="16" r="8" fill="none" stroke="${B}" stroke-width="3"/><line x1="60" y1="24" x2="60" y2="56" stroke="${B}" stroke-width="4"/><line x1="60" y1="37" x2="40" y2="44" stroke="${B}" stroke-width="3"/><line x1="60" y1="37" x2="80" y2="44" stroke="${B}" stroke-width="3"/><polyline points="60,56 35,66 23,87" fill="none" stroke="${B}" stroke-width="4"/><polyline points="60,56 85,66 97,87" fill="none" stroke="${B}" stroke-width="4"/><path d="M34 61 Q60 75 86 61" fill="none" stroke="${K}" stroke-width="2" stroke-dasharray="4 4"/></g></svg>`,
+    steps: ['Prends une position large, pointes légèrement ouvertes','Descends dans un squat large confortable','Garde genoux dans l’axe et buste haut','Remonte avec contrôle, sans rebond'],
+    meta: { equipment: 'Sans kettlebell', laterality: 'bilateral' },
+  },
+});
+
 for (const exercise of BODYWEIGHT_TRAVEL_EXERCISES) {
   const sourceVisual = exercise.visualFrom && EX_DATA[exercise.visualFrom];
   EX_DATA[exercise.name] = {
@@ -4414,6 +4590,21 @@ const GUIDED_RECIPES = {
       { name: 'Kettlebell Swing', detail: '15 reps', target: '15 swings', targetEn: '15 swings', reps: 15, group: 'full' },
     ],
   },
+};
+
+const MOBILITY_ROUTINE = {
+  id: 'hip-mobility-reel-dcv7t5kss4f',
+  nameKey: 'mobilityName',
+  kind: 'mobility',
+  exercises: [
+    { name: 'Fente avant dynamique', detail: '10 par côté', target: '10 par côté', targetEn: '10 per side', reps: 10, group: 'lower', laterality: 'per-side' },
+    { name: 'Mobilité latérale hanches/adducteurs', detail: '10 par côté', target: '10 par côté', targetEn: '10 per side', reps: 10, group: 'lower', laterality: 'per-side' },
+    { name: 'Squat profond mains au sol', detail: '10 reps', target: '10 reps', targetEn: '10 reps', reps: 10, group: 'lower' },
+    { name: 'Elephant Walk', detail: '10 par côté', target: '10 par côté', targetEn: '10 per side', reps: 10, group: 'lower', laterality: 'alternating' },
+    { name: 'Transitions 90/90', detail: '10 au total', target: '10 au total', targetEn: '10 total', reps: 10, group: 'lower', laterality: 'alternating' },
+    { name: 'Squat Cosaque assisté', detail: '10 par côté', target: '10 par côté', targetEn: '10 per side', reps: 10, group: 'lower', laterality: 'per-side' },
+    { name: 'Squat cavalier', detail: '10 reps contrôlées', target: '10 reps contrôlées', targetEn: '10 controlled reps', reps: 10, group: 'lower' },
+  ],
 };
 
 const AMRAP_PRESETS = {
@@ -6481,7 +6672,7 @@ function releaseWake() {
 //  SCREEN MANAGEMENT
 // ══════════════════════════════════════════════
 function showOnly(id) {
-  ['setup', 'preview-screen', 'workout', 'done', 'circuit-preview', 'sequence-runner'].forEach(s => {
+  ['setup', 'preview-screen', 'workout', 'done', 'circuit-preview', 'sequence-runner', 'mobility-complete'].forEach(s => {
     document.getElementById(s).style.display = 'none';
   });
   document.getElementById(id).style.display = 'flex';
@@ -6501,12 +6692,12 @@ function startSequenceRunner(kind, recipe) {
   runnerIndex = 0;
   runnerRound = 1;
   runnerRoundsCompleted = 0;
-  runnerSecondsLeft = (kind === 'finisher' ? ARMS_FINISHER.duration : selectedMin) * 60;
+  runnerSecondsLeft = kind === 'mobility' ? 0 : (kind === 'finisher' ? ARMS_FINISHER.duration : selectedMin) * 60;
   runnerPaused = false;
   runnerFreeRest = false;
   runnerRoundRestLeft = 0;
   runnerMaxRounds = kind === 'finisher' ? finisherRounds : null;
-  if (kind !== 'finisher') {
+  if (kind !== 'finisher' && kind !== 'mobility') {
     activeWeeklyLane = weeklyLaneForHistory();
     sessionSaved = false;
     activeSessionId = null;
@@ -6515,10 +6706,16 @@ function startSequenceRunner(kind, recipe) {
     sessionExercises = runnerExercises.map(exercise => exercise.name);
   }
   document.getElementById('sequence-runner').classList.toggle('is-finisher', kind === 'finisher');
+  document.getElementById('sequence-runner').classList.toggle('is-mobility', kind === 'mobility');
   document.getElementById('seq-rest').hidden = kind !== 'amrap';
+  document.getElementById('seq-pause').hidden = kind === 'mobility';
+  document.getElementById('mobility-quality-cue').hidden = kind !== 'mobility';
+  document.getElementById('seq-stop').textContent = kind === 'mobility' ? '←' : '✕';
+  document.getElementById('seq-stop').setAttribute('aria-label', kind === 'mobility' ? t('mobilityBack') : 'Stop');
   requestWake();
   showOnly('sequence-runner');
   renderSequenceRunner();
+  if (kind === 'mobility') return;
   timerInterval = setInterval(() => {
     if (runnerPaused) return;
     runnerSecondsLeft--;
@@ -6529,6 +6726,17 @@ function startSequenceRunner(kind, recipe) {
     }
     renderSequenceRunner();
   }, 1000);
+}
+
+function startMobilityRoutine() {
+  startSequenceRunner('mobility', MOBILITY_ROUTINE);
+}
+
+function completeMobilityRoutine() {
+  clearInterval(timerInterval);
+  releaseWake();
+  showOnly('mobility-complete');
+  requestAnimationFrame(() => document.getElementById('mobility-complete-home').focus());
 }
 
 function sequenceRoundRestDuration() {
@@ -6544,6 +6752,16 @@ function advanceSequence() {
     return;
   }
   runnerFreeRest = false;
+  if (runnerKind === 'mobility') {
+    if (runnerIndex >= runnerExercises.length - 1) {
+      completeMobilityRoutine();
+      return;
+    }
+    runnerIndex++;
+    beepStart();
+    renderSequenceRunner();
+    return;
+  }
   if (runnerIndex < runnerExercises.length - 1) {
     runnerIndex++;
   } else {
@@ -6564,13 +6782,19 @@ function renderSequenceRunner() {
   const resting = runnerRoundRestLeft > 0 || runnerFreeRest;
   const current = runnerExercises[runnerIndex] || runnerExercises[0];
   document.getElementById('seq-badge').textContent = runnerKind === 'finisher' ? t('armsFinisherName') : t(runnerRecipe.nameKey);
-  document.getElementById('seq-clock').textContent = formatClock(runnerSecondsLeft);
-  document.getElementById('seq-round').textContent = runnerKind === 'finisher'
+  document.getElementById('seq-clock').textContent = runnerKind === 'mobility'
+    ? `${runnerIndex + 1} / ${runnerExercises.length}`
+    : formatClock(runnerSecondsLeft);
+  document.getElementById('seq-round').textContent = runnerKind === 'mobility'
+    ? t('mobilityProgress')(runnerIndex + 1, runnerExercises.length)
+    : runnerKind === 'finisher'
     ? t('finisherRoundProgress')(runnerRound, runnerMaxRounds, runnerIndex + 1, runnerExercises.length)
     : `${currentLang === 'fr' ? 'TOUR' : 'ROUND'} ${runnerRound} · ${t('roundsCompleted')(runnerRoundsCompleted)}`;
   document.getElementById('seq-pause').textContent = runnerPaused ? t('resume') : t('pause');
-  document.getElementById('seq-next').textContent = runnerKind === 'finisher' && runnerIndex === runnerExercises.length - 1 && runnerRound === runnerMaxRounds
-    ? t('finishFinisher') : t('nextExerciseButton');
+  document.getElementById('seq-next').textContent = runnerKind === 'mobility'
+    ? (runnerIndex === runnerExercises.length - 1 ? t('mobilityFinish') : t('mobilityNext'))
+    : runnerKind === 'finisher' && runnerIndex === runnerExercises.length - 1 && runnerRound === runnerMaxRounds
+      ? t('finishFinisher') : t('nextExerciseButton');
   document.getElementById('seq-rest').textContent = runnerFreeRest ? t('resumeExercise') : t('freeRest');
 
   if (resting) {
@@ -6667,6 +6891,11 @@ document.getElementById('seq-stop').addEventListener('click', () => {
   } else {
     showOnly('setup');
   }
+});
+document.getElementById('mobility-launch').addEventListener('click', startMobilityRoutine);
+document.getElementById('mobility-complete-home').addEventListener('click', () => {
+  showOnly('setup');
+  requestAnimationFrame(() => document.getElementById('mobility-launch').focus());
 });
 
 // ══════════════════════════════════════════════
